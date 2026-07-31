@@ -1,0 +1,36 @@
+<!doctype html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="api-base-url" content="" />
+    <title>PAI — Enviar prova</title>
+  </head>
+  <body>
+    <main>
+      <h1>Enviar prova em PDF</h1>
+      <p>Selecione uma prova em PDF para convertê-la em uma avaliação acessível.</p>
+
+      <form id="uploadForm" novalidate>
+        <div>
+          <label for="pdfInput">Arquivo da prova (PDF)</label>
+          <input
+            type="file"
+            id="pdfInput"
+            name="arquivo"
+            accept="application/pdf"
+            required
+            aria-describedby="pdfHelp"
+          />
+          <p id="pdfHelp">Envie somente um arquivo PDF de até 15 MB.</p>
+        </div>
+
+        <button id="submitButton" type="submit">Enviar PDF</button>
+      </form>
+
+      <p id="statusMessage" role="status" aria-live="polite"></p>
+    </main>
+
+    <script src="app.js" defer></script>
+  </body>
+</html>

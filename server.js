@@ -1,4 +1,5 @@
 const express = require('express');
+const cors = require('cors');
 const multer = require('multer');
 const pdfParse = require('pdf-parse');
 
@@ -14,6 +15,7 @@ const upload = multer({
 
 const app = express();
 app.disable('x-powered-by');
+app.use(cors());
 app.use(express.json({ limit: '1mb' }));
 
 function normalizeText(value) {
@@ -89,7 +91,9 @@ async function uploadPdf(request, response, next) {
     }
 
     const questions = parseQuestions(extractedText);
-    return response.status(201).json({
+    return response.status(200).json({
+      status: 'sucesso',
+      message: 'PDF recebido e processado com sucesso.',
       titulo: normalizeText(request.body.titulo) || fileNameWithoutExtension(request.file.originalname),
       descricao: normalizeText(request.body.descricao) || null,
       versao: '1.0',
@@ -108,6 +112,13 @@ async function uploadPdf(request, response, next) {
     return next(error);
   }
 }
+
+app.get('/', (_request, response) => {
+  response.status(200).json({
+    status: 'online',
+    message: 'API da PAI rodando perfeitamente.'
+  });
+});
 
 app.get('/api/health', (_request, response) => response.status(200).json({ status: 'ok' }));
 app.post('/api/upload-pdf', upload.single('arquivo'), uploadPdf);
