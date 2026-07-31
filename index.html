@@ -5,9 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Sistema de acessibilidade para Provas</title>
     <style>
-      * {
-        box-sizing: border-box;
-      }
+      * { box-sizing: border-box; }
 
       body {
         min-height: 100vh;
@@ -32,18 +30,19 @@
         text-align: center;
       }
 
+      h2 { margin-top: 0; color: #0b4f6c; }
+
       .card {
-        width: min(100%, 520px);
+        width: min(100%, 760px);
         padding: 2rem;
         border-radius: 20px;
         background: #ffffff;
         box-shadow: 0 12px 30px rgba(11, 79, 108, 0.18);
       }
 
-      form {
-        display: grid;
-        gap: 1.25rem;
-      }
+      #cardUpload { max-width: 520px; }
+
+      form { display: grid; gap: 1.25rem; }
 
       label {
         color: #163f4b;
@@ -87,33 +86,25 @@
         transition: background-color 0.2s ease, transform 0.2s ease;
       }
 
-      button:hover {
-        background: #05636d;
-        transform: translateY(-2px);
-      }
+      button:hover { background: #05636d; transform: translateY(-2px); }
+      button:focus-visible, input[type="file"]:focus-visible { outline: 3px solid #f59e0b; outline-offset: 3px; }
+      button:disabled { cursor: wait; opacity: 0.7; }
 
-      button:focus-visible,
-      input[type="file"]:focus-visible {
-        outline: 3px solid #f59e0b;
-        outline-offset: 3px;
-      }
+      #mensagem { min-height: 1.25rem; margin: 0; font-weight: 700; }
 
-      button:disabled {
-        cursor: wait;
-        opacity: 0.7;
-      }
+      #areaProva { max-height: 70vh; overflow-y: auto; }
 
-      #mensagem {
-        min-height: 1.25rem;
-        margin: 0;
-        font-weight: 700;
+      #textoProva p {
+        margin: 0 0 1rem;
+        line-height: 1.6;
+        white-space: pre-wrap;
       }
     </style>
   </head>
   <body>
     <h1>Sistema de acessibilidade para Provas</h1>
 
-    <main class="card">
+    <main id="cardUpload" class="card">
       <form id="formProva">
         <label for="pdfInput">Anexe o arquivo da prova</label>
         <input type="file" id="pdfInput" accept="application/pdf" required />
@@ -122,16 +113,37 @@
       </form>
     </main>
 
+    <section id="areaProva" class="card" style="display: none;" aria-live="polite">
+      <h2>Texto extraído da prova</h2>
+      <div id="textoProva"></div>
+      <button id="novoUpload" type="button">Voltar/Novo Upload</button>
+    </section>
+
     <script>
       const formProva = document.querySelector('#formProva');
       const pdfInput = document.querySelector('#pdfInput');
       const mensagem = document.querySelector('#mensagem');
       const botao = formProva.querySelector('button');
+      const cardUpload = document.querySelector('#cardUpload');
+      const areaProva = document.querySelector('#areaProva');
+      const textoProva = document.querySelector('#textoProva');
+      const novoUpload = document.querySelector('#novoUpload');
+
+      function exibirTextoDaProva(texto) {
+        textoProva.replaceChildren();
+        const paragrafos = String(texto).split(/\n{2,}/).filter((paragrafo) => paragrafo.trim());
+
+        for (const paragrafo of paragrafos) {
+          const elemento = document.createElement('p');
+          elemento.textContent = paragrafo.trim();
+          textoProva.appendChild(elemento);
+        }
+      }
 
       formProva.addEventListener('submit', async (e) => {
         e.preventDefault();
-
         const arquivo = pdfInput.files[0];
+
         if (!arquivo) {
           mensagem.textContent = 'Selecione um arquivo PDF para continuar.';
           return;
@@ -140,25 +152,24 @@
         const formData = new FormData();
         formData.append('arquivo', arquivo);
         botao.disabled = true;
-        mensagem.textContent = 'Enviando prova...';
+        mensagem.textContent = 'Enviando e extraindo o texto da prova...';
 
         try {
-          const resposta = await fetch('/api/upload-pdf', {
-            method: 'POST',
-            body: formData
-          });
-
+          const resposta = await fetch('/api/upload-pdf', { method: 'POST', body: formData });
           const dados = await resposta.json();
-          if (!resposta.ok) throw new Error(dados.erro || 'Não foi possível processar a prova.');
+          if (!resposta.ok) throw new Error(dados.detalhes || dados.erro || 'Não foi possível processar a prova.');
 
-          mensagem.textContent = dados.message || 'Prova enviada com sucesso.';
-          formProva.reset();
+          exibirTextoDaProva(dados.textoProva);
+          cardUpload.style.display = 'none';
+          areaProva.style.display = 'block';
         } catch (erro) {
           mensagem.textContent = erro.message || 'Ocorreu um erro ao enviar a prova.';
         } finally {
           botao.disabled = false;
         }
       });
+
+      novoUpload.addEventListener('click', () => window.location.reload());
     </script>
   </body>
 </html>

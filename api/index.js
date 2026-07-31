@@ -83,16 +83,27 @@ async function uploadPdf(request, response, next) {
       return response.status(400).json({ erro: 'O arquivo enviado está vazio ou não pôde ser lido em memória.' });
     }
 
-    const parsedPdf = await pdfParse(request.file.buffer);
-    const extractedText = normalizeText(parsedPdf.text);
-    if (!extractedText) {
+    let parsedPdf;
+    try {
+      parsedPdf = await pdfParse(request.file.buffer);
+    } catch (pdfError) {
+      console.error('Falha ao extrair texto do PDF:', pdfError);
+      return response.status(500).json({
+        erro: 'Falha ao ler o conteúdo do PDF.',
+        detalhes: pdfError.message
+      });
+    }
+
+    const textoProva = String(parsedPdf.text || '').trim();
+    if (!textoProva) {
       return response.status(422).json({ erro: 'Não foi possível extrair texto do PDF. Verifique se o documento não é uma imagem digitalizada.' });
     }
 
-    const questions = parseQuestions(extractedText);
+    const questions = parseQuestions(textoProva);
     return response.status(200).json({
       status: 'sucesso',
       message: 'PDF recebido e processado com sucesso.',
+      textoProva,
       titulo: normalizeText(request.body.titulo) || fileNameWithoutExtension(request.file.originalname),
       descricao: normalizeText(request.body.descricao) || null,
       versao: '1.0',
