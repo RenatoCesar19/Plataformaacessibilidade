@@ -11,114 +11,72 @@
         --azul-medio: #087f8c;
         --texto: #12343b;
         --branco: #ffffff;
-        --erro: #a61b1b;
-        --sombra: 0 12px 30px rgba(11, 79, 108, 0.18);
+        --sombra: 0 10px 30px rgba(0, 0, 0, 0.08);
+        --sombra-botao: 0 8px 18px rgba(8, 127, 140, 0.22);
       }
 
       * { box-sizing: border-box; }
-
       body {
         min-height: 100vh;
         margin: 0;
-        background: var(--azul-bebe);
+        background: linear-gradient(135deg, #d4f1f4 0%, #e8f9fb 52%, #c9edf2 100%);
         color: var(--texto);
         font-family: Arial, Helvetica, sans-serif;
       }
-
       button, input, select { font: inherit; }
-
       button {
         min-height: 48px;
         border: 0;
-        border-radius: 10px;
+        border-radius: 12px;
         padding: 0.8rem 1.1rem;
         background: var(--azul-medio);
+        box-shadow: var(--sombra-botao);
         color: var(--branco);
         cursor: pointer;
         font-weight: 700;
+        transition: all 0.3s ease;
       }
-
-      button:hover { background: var(--azul-escuro); }
-      button:focus-visible, input:focus-visible, select:focus-visible {
-        outline: 4px solid #f59e0b;
-        outline-offset: 3px;
-      }
-
-      .tela {
-        min-height: 100vh;
-        padding: 2rem;
-      }
-
-      .centralizada {
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        justify-content: center;
-        gap: 1.5rem;
-        text-align: center;
-      }
-
-      .titulo-principal {
-        max-width: 780px;
-        margin: 0;
-        color: var(--azul-escuro);
-        font-size: clamp(2rem, 5vw, 3.5rem);
-      }
-
-      .card {
-        width: min(100%, 620px);
-        padding: 2rem;
-        border-radius: 20px;
-        background: var(--branco);
-        box-shadow: var(--sombra);
-        text-align: left;
-      }
-
+      button:hover { background: var(--azul-escuro); box-shadow: 0 12px 24px rgba(7, 85, 116, 0.3); transform: translateY(-2px); }
+      button:active { transform: translateY(0); }
+      button:focus-visible, input:focus-visible, select:focus-visible { outline: none; box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.5); }
+      .tela { min-height: 100vh; padding: 2rem; }
+      .animar-entrada { animation: entrada-suave 0.38s ease-out both; }
+      .centralizada { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 1.5rem; text-align: center; }
+      .titulo-principal { max-width: 780px; margin: 0; color: var(--azul-escuro); font-size: clamp(2rem, 5vw, 3.5rem); }
+      .card { width: min(100%, 680px); padding: 2rem; border: 1px solid rgba(255, 255, 255, 0.75); border-radius: 16px; background: var(--branco); box-shadow: var(--sombra); text-align: left; }
       .acoes-perfil { display: grid; gap: 1rem; width: min(100%, 400px); }
       .botao-grande { min-height: 64px; font-size: 1.2rem; }
-
-      form { display: grid; gap: 1.1rem; }
+      form { display: grid; gap: 1rem; }
       label { display: grid; gap: 0.45rem; font-weight: 700; }
-
       input[type="text"], input[type="password"], input[type="file"], select {
         width: 100%;
         min-height: 46px;
-        border: 2px solid #78bbc7;
-        border-radius: 9px;
+        border: 1px solid #e5e7eb;
+        border-radius: 10px;
         padding: 0.65rem;
-        background: #f8feff;
+        background: #f9fafb;
         color: var(--texto);
+        transition: border-color 0.3s ease, box-shadow 0.3s ease, background-color 0.3s ease;
       }
-
-      .dashboard {
-        width: min(1200px, 100%);
-        margin: 0 auto;
-      }
-
-      .cabecalho-dashboard {
-        display: flex;
-        align-items: center;
-        justify-content: space-between;
-        gap: 1rem;
-        margin-bottom: 1.5rem;
-      }
-
+      input[type="text"]:focus, input[type="password"]:focus, input[type="file"]:focus, select:focus { border-color: #3b82f6; background: #ffffff; }
+      .link-botao { min-height: auto; padding: 0; border: 0; background: transparent; color: var(--azul-escuro); text-decoration: underline; }
+      .link-botao:hover { background: transparent; color: #032f42; }
+      .dashboard { width: min(1200px, 100%); margin: 0 auto; }
+      .cabecalho-dashboard { display: flex; align-items: center; justify-content: space-between; gap: 1rem; margin-bottom: 1.5rem; }
       .cabecalho-dashboard h1 { margin: 0; color: var(--azul-escuro); }
       .layout-dashboard { display: grid; grid-template-columns: 230px 1fr; gap: 1.5rem; }
       .menu { display: grid; align-content: start; gap: 0.7rem; }
       .menu button { text-align: left; }
       .conteudo { min-height: 420px; }
       .conteudo h2 { margin-top: 0; color: var(--azul-escuro); }
-
       .tabela { width: 100%; border-collapse: collapse; }
       .tabela th, .tabela td { padding: 0.8rem; border-bottom: 1px solid #b9dde2; text-align: left; }
       .tabela th { background: #e9fbfd; }
-
       .lista-provas { display: grid; gap: 1rem; }
-      .item-prova { display: flex; align-items: center; justify-content: space-between; gap: 1rem; padding: 1rem; border: 2px solid #b9dde2; border-radius: 12px; }
-      .item-prova h3 { margin: 0 0 0.4rem; }
-      .item-prova p { margin: 0; }
-
+      .item-prova { display: flex; align-items: center; justify-content: space-between; gap: 1rem; padding: 1rem; border: 1px solid #dbe8eb; border-radius: 16px; background: #ffffff; box-shadow: 0 6px 18px rgba(0, 0, 0, 0.05); transition: transform 0.3s ease, box-shadow 0.3s ease; }
+      .item-prova:hover { box-shadow: var(--sombra); transform: translateY(-2px); }
+      .item-prova h3, .item-prova p { margin: 0; }
+      .item-prova p { margin-top: 0.4rem; }
       .adaptacoes { display: grid; gap: 0.65rem; }
       .adaptacoes label { display: flex; align-items: center; gap: 0.6rem; font-weight: 400; }
       .adaptacoes input { width: 20px; height: 20px; }
@@ -126,6 +84,28 @@
       .vazio { padding: 1rem; border-radius: 10px; background: #e9fbfd; }
       .oculto { display: none !important; }
 
+      @keyframes entrada-suave {
+        from { opacity: 0; transform: translateY(14px); }
+        to { opacity: 1; transform: translateY(0); }
+      }
+
+      /* Acessibilidade: o alto contraste elimina efeitos decorativos e reforça bordas. */
+      .alto-contraste { background: #000000; color: #ffffff; }
+      .alto-contraste .card, .alto-contraste .item-prova, .alto-contraste .vazio {
+        border: 3px solid #ffffff;
+        box-shadow: none;
+        background: #000000;
+        color: #ffffff;
+      }
+      .alto-contraste h1, .alto-contraste h2, .alto-contraste h3, .alto-contraste p, .alto-contraste label, .alto-contraste legend, .alto-contraste td, .alto-contraste th { color: #ffffff; }
+      .alto-contraste input, .alto-contraste select { border: 3px solid #ffffff; background: #000000; color: #ffffff; box-shadow: none; }
+      .alto-contraste button { border: 3px solid #ffffff; background: #000000; box-shadow: none; color: #ffffff; }
+      .alto-contraste button:hover, .alto-contraste .item-prova:hover { box-shadow: none; transform: none; background: #ffffff; color: #000000; }
+      .fonte-ampliada { font-size: 1.2em; }
+
+      @media (prefers-reduced-motion: reduce) {
+        *, *::before, *::after { animation-duration: 0.01ms !important; transition-duration: 0.01ms !important; scroll-behavior: auto !important; }
+      }
       @media (max-width: 720px) {
         .tela { padding: 1rem; }
         .cabecalho-dashboard, .item-prova { align-items: stretch; flex-direction: column; }
@@ -136,7 +116,7 @@
     </style>
   </head>
   <body>
-    <!-- Tela 1: escolha do perfil -->
+    <!-- Tela 1: seleção do perfil -->
     <section id="telaPerfil" class="tela centralizada">
       <h1 class="titulo-principal">Sistema de acessibilidade para Provas</h1>
       <p>Escolha como deseja acessar a plataforma.</p>
@@ -146,7 +126,7 @@
       </div>
     </section>
 
-    <!-- Tela 2: login compartilhado pelos dois perfis -->
+    <!-- Tela 2: login dinâmico -->
     <section id="telaLogin" class="tela centralizada oculto">
       <div class="card">
         <h1 id="tituloLogin">Login</h1>
@@ -154,7 +134,23 @@
           <label>Usuário <input id="usuarioLogin" type="text" autocomplete="username" required /></label>
           <label>Senha <input id="senhaLogin" type="password" autocomplete="current-password" required /></label>
           <button type="submit">Entrar</button>
+          <button id="cadastroAluno" class="link-botao oculto" type="button">Primeiro acesso? Cadastre-se aqui</button>
           <button id="voltarPerfil" type="button">Voltar</button>
+        </form>
+      </div>
+    </section>
+
+    <!-- Tela de cadastro do aluno -->
+    <section id="telaCadastro" class="tela centralizada oculto">
+      <div class="card">
+        <h1>Cadastro de Aluno</h1>
+        <form id="formCadastro">
+          <label>Nome Completo <input id="nomeCadastro" type="text" autocomplete="name" required /></label>
+          <label>Nome de Usuário <input id="loginCadastro" type="text" autocomplete="username" required /></label>
+          <label>Senha <input id="senhaCadastro" type="password" autocomplete="new-password" required /></label>
+          <label>Confirmação de Senha <input id="confirmacaoCadastro" type="password" autocomplete="new-password" required /></label>
+          <button type="submit">Criar Conta</button>
+          <button id="voltarLogin" type="button">Voltar para o Login</button>
         </form>
       </div>
     </section>
@@ -163,10 +159,7 @@
     <section id="telaProfessor" class="tela oculto">
       <div class="dashboard">
         <header class="cabecalho-dashboard">
-          <div>
-            <h1>Área do Professor</h1>
-            <p>Olá, Renato. Gerencie e atribua avaliações.</p>
-          </div>
+          <div><h1>Área do Professor</h1><p>Olá, Renato. Gerencie e atribua avaliações.</p></div>
           <button class="sair" type="button">Sair</button>
         </header>
         <div class="layout-dashboard">
@@ -175,19 +168,12 @@
             <button type="button" data-aba="cadastro">Cadastrar Nova Prova</button>
           </nav>
           <main class="conteudo">
-            <section id="abaLista" class="card">
-              <h2>Provas Cadastradas</h2>
-              <div id="tabelaProvas"></div>
-            </section>
+            <section id="abaLista" class="card"><h2>Provas Cadastradas</h2><div id="tabelaProvas"></div></section>
             <section id="abaCadastro" class="card oculto">
               <h2>Cadastrar Nova Prova</h2>
               <form id="formNovaProva">
-                <label>Anexe o arquivo da prova
-                  <input id="arquivoProva" type="file" accept="application/pdf" required />
-                </label>
-                <label>Aluno alvo
-                  <select id="alunoAlvo" required></select>
-                </label>
+                <label>Anexe o arquivo da prova <input id="arquivoProva" type="file" accept="application/pdf" required /></label>
+                <label>Aluno alvo <select id="alunoAlvo" required></select></label>
                 <fieldset class="adaptacoes">
                   <legend>Adaptações necessárias</legend>
                   <label><input type="checkbox" name="adaptacao" value="Fonte Ampliada" /> Fonte Ampliada</label>
@@ -207,169 +193,174 @@
     <section id="telaAluno" class="tela oculto">
       <div class="dashboard">
         <header class="cabecalho-dashboard">
-          <div>
-            <h1>Olá, Renato!</h1>
-            <p>Estas são as provas atribuídas a você.</p>
-          </div>
+          <div><h1 id="tituloAluno">Olá!</h1><p>Estas são as provas atribuídas a você.</p></div>
           <button class="sair" type="button">Sair</button>
         </header>
-        <main class="card">
-          <h2>Minhas Provas</h2>
-          <div id="provasAluno" class="lista-provas"></div>
-        </main>
+        <main class="card"><h2>Minhas Provas</h2><div id="provasAluno" class="lista-provas"></div></main>
       </div>
     </section>
 
     <script>
-      // Banco de dados temporário usado somente neste protótipo.
-      const alunos = [
-        { id: 1, nome: 'Renato' },
-        { id: 2, nome: 'Ana Souza' },
-        { id: 3, nome: 'Carlos Lima' }
-      ];
-
-      const provas = [
-        {
-          id: 1,
-          titulo: 'Avaliação de Ciências',
-          alunoId: 1,
-          adaptacoes: ['Fonte Ampliada', 'Alto Contraste']
-        }
-      ];
+      // Mock de dados em memória: recarregar a página apaga cadastros e provas criadas.
+      const mockProfessores = [{ login: 'Renato', senha: '1234' }];
+      const mockAlunos = [];
+      const mockProvas = [];
 
       let perfilSelecionado = '';
+      let alunoLogado = null;
       const telas = document.querySelectorAll('.tela');
 
       function mostrarTela(idTela) {
         telas.forEach((tela) => tela.classList.add('oculto'));
-        document.querySelector(idTela).classList.remove('oculto');
+        const telaAtiva = document.querySelector(idTela);
+        telaAtiva.classList.remove('oculto', 'animar-entrada');
+        void telaAtiva.offsetWidth;
+        telaAtiva.classList.add('animar-entrada');
       }
 
-      function obterAluno(id) {
-        return alunos.find((aluno) => aluno.id === Number(id));
+      function escaparHtml(valor) {
+        const elemento = document.createElement('div');
+        elemento.textContent = String(valor);
+        return elemento.innerHTML;
+      }
+
+      function obterAluno(login) {
+        return mockAlunos.find((aluno) => aluno.login === login);
+      }
+
+      function preencherSelectAlunos() {
+        const select = document.querySelector('#alunoAlvo');
+        if (!mockAlunos.length) {
+          select.innerHTML = '<option value="">Cadastre um aluno antes de atribuir provas</option>';
+          select.disabled = true;
+          return;
+        }
+        select.disabled = false;
+        select.innerHTML = mockAlunos.map((aluno) => `<option value="${escaparHtml(aluno.login)}">${escaparHtml(aluno.nome)}</option>`).join('');
       }
 
       function renderizarTabelaProvas() {
         const destino = document.querySelector('#tabelaProvas');
-        if (!provas.length) {
+        if (!mockProvas.length) {
           destino.innerHTML = '<p class="vazio">Nenhuma prova cadastrada.</p>';
           return;
         }
-
-        destino.innerHTML = `
-          <table class="tabela">
-            <thead><tr><th>Prova</th><th>Aluno</th><th>Adaptações</th></tr></thead>
-            <tbody>
-              ${provas.map((prova) => `
-                <tr>
-                  <td>${prova.titulo}</td>
-                  <td>${obterAluno(prova.alunoId).nome}</td>
-                  <td>${prova.adaptacoes.length ? prova.adaptacoes.join(', ') : 'Nenhuma'}</td>
-                </tr>
-              `).join('')}
-            </tbody>
-          </table>
-        `;
-      }
-
-      function preencherSelectAlunos() {
-        document.querySelector('#alunoAlvo').innerHTML = alunos
-          .map((aluno) => `<option value="${aluno.id}">${aluno.nome}</option>`)
-          .join('');
+        destino.innerHTML = `<table class="tabela"><thead><tr><th>Prova</th><th>Aluno</th><th>Adaptações</th></tr></thead><tbody>${mockProvas.map((prova) => {
+          const aluno = obterAluno(prova.alunoLogin);
+          return `<tr><td>${escaparHtml(prova.titulo)}</td><td>${escaparHtml(aluno ? aluno.nome : 'Aluno removido')}</td><td>${escaparHtml(prova.adaptacoes.length ? prova.adaptacoes.join(', ') : 'Nenhuma')}</td></tr>`;
+        }).join('')}</tbody></table>`;
       }
 
       function renderizarProvasDoAluno() {
         const destino = document.querySelector('#provasAluno');
-        const provasRenato = provas.filter((prova) => prova.alunoId === 1);
-        if (!provasRenato.length) {
+        const provasDoAluno = mockProvas.filter((prova) => prova.alunoLogin === alunoLogado.login);
+        if (!provasDoAluno.length) {
           destino.innerHTML = '<p class="vazio">Você não possui provas atribuídas no momento.</p>';
           return;
         }
-
-        destino.innerHTML = provasRenato.map((prova) => `
-          <article class="item-prova">
-            <div>
-              <h3>${prova.titulo}</h3>
-              <p>Adaptações: ${prova.adaptacoes.length ? prova.adaptacoes.join(', ') : 'Nenhuma'}</p>
-            </div>
-            <button type="button" data-iniciar="${prova.id}">Iniciar Prova</button>
-          </article>
-        `).join('');
-
-        destino.querySelectorAll('[data-iniciar]').forEach((botao) => {
-          botao.addEventListener('click', () => alert('Prova iniciada! Este é um protótipo de navegação.'));
-        });
+        destino.innerHTML = provasDoAluno.map((prova) => `<article class="item-prova"><div><h3>${escaparHtml(prova.titulo)}</h3><p>Adaptações: ${escaparHtml(prova.adaptacoes.length ? prova.adaptacoes.join(', ') : 'Nenhuma')}</p></div><button type="button" data-iniciar="${prova.id}">Iniciar Prova</button></article>`).join('');
+        destino.querySelectorAll('[data-iniciar]').forEach((botao) => botao.addEventListener('click', () => alert('Prova iniciada! Este é um protótipo de navegação.')));
       }
 
       function mostrarAbaProfessor(aba) {
         document.querySelector('#abaLista').classList.toggle('oculto', aba !== 'lista');
         document.querySelector('#abaCadastro').classList.toggle('oculto', aba !== 'cadastro');
+        preencherSelectAlunos();
         if (aba === 'lista') renderizarTabelaProvas();
       }
 
-      // Seleção de perfil e login com credenciais de teste.
+      // Seleção de perfil e login.
       document.querySelectorAll('[data-perfil]').forEach((botao) => {
         botao.addEventListener('click', () => {
           perfilSelecionado = botao.dataset.perfil;
           document.querySelector('#tituloLogin').textContent = `Login do ${perfilSelecionado === 'professor' ? 'Professor' : 'Aluno'}`;
+          document.querySelector('#cadastroAluno').classList.toggle('oculto', perfilSelecionado !== 'aluno');
           mostrarTela('#telaLogin');
-          document.querySelector('#usuarioLogin').focus();
         });
       });
 
       document.querySelector('#voltarPerfil').addEventListener('click', () => mostrarTela('#telaPerfil'));
+      document.querySelector('#cadastroAluno').addEventListener('click', () => mostrarTela('#telaCadastro'));
+      document.querySelector('#voltarLogin').addEventListener('click', () => mostrarTela('#telaLogin'));
 
-      document.querySelector('#formLogin').addEventListener('submit', (evento) => {
+      document.querySelector('#formCadastro').addEventListener('submit', (evento) => {
         evento.preventDefault();
-        const usuario = document.querySelector('#usuarioLogin').value.trim();
-        const senha = document.querySelector('#senhaLogin').value;
-        if (usuario !== 'Renato' || senha !== '1234') {
-          alert('Usuário ou senha incorretos. Use Renato e 1234 para testar.');
+        const nome = document.querySelector('#nomeCadastro').value.trim();
+        const login = document.querySelector('#loginCadastro').value.trim();
+        const senha = document.querySelector('#senhaCadastro').value;
+        const confirmacao = document.querySelector('#confirmacaoCadastro').value;
+
+        if (!nome || !login || !senha || !confirmacao) {
+          alert('Preencha todos os campos do cadastro.');
+          return;
+        }
+        if (senha !== confirmacao) {
+          alert('Senha e confirmação de senha devem ser iguais.');
+          return;
+        }
+        if (mockAlunos.some((aluno) => aluno.login.toLowerCase() === login.toLowerCase())) {
+          alert('Este nome de usuário já está cadastrado.');
           return;
         }
 
+        mockAlunos.push({ nome, login, senha });
         evento.currentTarget.reset();
+        alert('Conta criada com sucesso!');
+        mostrarTela('#telaLogin');
+      });
+
+      document.querySelector('#formLogin').addEventListener('submit', (evento) => {
+        evento.preventDefault();
+        const login = document.querySelector('#usuarioLogin').value.trim();
+        const senha = document.querySelector('#senhaLogin').value;
+
         if (perfilSelecionado === 'professor') {
+          const professor = mockProfessores.find((item) => item.login === login && item.senha === senha);
+          if (!professor) {
+            alert('Usuário ou senha do professor incorretos. Use Renato e 1234 para testar.');
+            return;
+          }
+          evento.currentTarget.reset();
           renderizarTabelaProvas();
           mostrarAbaProfessor('lista');
           mostrarTela('#telaProfessor');
-        } else {
-          renderizarProvasDoAluno();
-          mostrarTela('#telaAluno');
+          return;
         }
+
+        alunoLogado = mockAlunos.find((aluno) => aluno.login === login && aluno.senha === senha);
+        if (!alunoLogado) {
+          alert('Usuário ou senha do aluno incorretos. Cadastre-se no primeiro acesso.');
+          return;
+        }
+        evento.currentTarget.reset();
+        document.querySelector('#tituloAluno').textContent = `Olá, ${alunoLogado.nome}!`;
+        renderizarProvasDoAluno();
+        mostrarTela('#telaAluno');
       });
 
-      // Navegação e cadastro do professor.
-      document.querySelectorAll('[data-aba]').forEach((botao) => {
-        botao.addEventListener('click', () => mostrarAbaProfessor(botao.dataset.aba));
-      });
-
+      // Cadastro de provas pelo professor.
+      document.querySelectorAll('[data-aba]').forEach((botao) => botao.addEventListener('click', () => mostrarAbaProfessor(botao.dataset.aba)));
       document.querySelector('#formNovaProva').addEventListener('submit', (evento) => {
         evento.preventDefault();
         const arquivo = document.querySelector('#arquivoProva').files[0];
-        const alunoId = Number(document.querySelector('#alunoAlvo').value);
+        const alunoLogin = document.querySelector('#alunoAlvo').value;
         const adaptacoes = [...document.querySelectorAll('input[name="adaptacao"]:checked')].map((input) => input.value);
-
-        provas.push({
-          id: Date.now(),
-          titulo: arquivo.name.replace(/\.pdf$/i, ''),
-          alunoId,
-          adaptacoes
-        });
-
+        if (!arquivo || !alunoLogin) {
+          alert('Selecione uma prova e um aluno alvo.');
+          return;
+        }
+        mockProvas.push({ id: Date.now(), titulo: arquivo.name.replace(/\.pdf$/i, ''), alunoLogin, adaptacoes });
         evento.currentTarget.reset();
-        preencherSelectAlunos();
         document.querySelector('#mensagemCadastro').textContent = 'Prova salva e atribuída com sucesso!';
         renderizarTabelaProvas();
         mostrarAbaProfessor('lista');
       });
 
-      document.querySelectorAll('.sair').forEach((botao) => {
-        botao.addEventListener('click', () => {
-          perfilSelecionado = '';
-          mostrarTela('#telaPerfil');
-        });
-      });
+      document.querySelectorAll('.sair').forEach((botao) => botao.addEventListener('click', () => {
+        perfilSelecionado = '';
+        alunoLogado = null;
+        mostrarTela('#telaPerfil');
+      }));
 
       preencherSelectAlunos();
     </script>
