@@ -65,7 +65,17 @@
       /* Tela de login direta, inspirada no visual azul com símbolo de acessibilidade. */
       .tela-login { display: flex; align-items: center; justify-content: center; }
       .form-login-direto { width: min(100%, 360px); display: flex; flex-direction: column; text-align: center; }
-      .logo-acessibilidade { width: 120px; height: auto; margin: 0 auto 30px; object-fit: contain; }
+      .logo-acessibilidade {
+        width: 132px;
+        height: 132px;
+        margin: 0 auto 30px;
+        padding: 8px;
+        border: 4px solid rgba(255, 255, 255, 0.88);
+        border-radius: 50%;
+        background: #ffffff;
+        box-shadow: 0 10px 24px rgba(0, 57, 82, 0.2);
+        object-fit: cover;
+      }
       .form-login-direto h1 { margin: 0 0 2rem; color: #ffffff; font-size: clamp(1.5rem, 4vw, 2rem); }
       .campo-login { position: relative; display: block; margin-bottom: 1rem; }
       .campo-login svg { position: absolute; top: 50%; left: 1rem; width: 20px; height: 20px; transform: translateY(-50%); fill: #ffffff; pointer-events: none; }
@@ -197,6 +207,7 @@
       .alto-contraste .form-login-direto input { border: 3px solid #ffff00; background: #000000; color: #ffffff; }
       .alto-contraste .form-login-direto .botao-login { border: 3px solid #000000; background: #ffff00; color: #000000; }
       .alto-contraste .campo-login svg { fill: #ffff00; }
+      .alto-contraste .logo-acessibilidade { border-color: #ffff00; box-shadow: none; }
       .fonte-ampliada { font-size: 1.2em; }
 
       @media (prefers-reduced-motion: reduce) {
