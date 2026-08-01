@@ -84,6 +84,72 @@
       .vazio { padding: 1rem; border-radius: 10px; background: #e9fbfd; }
       .oculto { display: none !important; }
 
+      .lista-alunos { display: grid; gap: 0.9rem; }
+      .item-aluno {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 1rem;
+        padding: 1rem 1.2rem;
+        border: 1px solid #dbe8eb;
+        border-radius: 16px;
+        background: #ffffff;
+        box-shadow: 0 6px 18px rgba(0, 0, 0, 0.05);
+      }
+      .item-aluno h3, .item-aluno p { margin: 0; }
+      .item-aluno p { margin-top: 0.35rem; }
+      .botao-excluir {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        min-width: 48px;
+        padding: 0.65rem;
+        background: #fff1f2;
+        box-shadow: none;
+        color: #b42318;
+      }
+      .botao-excluir:hover { background: #fee4e2; box-shadow: 0 6px 16px rgba(180, 35, 24, 0.2); color: #8a1710; }
+      .botao-excluir svg { width: 22px; height: 22px; fill: currentColor; }
+
+      .modal-fundo {
+        position: fixed;
+        z-index: 20;
+        inset: 0;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 1rem;
+        background: rgba(7, 38, 48, 0.5);
+        backdrop-filter: blur(5px);
+      }
+      .modal {
+        width: min(100%, 500px);
+        padding: 2rem;
+        border-radius: 16px;
+        background: #ffffff;
+        box-shadow: 0 18px 50px rgba(0, 0, 0, 0.2);
+        animation: entrada-suave 0.28s ease-out both;
+      }
+      .modal h2 { margin-top: 0; color: var(--azul-escuro); }
+      .modal-acoes { display: flex; justify-content: flex-end; flex-wrap: wrap; gap: 0.75rem; margin-top: 1.5rem; }
+      .botao-neutro { background: #eef2f4; box-shadow: none; color: var(--texto); }
+      .botao-neutro:hover { background: #dbe7eb; box-shadow: none; }
+      .botao-perigo { background: #c43227; }
+      .botao-perigo:hover { background: #991b1b; box-shadow: 0 10px 20px rgba(153, 27, 27, 0.28); }
+      .toast {
+        position: fixed;
+        z-index: 30;
+        right: 1.25rem;
+        bottom: 1.25rem;
+        max-width: min(420px, calc(100vw - 2.5rem));
+        padding: 1rem 1.2rem;
+        border-radius: 12px;
+        background: #056b3c;
+        box-shadow: var(--sombra);
+        color: #ffffff;
+        font-weight: 700;
+      }
+
       @keyframes entrada-suave {
         from { opacity: 0; transform: translateY(14px); }
         to { opacity: 1; transform: translateY(0); }
@@ -101,6 +167,9 @@
       .alto-contraste input, .alto-contraste select { border: 3px solid #ffffff; background: #000000; color: #ffffff; box-shadow: none; }
       .alto-contraste button { border: 3px solid #ffffff; background: #000000; box-shadow: none; color: #ffffff; }
       .alto-contraste button:hover, .alto-contraste .item-prova:hover { box-shadow: none; transform: none; background: #ffffff; color: #000000; }
+      .alto-contraste .item-aluno, .alto-contraste .modal, .alto-contraste .toast { border: 3px solid #ffffff; box-shadow: none; background: #000000; color: #ffffff; }
+      .alto-contraste .modal-fundo { backdrop-filter: none; background: rgba(0, 0, 0, 0.9); }
+      .alto-contraste .botao-excluir, .alto-contraste .botao-neutro, .alto-contraste .botao-perigo { border: 3px solid #ffffff; box-shadow: none; background: #000000; color: #ffffff; }
       .fonte-ampliada { font-size: 1.2em; }
 
       @media (prefers-reduced-motion: reduce) {
@@ -165,10 +234,23 @@
         <div class="layout-dashboard">
           <nav class="menu" aria-label="Menu do professor">
             <button type="button" data-aba="lista">Provas Cadastradas</button>
+            <button type="button" data-aba="cadastrar-aluno">Cadastrar Aluno</button>
             <button type="button" data-aba="cadastro">Cadastrar Nova Prova</button>
+            <button type="button" data-aba="alunos">Gerenciar Alunos</button>
           </nav>
           <main class="conteudo">
             <section id="abaLista" class="card"><h2>Provas Cadastradas</h2><div id="tabelaProvas"></div></section>
+            <section id="abaCadastrarAluno" class="card oculto">
+              <h2>Cadastrar Aluno</h2>
+              <form id="formCadastrarAlunoProfessor">
+                <label>Nome Completo <input id="nomeAlunoProfessor" type="text" autocomplete="name" required /></label>
+                <label>Nome de Usuário (Login) <input id="loginAlunoProfessor" type="text" autocomplete="username" required /></label>
+                <label>Senha <input id="senhaAlunoProfessor" type="password" autocomplete="new-password" required /></label>
+                <label>Confirmação de Senha <input id="confirmacaoAlunoProfessor" type="password" autocomplete="new-password" required /></label>
+                <button type="submit">Salvar Aluno</button>
+                <p id="mensagemCadastrarAluno" class="mensagem-sucesso" role="status" aria-live="polite"></p>
+              </form>
+            </section>
             <section id="abaCadastro" class="card oculto">
               <h2>Cadastrar Nova Prova</h2>
               <form id="formNovaProva">
@@ -183,6 +265,10 @@
                 <button type="submit">Salvar e Atribuir Prova</button>
                 <p id="mensagemCadastro" class="mensagem-sucesso" role="status" aria-live="polite"></p>
               </form>
+            </section>
+            <section id="abaAlunos" class="card oculto">
+              <h2>Gerenciar Alunos</h2>
+              <div id="listaAlunos" class="lista-alunos"></div>
             </section>
           </main>
         </div>
@@ -200,6 +286,20 @@
       </div>
     </section>
 
+    <!-- Modal de confirmação da exclusão de aluno -->
+    <div id="modalExcluir" class="modal-fundo oculto" role="dialog" aria-modal="true" aria-labelledby="tituloModalExcluir">
+      <div class="modal">
+        <h2 id="tituloModalExcluir">Excluir aluno</h2>
+        <p id="textoModalExcluir"></p>
+        <div class="modal-acoes">
+          <button id="cancelarExclusao" class="botao-neutro" type="button">Cancelar</button>
+          <button id="confirmarExclusao" class="botao-perigo" type="button">Sim, Excluir</button>
+        </div>
+      </div>
+    </div>
+
+    <div id="toast" class="toast oculto" role="status" aria-live="polite"></div>
+
     <script>
       // Mock de dados em memória: recarregar a página apaga cadastros e provas criadas.
       const mockProfessores = [{ login: 'Renato', senha: '1234' }];
@@ -208,6 +308,8 @@
 
       let perfilSelecionado = '';
       let alunoLogado = null;
+      let indiceAlunoParaExcluir = null;
+      let temporizadorToast = null;
       const telas = document.querySelectorAll('.tela');
 
       function mostrarTela(idTela) {
@@ -251,6 +353,46 @@
         }).join('')}</tbody></table>`;
       }
 
+      function exibirToast(mensagem) {
+        const toast = document.querySelector('#toast');
+        toast.textContent = mensagem;
+        toast.classList.remove('oculto');
+        clearTimeout(temporizadorToast);
+        temporizadorToast = setTimeout(() => toast.classList.add('oculto'), 3500);
+      }
+
+      function fecharModalExclusao() {
+        indiceAlunoParaExcluir = null;
+        document.querySelector('#modalExcluir').classList.add('oculto');
+      }
+
+      function abrirModalExclusao(indice) {
+        indiceAlunoParaExcluir = indice;
+        const aluno = mockAlunos[indice];
+        document.querySelector('#textoModalExcluir').textContent = `Tem certeza que deseja excluir o aluno ${aluno.nome}? Esta ação não pode ser desfeita.`;
+        document.querySelector('#modalExcluir').classList.remove('oculto');
+        document.querySelector('#cancelarExclusao').focus();
+      }
+
+      function renderizarListaAlunos() {
+        const destino = document.querySelector('#listaAlunos');
+        if (!mockAlunos.length) {
+          destino.innerHTML = '<p class="vazio">Nenhum aluno cadastrado ainda.</p>';
+          return;
+        }
+        destino.innerHTML = mockAlunos.map((aluno, indice) => `
+          <article class="item-aluno">
+            <div><h3>${escaparHtml(aluno.nome)}</h3><p>Login: ${escaparHtml(aluno.login)}</p></div>
+            <button class="botao-excluir" type="button" data-excluir-aluno="${indice}" aria-label="Excluir ${escaparHtml(aluno.nome)}" title="Excluir aluno">
+              <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 3h6l1 2h4v2H4V5h4l1-2Zm-3 6h12l-1 12H7L6 9Zm4 2v8h2v-8h-2Zm4 0v8h2v-8h-2Z" /></svg>
+            </button>
+          </article>
+        `).join('');
+        destino.querySelectorAll('[data-excluir-aluno]').forEach((botao) => {
+          botao.addEventListener('click', () => abrirModalExclusao(Number(botao.dataset.excluirAluno)));
+        });
+      }
+
       function renderizarProvasDoAluno() {
         const destino = document.querySelector('#provasAluno');
         const provasDoAluno = mockProvas.filter((prova) => prova.alunoLogin === alunoLogado.login);
@@ -264,9 +406,16 @@
 
       function mostrarAbaProfessor(aba) {
         document.querySelector('#abaLista').classList.toggle('oculto', aba !== 'lista');
+        document.querySelector('#abaCadastrarAluno').classList.toggle('oculto', aba !== 'cadastrar-aluno');
         document.querySelector('#abaCadastro').classList.toggle('oculto', aba !== 'cadastro');
+        document.querySelector('#abaAlunos').classList.toggle('oculto', aba !== 'alunos');
         preencherSelectAlunos();
         if (aba === 'lista') renderizarTabelaProvas();
+        if (aba === 'alunos') renderizarListaAlunos();
+        if (aba === 'cadastrar-aluno') {
+          document.querySelector('#mensagemCadastrarAluno').textContent = '';
+          document.querySelector('#nomeAlunoProfessor').focus();
+        }
       }
 
       // Seleção de perfil e login.
@@ -340,6 +489,46 @@
 
       // Cadastro de provas pelo professor.
       document.querySelectorAll('[data-aba]').forEach((botao) => botao.addEventListener('click', () => mostrarAbaProfessor(botao.dataset.aba)));
+      document.querySelector('#formCadastrarAlunoProfessor').addEventListener('submit', (evento) => {
+        evento.preventDefault();
+        const nome = document.querySelector('#nomeAlunoProfessor').value.trim();
+        const login = document.querySelector('#loginAlunoProfessor').value.trim();
+        const senha = document.querySelector('#senhaAlunoProfessor').value;
+        const confirmacao = document.querySelector('#confirmacaoAlunoProfessor').value;
+
+        if (!nome || !login || !senha || !confirmacao) {
+          alert('Preencha todos os campos do aluno.');
+          return;
+        }
+        if (senha !== confirmacao) {
+          alert('Senha e confirmação de senha devem ser iguais.');
+          return;
+        }
+        if (mockAlunos.some((aluno) => aluno.login.toLowerCase() === login.toLowerCase())) {
+          alert('Este nome de usuário já está cadastrado.');
+          return;
+        }
+
+        mockAlunos.push({ nome, login, senha });
+        evento.currentTarget.reset();
+        preencherSelectAlunos();
+        document.querySelector('#mensagemCadastrarAluno').textContent = 'Aluno cadastrado com sucesso!';
+        exibirToast(`Aluno ${nome} cadastrado com sucesso.`);
+        document.querySelector('#nomeAlunoProfessor').focus();
+      });
+      document.querySelector('#cancelarExclusao').addEventListener('click', fecharModalExclusao);
+      document.querySelector('#modalExcluir').addEventListener('click', (evento) => {
+        if (evento.target.id === 'modalExcluir') fecharModalExclusao();
+      });
+      document.querySelector('#confirmarExclusao').addEventListener('click', () => {
+        if (indiceAlunoParaExcluir === null) return;
+        const [alunoExcluido] = mockAlunos.splice(indiceAlunoParaExcluir, 1);
+        fecharModalExclusao();
+        preencherSelectAlunos();
+        renderizarListaAlunos();
+        renderizarTabelaProvas();
+        exibirToast(`Aluno ${alunoExcluido.nome} excluído com sucesso.`);
+      });
       document.querySelector('#formNovaProva').addEventListener('submit', (evento) => {
         evento.preventDefault();
         const arquivo = document.querySelector('#arquivoProva').files[0];
