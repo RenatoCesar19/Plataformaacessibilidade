@@ -114,6 +114,15 @@
       .adaptacoes { display: grid; gap: 0.65rem; }
       .adaptacoes label { display: flex; align-items: center; gap: 0.6rem; font-weight: 400; }
       .adaptacoes input { width: 20px; height: 20px; }
+      .adaptacoes-perfil {
+        margin: 0;
+        padding: 1rem;
+        border: 1px solid #dbe8eb;
+        border-radius: 12px;
+        background: #f9fafb;
+      }
+      .adaptacoes-perfil legend { padding: 0 0.35rem; color: var(--azul-escuro); font-weight: 800; }
+      .adaptacoes-perfil label { min-height: 34px; }
       .mensagem-sucesso { min-height: 1.4rem; color: #056b3c; font-weight: 700; }
       .vazio { padding: 1rem; border-radius: 10px; background: #e9fbfd; }
       .oculto { display: none !important; }
@@ -184,6 +193,29 @@
         font-weight: 700;
       }
 
+      /* Tela de prova: conteúdo centralizado, sem distrações e acessível por teclado. */
+      .cabecalho-prova { display: flex; align-items: center; justify-content: space-between; gap: 1rem; margin-bottom: 1.5rem; }
+      .cabecalho-prova h1 { margin: 0; color: var(--azul-escuro); }
+      .questao-prova { width: min(100%, 760px); margin: 0 auto; }
+      .enunciado-prova { font-size: 1.2rem; font-weight: 700; line-height: 1.6; }
+      .alternativas-prova { display: grid; gap: 0.85rem; margin-top: 1.5rem; }
+      .alternativa-prova { width: 100%; text-align: left; background: #eefbfe; color: var(--texto); box-shadow: none; }
+      .alternativa-prova:hover { background: #d4f1f4; color: var(--texto); }
+      .estado-correto, .estado-incorreto { font-weight: 800; }
+
+      /* Adaptações aplicadas automaticamente conforme o perfil do aluno logado. */
+      .modo-dislexia { font-family: Arial, Helvetica, sans-serif; line-height: 1.8; letter-spacing: 0.1em; word-spacing: 0.2em; }
+      .modo-tdah *, .modo-tdah *::before, .modo-tdah *::after { transition: none !important; animation: none !important; }
+      .modo-tdah #telaProva .cabecalho-prova .apoio-prova { display: none; }
+      .modo-tdah #telaProva .questao-prova { max-width: 680px; }
+      .modo-motora button, .modo-motora .alternativa-prova {
+        min-height: 56px;
+        padding: 1rem 1.35rem;
+      }
+      .modo-motora button:focus, .modo-motora .alternativa-prova:focus { outline: 3px solid #000000; outline-offset: 2px; }
+      .modo-visual .estado-correto::before { content: '✔ '; }
+      .modo-visual .estado-incorreto::before { content: '✖ '; }
+
       @keyframes entrada-suave {
         from { opacity: 0; transform: translateY(14px); }
         to { opacity: 1; transform: translateY(0); }
@@ -208,6 +240,7 @@
       .alto-contraste .form-login-direto .botao-login { border: 3px solid #000000; background: #ffff00; color: #000000; }
       .alto-contraste .campo-login svg { fill: #ffff00; }
       .alto-contraste .logo-acessibilidade { border-color: #ffff00; box-shadow: none; }
+      .alto-contraste .adaptacoes-perfil, .alto-contraste .alternativa-prova { border: 3px solid #ffffff; background: #000000; color: #ffffff; }
       .fonte-ampliada { font-size: 1.2em; }
 
       @media (prefers-reduced-motion: reduce) {
@@ -283,6 +316,13 @@
                 <label>Nome de Usuário (Login) <input id="loginAlunoProfessor" type="text" autocomplete="username" required /></label>
                 <label>Senha <input id="senhaAlunoProfessor" type="password" autocomplete="new-password" required /></label>
                 <label>Confirmação de Senha <input id="confirmacaoAlunoProfessor" type="password" autocomplete="new-password" required /></label>
+                <fieldset class="adaptacoes adaptacoes-perfil">
+                  <legend>Adaptações Necessárias</legend>
+                  <label for="adaptacaoDislexia"><input id="adaptacaoDislexia" type="checkbox" /> Dislexia</label>
+                  <label for="adaptacaoTdah"><input id="adaptacaoTdah" type="checkbox" /> TDAH / TEA (Foco e Redução de Movimento)</label>
+                  <label for="adaptacaoMotora"><input id="adaptacaoMotora" type="checkbox" /> Deficiência Motora (Áreas de clique ampliadas)</label>
+                  <label for="adaptacaoVisual"><input id="adaptacaoVisual" type="checkbox" /> Daltonismo / Baixa Visão</label>
+                </fieldset>
                 <button type="submit">Salvar Aluno</button>
                 <p id="mensagemCadastrarAluno" class="mensagem-sucesso" role="status" aria-live="polite"></p>
               </form>
@@ -323,6 +363,26 @@
     </section>
 
     <!-- Modal de confirmação da exclusão de aluno -->
+    <!-- Tela de prova: as adaptações do perfil do aluno são aplicadas no body. -->
+    <section id="telaProva" class="tela oculto">
+      <div class="dashboard">
+        <header class="cabecalho-prova">
+          <div><h1 id="tituloProva">Prova</h1><p class="apoio-prova">Leia com calma e escolha uma alternativa.</p></div>
+          <button id="voltarProvas" class="botao-neutro" type="button">Voltar para Minhas Provas</button>
+        </header>
+        <main class="card questao-prova">
+          <p class="enunciado-prova">Questão 1 — Qual alternativa melhor representa a resposta escolhida?</p>
+          <div class="alternativas-prova" role="group" aria-label="Alternativas da questão 1">
+            <button class="alternativa-prova" type="button">A. Primeira alternativa</button>
+            <button class="alternativa-prova" type="button">B. Segunda alternativa</button>
+            <button class="alternativa-prova" type="button">C. Terceira alternativa</button>
+            <button class="alternativa-prova" type="button">D. Quarta alternativa</button>
+          </div>
+          <p id="feedbackProva" role="status" aria-live="polite"></p>
+        </main>
+      </div>
+    </section>
+
     <div id="modalExcluir" class="modal-fundo oculto" role="dialog" aria-modal="true" aria-labelledby="tituloModalExcluir">
       <div class="modal">
         <h2 id="tituloModalExcluir">Excluir aluno</h2>
@@ -363,6 +423,18 @@
 
       function obterAluno(login) {
         return mockAlunos.find((aluno) => aluno.login === login);
+      }
+
+      function aplicarAdaptacoes(alunoLogado) {
+        const classesDeAdaptacao = ['modo-dislexia', 'modo-tdah', 'modo-motora', 'modo-visual'];
+        document.body.classList.remove(...classesDeAdaptacao);
+        if (!alunoLogado || !alunoLogado.adaptacoes) return;
+
+        const { dislexia, tdah, motora, visual } = alunoLogado.adaptacoes;
+        document.body.classList.toggle('modo-dislexia', Boolean(dislexia));
+        document.body.classList.toggle('modo-tdah', Boolean(tdah));
+        document.body.classList.toggle('modo-motora', Boolean(motora));
+        document.body.classList.toggle('modo-visual', Boolean(visual));
       }
 
       function preencherSelectAlunos() {
@@ -477,7 +549,7 @@
           return;
         }
 
-        mockAlunos.push({ nome, login, senha });
+        mockAlunos.push({ nome, login, senha, adaptacoes: { dislexia: false, tdah: false, motora: false, visual: false } });
         evento.currentTarget.reset();
         alert('Conta criada com sucesso!');
         mostrarTela('#telaLogin');
@@ -504,6 +576,7 @@
         }
         evento.currentTarget.reset();
         document.querySelector('#tituloAluno').textContent = `Olá, ${alunoLogado.nome}!`;
+        aplicarAdaptacoes(alunoLogado);
         renderizarProvasDoAluno();
         mostrarTela('#telaAluno');
       });
@@ -516,6 +589,12 @@
         const login = document.querySelector('#loginAlunoProfessor').value.trim();
         const senha = document.querySelector('#senhaAlunoProfessor').value;
         const confirmacao = document.querySelector('#confirmacaoAlunoProfessor').value;
+        const adaptacoes = {
+          dislexia: document.querySelector('#adaptacaoDislexia').checked,
+          tdah: document.querySelector('#adaptacaoTdah').checked,
+          motora: document.querySelector('#adaptacaoMotora').checked,
+          visual: document.querySelector('#adaptacaoVisual').checked
+        };
 
         if (!nome || !login || !senha || !confirmacao) {
           alert('Preencha todos os campos do aluno.');
@@ -530,7 +609,7 @@
           return;
         }
 
-        mockAlunos.push({ nome, login, senha });
+        mockAlunos.push({ nome, login, senha, adaptacoes });
         evento.currentTarget.reset();
         preencherSelectAlunos();
         document.querySelector('#mensagemCadastrarAluno').textContent = 'Aluno cadastrado com sucesso!';
@@ -566,8 +645,36 @@
         mostrarAbaProfessor('lista');
       });
 
+      function abrirProva(idProva) {
+        const prova = mockProvas.find((item) => String(item.id) === String(idProva));
+        if (!prova) return;
+        document.querySelector('#tituloProva').textContent = prova.titulo;
+        document.querySelector('#feedbackProva').textContent = '';
+        mostrarTela('#telaProva');
+      }
+
+      document.addEventListener('click', (evento) => {
+        const botaoIniciar = evento.target.closest('[data-iniciar]');
+        if (!botaoIniciar) return;
+        evento.preventDefault();
+        evento.stopImmediatePropagation();
+        abrirProva(botaoIniciar.dataset.iniciar);
+      }, true);
+
+      document.querySelector('#voltarProvas').addEventListener('click', () => {
+        renderizarProvasDoAluno();
+        mostrarTela('#telaAluno');
+      });
+
+      document.querySelectorAll('.alternativa-prova').forEach((alternativa) => alternativa.addEventListener('click', () => {
+        const feedback = document.querySelector('#feedbackProva');
+        feedback.className = 'estado-correto';
+        feedback.textContent = 'Resposta selecionada.';
+      }));
+
       document.querySelectorAll('.sair').forEach((botao) => botao.addEventListener('click', () => {
         alunoLogado = null;
+        aplicarAdaptacoes(null);
         mostrarTela('#telaLogin');
       }));
 
