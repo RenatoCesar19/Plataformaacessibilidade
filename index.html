@@ -61,6 +61,30 @@
       input[type="text"]:focus, input[type="password"]:focus, input[type="file"]:focus, select:focus { border-color: #3b82f6; background: #ffffff; }
       .link-botao { min-height: auto; padding: 0; border: 0; background: transparent; color: var(--azul-escuro); text-decoration: underline; }
       .link-botao:hover { background: transparent; color: #032f42; }
+
+      /* Tela de login direta, inspirada no visual azul com símbolo de acessibilidade. */
+      .tela-login { display: flex; align-items: center; justify-content: center; }
+      .form-login-direto { width: min(100%, 360px); display: flex; flex-direction: column; text-align: center; }
+      .logo-acessibilidade { width: 120px; height: auto; margin: 0 auto 30px; object-fit: contain; }
+      .form-login-direto h1 { margin: 0 0 2rem; color: #ffffff; font-size: clamp(1.5rem, 4vw, 2rem); }
+      .campo-login { position: relative; display: block; margin-bottom: 1rem; }
+      .campo-login svg { position: absolute; top: 50%; left: 1rem; width: 20px; height: 20px; transform: translateY(-50%); fill: #ffffff; pointer-events: none; }
+      .form-login-direto input {
+        min-height: 52px;
+        border: 1px solid rgba(255, 255, 255, 0.8);
+        border-radius: 10px;
+        padding: 0.85rem 1rem 0.85rem 3rem;
+        background: transparent;
+        color: #ffffff;
+      }
+      .form-login-direto input::placeholder { color: #ffffff; opacity: 0.9; }
+      .form-login-direto input:focus { border-color: #ffffff; background: transparent; box-shadow: 0 0 0 3px rgba(255, 255, 255, 0.35); }
+      .botao-login { margin-top: 0.5rem; background: #ffffff; box-shadow: none; color: #4ac2fa; font-weight: 800; letter-spacing: 0.08em; }
+      .botao-login:hover { background: #ffffff; box-shadow: 0 10px 22px rgba(0, 0, 0, 0.16); color: #4ac2fa; }
+      .link-login { align-self: center; min-height: auto; margin-top: 1.1rem; padding: 0; background: transparent; box-shadow: none; color: #ffffff; font-size: 0.92rem; font-weight: 400; text-decoration: none; }
+      .link-login:hover { background: transparent; box-shadow: none; color: #ffffff; text-decoration: underline; transform: none; }
+      .mensagem-login { min-height: 1.25rem; margin: 1rem 0 0; color: #ffffff; font-weight: 700; }
+      .sr-only { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0, 0, 0, 0); white-space: nowrap; border: 0; }
       .dashboard { width: min(1200px, 100%); margin: 0 auto; }
       .cabecalho-dashboard { display: flex; align-items: center; justify-content: space-between; gap: 1rem; margin-bottom: 1.5rem; }
       .cabecalho-dashboard h1 { margin: 0; color: var(--azul-escuro); }
@@ -170,6 +194,9 @@
       .alto-contraste .item-aluno, .alto-contraste .modal, .alto-contraste .toast { border: 3px solid #ffffff; box-shadow: none; background: #000000; color: #ffffff; }
       .alto-contraste .modal-fundo { backdrop-filter: none; background: rgba(0, 0, 0, 0.9); }
       .alto-contraste .botao-excluir, .alto-contraste .botao-neutro, .alto-contraste .botao-perigo { border: 3px solid #ffffff; box-shadow: none; background: #000000; color: #ffffff; }
+      .alto-contraste .form-login-direto input { border: 3px solid #ffff00; background: #000000; color: #ffffff; }
+      .alto-contraste .form-login-direto .botao-login { border: 3px solid #000000; background: #ffff00; color: #000000; }
+      .alto-contraste .campo-login svg { fill: #ffff00; }
       .fonte-ampliada { font-size: 1.2em; }
 
       @media (prefers-reduced-motion: reduce) {
@@ -185,28 +212,26 @@
     </style>
   </head>
   <body>
-    <!-- Tela 1: seleção do perfil -->
-    <section id="telaPerfil" class="tela centralizada">
-      <h1 class="titulo-principal">Sistema de acessibilidade para Provas</h1>
-      <p>Escolha como deseja acessar a plataforma.</p>
-      <div class="acoes-perfil">
-        <button class="botao-grande" type="button" data-perfil="professor">Sou Professor</button>
-        <button class="botao-grande" type="button" data-perfil="aluno">Sou Aluno</button>
-      </div>
-    </section>
-
-    <!-- Tela 2: login dinâmico -->
-    <section id="telaLogin" class="tela centralizada oculto">
-      <div class="card">
-        <h1 id="tituloLogin">Login</h1>
-        <form id="formLogin">
-          <label>Usuário <input id="usuarioLogin" type="text" autocomplete="username" required /></label>
-          <label>Senha <input id="senhaLogin" type="password" autocomplete="current-password" required /></label>
-          <button type="submit">Entrar</button>
-          <button id="cadastroAluno" class="link-botao oculto" type="button">Primeiro acesso? Cadastre-se aqui</button>
-          <button id="voltarPerfil" type="button">Voltar</button>
-        </form>
-      </div>
+    <!-- Tela de login: identifica automaticamente Professor ou Aluno pelas credenciais. -->
+    <section id="telaLogin" class="tela tela-login">
+      <form id="formLogin" class="form-login-direto">
+        <img class="logo-acessibilidade" src="assets/ACESSIBILIDADE.avif" alt="Logotipo de acessibilidade da Plataforma de Avaliação Inclusiva" />
+        <h1>Avaliação Acadêmica Inclusiva</h1>
+        <label class="campo-login">
+          <span class="sr-only">Usuário</span>
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 12a5 5 0 1 0 0-10 5 5 0 0 0 0 10Zm0 2c-4.42 0-8 2.24-8 5v3h16v-3c0-2.76-3.58-5-8-5Z" /></svg>
+          <input id="usuarioLogin" type="text" autocomplete="username" placeholder="Usuário" required />
+        </label>
+        <label class="campo-login">
+          <span class="sr-only">Senha</span>
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M17 9h-1V7a4 4 0 0 0-8 0v2H7a3 3 0 0 0-3 3v7a3 3 0 0 0 3 3h10a3 3 0 0 0 3-3v-7a3 3 0 0 0-3-3Zm-7-2a2 2 0 1 1 4 0v2h-4V7Zm3 9.73V19h-2v-2.27A2 2 0 1 1 13 16.73Z" /></svg>
+          <input id="senhaLogin" type="password" autocomplete="current-password" placeholder="Senha" required />
+        </label>
+        <button class="botao-login" type="submit">LOGIN</button>
+        <button id="cadastroAluno" class="link-login" type="button">Primeiro acesso? Cadastre-se aqui</button>
+        <a class="link-login" href="#recuperar-senha">Esqueceu a senha?</a>
+        <p id="mensagemLogin" class="mensagem-login" role="status" aria-live="polite"></p>
+      </form>
     </section>
 
     <!-- Tela de cadastro do aluno -->
@@ -306,7 +331,6 @@
       const mockAlunos = [];
       const mockProvas = [];
 
-      let perfilSelecionado = '';
       let alunoLogado = null;
       let indiceAlunoParaExcluir = null;
       let temporizadorToast = null;
@@ -418,17 +442,7 @@
         }
       }
 
-      // Seleção de perfil e login.
-      document.querySelectorAll('[data-perfil]').forEach((botao) => {
-        botao.addEventListener('click', () => {
-          perfilSelecionado = botao.dataset.perfil;
-          document.querySelector('#tituloLogin').textContent = `Login do ${perfilSelecionado === 'professor' ? 'Professor' : 'Aluno'}`;
-          document.querySelector('#cadastroAluno').classList.toggle('oculto', perfilSelecionado !== 'aluno');
-          mostrarTela('#telaLogin');
-        });
-      });
-
-      document.querySelector('#voltarPerfil').addEventListener('click', () => mostrarTela('#telaPerfil'));
+      // Cadastro e login: o tipo de usuário é identificado pelas credenciais informadas.
       document.querySelector('#cadastroAluno').addEventListener('click', () => mostrarTela('#telaCadastro'));
       document.querySelector('#voltarLogin').addEventListener('click', () => mostrarTela('#telaLogin'));
 
@@ -463,12 +477,8 @@
         const login = document.querySelector('#usuarioLogin').value.trim();
         const senha = document.querySelector('#senhaLogin').value;
 
-        if (perfilSelecionado === 'professor') {
-          const professor = mockProfessores.find((item) => item.login === login && item.senha === senha);
-          if (!professor) {
-            alert('Usuário ou senha do professor incorretos. Use Renato e 1234 para testar.');
-            return;
-          }
+        const professor = mockProfessores.find((item) => item.login === login && item.senha === senha);
+        if (professor) {
           evento.currentTarget.reset();
           renderizarTabelaProvas();
           mostrarAbaProfessor('lista');
@@ -478,7 +488,7 @@
 
         alunoLogado = mockAlunos.find((aluno) => aluno.login === login && aluno.senha === senha);
         if (!alunoLogado) {
-          alert('Usuário ou senha do aluno incorretos. Cadastre-se no primeiro acesso.');
+          document.querySelector('#mensagemLogin').textContent = 'Usuário ou senha incorretos. Cadastre-se caso seja seu primeiro acesso.';
           return;
         }
         evento.currentTarget.reset();
@@ -546,12 +556,12 @@
       });
 
       document.querySelectorAll('.sair').forEach((botao) => botao.addEventListener('click', () => {
-        perfilSelecionado = '';
         alunoLogado = null;
-        mostrarTela('#telaPerfil');
+        mostrarTela('#telaLogin');
       }));
 
       preencherSelectAlunos();
+      mostrarTela('#telaLogin');
     </script>
   </body>
 </html>
