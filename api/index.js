@@ -72,6 +72,9 @@ function parseQuestions(pdfText) {
     ...question,
     ordem: index + 1,
     tipo: question.alternativas.length ? 'MULTIPLA_ESCOLHA' : 'DISSERTATIVA',
+    // A imagem é opcional: o frontend não cria um espaço vazio quando não há mídia no PDF.
+    imagem_url: null,
+    descricao_imagem: null,
     recursos_acessibilidade: { texto_para_narracao: question.enunciado, descricao_imagem: null }
   }));
 }

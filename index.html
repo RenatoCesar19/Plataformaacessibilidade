@@ -193,21 +193,38 @@
         font-weight: 700;
       }
 
-      /* Tela de prova: conteúdo centralizado, sem distrações e acessível por teclado. */
-      .cabecalho-prova { display: flex; align-items: center; justify-content: space-between; gap: 1rem; margin-bottom: 1.5rem; }
-      .cabecalho-prova h1 { margin: 0; color: var(--azul-escuro); }
-      .questao-prova { width: min(100%, 760px); margin: 0 auto; }
-      .enunciado-prova { font-size: 1.2rem; font-weight: 700; line-height: 1.6; }
-      .alternativas-prova { display: grid; gap: 0.85rem; margin-top: 1.5rem; }
-      .alternativa-prova { width: 100%; text-align: left; background: #eefbfe; color: var(--texto); box-shadow: none; }
-      .alternativa-prova:hover { background: #d4f1f4; color: var(--texto); }
-      .estado-correto, .estado-incorreto { font-weight: 800; }
+      /* Tela de prova inspirada no fluxo visual do Kahoot: uma questão por vez. */
+      .tela-prova-kahoot { padding: 0; background: #f2f3f5; }
+      .tela-prova-kahoot .dashboard { width: 100%; max-width: none; }
+      .cabecalho-prova { display: flex; align-items: center; justify-content: space-between; gap: 1rem; min-height: 110px; padding: 1.25rem clamp(1rem, 4vw, 4rem); background: #ffffff; border-bottom: 3px solid #d8dce0; }
+      .cabecalho-prova h1 { margin: 0; color: #292929; font-size: clamp(1.4rem, 3vw, 2.4rem); }
+      .apoio-prova { margin: 0.35rem 0 0; }
+      .painel-prova { display: grid; grid-template-columns: 150px minmax(0, 1fr) 150px; align-items: start; gap: 1.5rem; padding: clamp(1rem, 3vw, 2rem); }
+      .contador-questao { display: grid; place-items: center; width: 98px; height: 98px; border-radius: 50%; background: #7b3fc1; color: #ffffff; font-size: 1.45rem; font-weight: 800; box-shadow: none; }
+      .questao-prova { width: min(100%, 850px); min-height: 250px; margin: 0 auto; border: 0; border-radius: 0; box-shadow: none; text-align: center; }
+      .enunciado-prova { margin: 0; font-size: clamp(1.25rem, 2.5vw, 2rem); font-weight: 800; line-height: 1.4; }
+      .imagem-questao { width: min(100%, 620px); margin: 1.5rem auto 0; }
+      .imagem-questao img { display: block; width: 100%; max-height: 310px; object-fit: contain; border-radius: 10px; }
+      .alternativas-prova { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 0.8rem; margin-top: 1.5rem; }
+      .alternativa-prova { display: flex; align-items: center; width: 100%; min-height: 112px; border: 3px solid transparent; border-radius: 6px; padding: 1rem 1.35rem; color: #ffffff; text-align: left; box-shadow: none; font-size: clamp(1rem, 2vw, 1.35rem); }
+      .alternativa-prova:hover { filter: brightness(1.08); color: #ffffff; }
+      .alternativa-prova.selecionada { border-color: #1f2937; box-shadow: 0 0 0 4px #ffffff, 0 0 0 7px #1f2937; }
+      .simbolo-alternativa { flex: 0 0 auto; width: 42px; margin-right: 1rem; color: #ffffff; font-size: 2.3rem; line-height: 1; }
+      .texto-alternativa { font-weight: 800; }
+      .kahoot-vermelho { background: #e21b3c; }
+      .kahoot-azul { background: #1368ce; }
+      .kahoot-amarelo { background: #d89e00; }
+      .kahoot-verde { background: #26890c; }
+      .resposta-discursiva { width: 100%; min-height: 150px; margin-top: 1.5rem; border: 2px solid #cbd5e1; border-radius: 10px; padding: 1rem; font: inherit; }
+      .estado-correto, .estado-incorreto, .estado-selecionado { margin: 1rem 0 0; font-weight: 800; }
+      .estado-selecionado { color: #12343b; }
 
       /* Adaptações aplicadas automaticamente conforme o perfil do aluno logado. */
       .modo-dislexia { font-family: Arial, Helvetica, sans-serif; line-height: 1.8; letter-spacing: 0.1em; word-spacing: 0.2em; }
       .modo-tdah *, .modo-tdah *::before, .modo-tdah *::after { transition: none !important; animation: none !important; }
-      .modo-tdah #telaProva .cabecalho-prova .apoio-prova { display: none; }
-      .modo-tdah #telaProva .questao-prova { max-width: 680px; }
+      .modo-tdah #telaProva .cabecalho-prova .apoio-prova, .modo-tdah #telaProva .contador-questao { display: none; }
+      .modo-tdah #telaProva .painel-prova { display: block; }
+      .modo-tdah #telaProva .questao-prova { max-width: 760px; }
       .modo-motora button, .modo-motora .alternativa-prova {
         min-height: 56px;
         padding: 1rem 1.35rem;
@@ -252,6 +269,11 @@
         .layout-dashboard { grid-template-columns: 1fr; }
         .menu { grid-template-columns: 1fr 1fr; }
         .tabela { font-size: 0.9rem; }
+        .cabecalho-prova { min-height: auto; align-items: stretch; flex-direction: column; }
+        .painel-prova { grid-template-columns: 1fr; }
+        .contador-questao { width: 62px; height: 62px; font-size: 1rem; }
+        .alternativas-prova { grid-template-columns: 1fr; }
+        .alternativa-prova { min-height: 74px; }
       }
     </style>
   </head>
@@ -364,22 +386,23 @@
 
     <!-- Modal de confirmação da exclusão de aluno -->
     <!-- Tela de prova: as adaptações do perfil do aluno são aplicadas no body. -->
-    <section id="telaProva" class="tela oculto">
+    <section id="telaProva" class="tela tela-prova-kahoot oculto">
       <div class="dashboard">
         <header class="cabecalho-prova">
           <div><h1 id="tituloProva">Prova</h1><p class="apoio-prova">Leia com calma e escolha uma alternativa.</p></div>
           <button id="voltarProvas" class="botao-neutro" type="button">Voltar para Minhas Provas</button>
         </header>
-        <main class="card questao-prova">
-          <p class="enunciado-prova">Questão 1 — Qual alternativa melhor representa a resposta escolhida?</p>
-          <div class="alternativas-prova" role="group" aria-label="Alternativas da questão 1">
-            <button class="alternativa-prova" type="button">A. Primeira alternativa</button>
-            <button class="alternativa-prova" type="button">B. Segunda alternativa</button>
-            <button class="alternativa-prova" type="button">C. Terceira alternativa</button>
-            <button class="alternativa-prova" type="button">D. Quarta alternativa</button>
-          </div>
-          <p id="feedbackProva" role="status" aria-live="polite"></p>
-        </main>
+        <div class="painel-prova">
+          <div id="contadorQuestao" class="contador-questao" aria-label="Questão atual">1</div>
+          <main class="card questao-prova">
+            <p id="enunciadoProva" class="enunciado-prova"></p>
+            <figure id="imagemQuestao" class="imagem-questao oculto">
+              <img id="imagemQuestaoArquivo" src="" alt="" />
+            </figure>
+            <div id="alternativasProva" class="alternativas-prova" role="group" aria-label="Alternativas da questão"></div>
+            <p id="feedbackProva" role="status" aria-live="polite"></p>
+          </main>
+        </div>
       </div>
     </section>
 
@@ -403,6 +426,8 @@
       const mockProvas = [];
 
       let alunoLogado = null;
+      let provaAtual = null;
+      let indiceQuestaoAtual = 0;
       let indiceAlunoParaExcluir = null;
       let temporizadorToast = null;
       const telas = document.querySelectorAll('.tela');
@@ -629,28 +654,114 @@
         renderizarTabelaProvas();
         exibirToast(`Aluno ${alunoExcluido.nome} excluído com sucesso.`);
       });
-      document.querySelector('#formNovaProva').addEventListener('submit', (evento) => {
+      document.querySelector('#formNovaProva').addEventListener('submit', async (evento) => {
         evento.preventDefault();
         const arquivo = document.querySelector('#arquivoProva').files[0];
         const alunoLogin = document.querySelector('#alunoAlvo').value;
         const adaptacoes = [...document.querySelectorAll('input[name="adaptacao"]:checked')].map((input) => input.value);
+        const botaoEnviar = evento.currentTarget.querySelector('button[type="submit"]');
         if (!arquivo || !alunoLogin) {
           alert('Selecione uma prova e um aluno alvo.');
           return;
         }
-        mockProvas.push({ id: Date.now(), titulo: arquivo.name.replace(/\.pdf$/i, ''), alunoLogin, adaptacoes });
-        evento.currentTarget.reset();
-        document.querySelector('#mensagemCadastro').textContent = 'Prova salva e atribuída com sucesso!';
-        renderizarTabelaProvas();
-        mostrarAbaProfessor('lista');
+        const dadosUpload = new FormData();
+        dadosUpload.append('arquivo', arquivo);
+        botaoEnviar.disabled = true;
+        document.querySelector('#mensagemCadastro').textContent = 'Processando o PDF...';
+
+        try {
+          const resposta = await fetch('/api/upload-pdf', { method: 'POST', body: dadosUpload });
+          const provaProcessada = await resposta.json().catch(() => ({}));
+          if (!resposta.ok) throw new Error(provaProcessada.erro || 'Não foi possível processar o PDF.');
+
+          mockProvas.push({
+            id: Date.now(),
+            titulo: provaProcessada.titulo || arquivo.name.replace(/\.pdf$/i, ''),
+            alunoLogin,
+            adaptacoes,
+            questoes: Array.isArray(provaProcessada.questoes) ? provaProcessada.questoes : []
+          });
+          evento.currentTarget.reset();
+          document.querySelector('#mensagemCadastro').textContent = 'Prova processada, salva e atribuída com sucesso!';
+          renderizarTabelaProvas();
+          mostrarAbaProfessor('lista');
+        } catch (erro) {
+          document.querySelector('#mensagemCadastro').textContent = erro.message;
+          alert(erro.message);
+        } finally {
+          botaoEnviar.disabled = false;
+        }
       });
 
       function abrirProva(idProva) {
         const prova = mockProvas.find((item) => String(item.id) === String(idProva));
         if (!prova) return;
+        provaAtual = prova;
+        indiceQuestaoAtual = 0;
         document.querySelector('#tituloProva').textContent = prova.titulo;
-        document.querySelector('#feedbackProva').textContent = '';
+        renderizarQuestaoAtual();
         mostrarTela('#telaProva');
+      }
+
+      function renderizarQuestaoAtual() {
+        const questoes = provaAtual?.questoes?.length ? provaAtual.questoes : [{
+          ordem: 1,
+          tipo: 'DISSERTATIVA',
+          enunciado: 'Não foi possível estruturar automaticamente esta questão. Leia o texto da prova e responda abaixo.',
+          alternativas: []
+        }];
+        const questao = questoes[indiceQuestaoAtual] || questoes[0];
+        const enunciado = document.querySelector('#enunciadoProva');
+        const contador = document.querySelector('#contadorQuestao');
+        const alternativas = document.querySelector('#alternativasProva');
+        const imagem = document.querySelector('#imagemQuestao');
+        const imagemArquivo = document.querySelector('#imagemQuestaoArquivo');
+        const feedback = document.querySelector('#feedbackProva');
+        const estilos = ['kahoot-vermelho', 'kahoot-azul', 'kahoot-amarelo', 'kahoot-verde'];
+        const simbolos = ['▲', '◆', '●', '■'];
+
+        contador.textContent = `${indiceQuestaoAtual + 1}/${questoes.length}`;
+        contador.setAttribute('aria-label', `Questão ${indiceQuestaoAtual + 1} de ${questoes.length}`);
+        enunciado.textContent = questao.enunciado || 'Questão sem enunciado.';
+        feedback.className = '';
+        feedback.textContent = '';
+        alternativas.innerHTML = '';
+
+        const urlImagem = questao.imagem_url || questao.imagemUrl || null;
+        if (urlImagem) {
+          imagemArquivo.src = urlImagem;
+          imagemArquivo.alt = questao.descricao_imagem || 'Imagem de apoio da questão';
+          imagem.classList.remove('oculto');
+        } else {
+          imagemArquivo.removeAttribute('src');
+          imagemArquivo.alt = '';
+          imagem.classList.add('oculto');
+        }
+
+        if (questao.tipo === 'MULTIPLA_ESCOLHA' && questao.alternativas?.length) {
+          questao.alternativas.forEach((alternativa, indice) => {
+            const botao = document.createElement('button');
+            botao.type = 'button';
+            botao.className = `alternativa-prova ${estilos[indice % estilos.length]}`;
+            botao.setAttribute('aria-label', `Alternativa ${alternativa.id || indice + 1}: ${alternativa.texto}`);
+            botao.innerHTML = `<span class="simbolo-alternativa" aria-hidden="true">${simbolos[indice % simbolos.length]}</span><span class="texto-alternativa"></span>`;
+            botao.querySelector('.texto-alternativa').textContent = alternativa.texto;
+            botao.addEventListener('click', () => {
+              alternativas.querySelectorAll('.alternativa-prova').forEach((item) => item.classList.remove('selecionada'));
+              botao.classList.add('selecionada');
+              feedback.className = 'estado-selecionado';
+              feedback.textContent = `Resposta ${alternativa.id || indice + 1} selecionada.`;
+            });
+            alternativas.appendChild(botao);
+          });
+          return;
+        }
+
+        const resposta = document.createElement('textarea');
+        resposta.className = 'resposta-discursiva';
+        resposta.placeholder = 'Digite sua resposta aqui...';
+        resposta.setAttribute('aria-label', 'Resposta discursiva');
+        alternativas.appendChild(resposta);
       }
 
       document.addEventListener('click', (evento) => {
@@ -665,12 +776,6 @@
         renderizarProvasDoAluno();
         mostrarTela('#telaAluno');
       });
-
-      document.querySelectorAll('.alternativa-prova').forEach((alternativa) => alternativa.addEventListener('click', () => {
-        const feedback = document.querySelector('#feedbackProva');
-        feedback.className = 'estado-correto';
-        feedback.textContent = 'Resposta selecionada.';
-      }));
 
       document.querySelectorAll('.sair').forEach((botao) => botao.addEventListener('click', () => {
         alunoLogado = null;
