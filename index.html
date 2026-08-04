@@ -477,7 +477,28 @@
     <script>
       // Mock de dados em memória: recarregar a página apaga cadastros e provas criadas.
       const mockProfessores = [{ login: 'Renato', senha: '1234' }];
-      const mockAlunos = [];
+      const CHAVE_ALUNOS_STORAGE = 'pai_alunos';
+
+      function carregarAlunosDoStorage() {
+        try {
+          const alunosSalvos = localStorage.getItem(CHAVE_ALUNOS_STORAGE);
+          return alunosSalvos ? JSON.parse(alunosSalvos) : [];
+        } catch (erro) {
+          console.error('Não foi possível carregar os alunos salvos.', erro);
+          return [];
+        }
+      }
+
+      let mockAlunos = carregarAlunosDoStorage();
+
+      function salvarAlunosNoStorage() {
+        try {
+          localStorage.setItem(CHAVE_ALUNOS_STORAGE, JSON.stringify(mockAlunos));
+        } catch (erro) {
+          console.error('Não foi possível salvar os alunos.', erro);
+        }
+      }
+
       const mockProvas = [];
 
       let alunoLogado = null;
@@ -680,6 +701,7 @@
         }
 
         mockAlunos.push({ nome, login, senha, adaptacoes: { dislexia: false, tdah: false, motora: false, visual: false } });
+        salvarAlunosNoStorage();
         evento.currentTarget.reset();
         alert('Conta criada com sucesso!');
         mostrarTela('#telaLogin');
@@ -699,6 +721,7 @@
           return;
         }
 
+        mockAlunos = carregarAlunosDoStorage();
         alunoLogado = mockAlunos.find((aluno) => aluno.login === login && aluno.senha === senha);
         if (!alunoLogado) {
           document.querySelector('#mensagemLogin').textContent = 'Usuário ou senha incorretos. Cadastre-se caso seja seu primeiro acesso.';
@@ -740,6 +763,7 @@
         }
 
         mockAlunos.push({ nome, login, senha, adaptacoes });
+        salvarAlunosNoStorage();
         evento.currentTarget.reset();
         preencherSelectAlunos();
         document.querySelector('#mensagemCadastrarAluno').textContent = 'Aluno cadastrado com sucesso!';
@@ -753,6 +777,7 @@
       document.querySelector('#confirmarExclusao').addEventListener('click', () => {
         if (indiceAlunoParaExcluir === null) return;
         const [alunoExcluido] = mockAlunos.splice(indiceAlunoParaExcluir, 1);
+        salvarAlunosNoStorage();
         fecharModalExclusao();
         preencherSelectAlunos();
         renderizarListaAlunos();
