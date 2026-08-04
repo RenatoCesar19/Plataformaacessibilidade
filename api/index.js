@@ -308,36 +308,53 @@ function getSupportTextsByQuestion(text, questionMarkers) {
  * instruções, textos de leitura e dados da escola não viram questão.
  */
 function extrairQuestoesProva(textoBruto) {
-  const texto = normalizeText(textoBruto).replace(/\n{2,}/g, '\n');
-  const delimitadorQuestao = /(?:^|\n)\s*(?:quest(?:ão|ao)\s*0*(\d{1,3})\b\s*[.\-:)]?|\(?0*(\d{1,3})\)?\s*[.\-])\s*/gim;
-  const marcadoresQuestoes = [...texto.matchAll(delimitadorQuestao)];
+  // Normaliza o artefato comum de PDFs em colunas: "QUEST Ã O", "Q U E S T A O"
+  // ou "QUESTAO" passam a usar um único marcador previsível.
+  const textoNormalizado = normalizeText(textoBruto)
+    .replace(/Q\s*U\s*E\s*S\s*T\s*[ÃA]\s*O/gi, 'QUESTÃO')
+    .replace(/\n{2,}/g, '\n');
 
-  if (!marcadoresQuestoes.length) return [];
+  /*
+   * Fatiamento agressivo: o lookahead mantém o marcador no início de cada
+   * fatia. Assim, todo cabeçalho, instrução ou texto anterior à primeira
+   * questão fica isolado no primeiro item e pode ser descartado sem risco de
+   * contaminar o enunciado.
+   */
+  const blocos = textoNormalizado.split(/(?=\bQUESTÃO\s+\d+\b|^\s*\d+\s*[.\-])/gmi);
+  if (blocos.length && !/^\s*(?:QUESTÃO\s+\d+\b|\d+\s*[.\-])/i.test(blocos[0])) {
+    blocos.shift();
+  }
 
-  return marcadoresQuestoes.map((marcador, indice) => {
-    const proximoMarcador = marcadoresQuestoes[indice + 1];
-    const inicio = marcador.index + marcador[0].length;
-    const fim = proximoMarcador ? proximoMarcador.index : texto.length;
-    const bloco = texto.slice(inicio, fim).trim();
-    const id = Number(marcador[1] || marcador[2]);
+  return blocos.map((blocoBruto) => {
+    const bloco = blocoBruto.trim();
+    if (!bloco) return null;
 
-    // Aceita A), (A), A., A - e versões minúsculas. Limitar a A-E impede
-    // que algarismos romanos I, II e III do enunciado virem alternativas.
-    const delimitadorAlternativa = /(?:^|\n|\s+)(?:\(\s*([A-E])\s*\)|([A-E])\s*[.)\-])\s*/gim;
-    const marcadoresAlternativas = [...bloco.matchAll(delimitadorAlternativa)];
+    // O número vem do começo da fatia e nunca do meio do enunciado.
+    const idTexto = bloco.replace(/^\s*(?:QUESTÃO\s*)?0*(\d{1,3})\s*[.\-:)]?.*$/is, '$1');
+    const id = Number(idTexto);
+    if (!Number.isFinite(id)) return null;
 
-    // Instruções, rodapés e páginas não têm alternativas suficientes.
-    if (!Number.isFinite(id) || marcadoresAlternativas.length < 2) return null;
+    /*
+     * Segundo fatiamento: reconhece (A), A), A., A- e versões minúsculas.
+     * Como as opções se limitam a A-E, itens romanos I, II e III dentro da
+     * pergunta não são falsamente tratados como alternativas.
+     */
+    // Não usamos "\s*" antes do lookahead: ele também encontraria o "A)"
+    // dentro de "(A)", gerando uma fatia isolada com apenas "(".
+    const partes = bloco.split(/(?=(?:\([a-eA-E]\)|(?<!\()[a-eA-E][.\-)])\s+)/g);
+    if (partes.length < 3) return null; // instruções e rodapés não viram questão
 
-    const pergunta = bloco.slice(0, marcadoresAlternativas[0].index).replace(/\s+/g, ' ').trim();
+    const pergunta = partes[0]
+      .replace(/^\s*(?:QUESTÃO\s*)?0*\d{1,3}\s*[.\-:)]?\s*/i, '')
+      .replace(/\s+/g, ' ')
+      .trim();
     if (!pergunta) return null;
 
-    const alternativas = marcadoresAlternativas.map((alternativa, alternativaIndice) => {
-      const proximaAlternativa = marcadoresAlternativas[alternativaIndice + 1];
-      const inicioAlternativa = alternativa.index + alternativa[0].length;
-      const fimAlternativa = proximaAlternativa ? proximaAlternativa.index : bloco.length;
-      return bloco.slice(inicioAlternativa, fimAlternativa).replace(/\s+/g, ' ').trim();
-    }).filter(Boolean);
+    const alternativas = partes.slice(1).map((parte) => parte
+      .replace(/^\s*(?:\(\s*[a-eA-E]\s*\)|[a-eA-E][.\-)])\s*/i, '')
+      .replace(/\s+/g, ' ')
+      .trim()
+    ).filter(Boolean);
 
     return alternativas.length < 2 ? null : { id, pergunta, alternativas, correta: null };
   }).filter(Boolean).sort((esquerda, direita) => esquerda.id - direita.id);
