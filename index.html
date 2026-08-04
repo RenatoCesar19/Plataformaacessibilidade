@@ -94,6 +94,30 @@
       .link-login { align-self: center; min-height: auto; margin-top: 1.1rem; padding: 0; background: transparent; box-shadow: none; color: #ffffff; font-size: 0.92rem; font-weight: 400; text-decoration: none; }
       .link-login:hover { background: transparent; box-shadow: none; color: #ffffff; text-decoration: underline; transform: none; }
       .mensagem-login { min-height: 1.25rem; margin: 1rem 0 0; color: #ffffff; font-weight: 700; }
+      /* Releitura do login no estilo do layout de referência. */
+      .tela-login { padding: clamp(1rem, 4vw, 3rem); background: #f6f8fb; }
+      .login-painel { display: grid; grid-template-columns: minmax(0, 1.18fr) minmax(320px, 0.82fr); width: min(100%, 1100px); min-height: 560px; overflow: hidden; border-radius: 18px; background: #087fce; box-shadow: 0 18px 35px rgba(7, 64, 117, 0.24); }
+      .login-apresentacao { position: relative; display: flex; flex-direction: column; justify-content: center; padding: clamp(2rem, 6vw, 5.2rem); overflow: hidden; background: linear-gradient(135deg, #0b8de6 0%, #0769bb 100%); color: #ffffff; }
+      .login-apresentacao::before, .login-apresentacao::after { position: absolute; border-radius: 50%; content: ''; pointer-events: none; }
+      .login-apresentacao::before { width: 470px; height: 470px; right: -255px; top: -175px; border: 70px solid rgba(255, 255, 255, 0.06); }
+      .login-apresentacao::after { width: 320px; height: 320px; left: -165px; bottom: -180px; background: rgba(66, 181, 255, 0.36); }
+      .login-apresentacao > * { position: relative; z-index: 1; }
+      .login-subtitulo { margin: 0 0 0.9rem; font-size: clamp(1rem, 2vw, 1.25rem); font-weight: 800; letter-spacing: 0.08em; }
+      .login-titulo { max-width: 540px; margin: 0; color: #ffffff; font-size: clamp(1.85rem, 4vw, 3.35rem); line-height: 1.08; }
+      .login-descricao { max-width: 540px; margin: 1.4rem 0 0; color: rgba(255, 255, 255, 0.96); font-size: clamp(0.98rem, 1.6vw, 1.1rem); line-height: 1.6; }
+      .form-login-direto { align-self: center; width: min(100%, 395px); margin: 2rem; padding: clamp(1.75rem, 4vw, 2.5rem); border-radius: 16px; background: #ffffff; box-shadow: 0 14px 28px rgba(0, 45, 84, 0.2); }
+      .logo-acessibilidade { width: 72px; height: 72px; margin: 0 auto 0.8rem; padding: 5px; border: 3px solid #d8effa; box-shadow: 0 6px 16px rgba(0, 57, 82, 0.12); }
+      .form-login-direto h2 { margin: 0 0 0.35rem; color: #12343b; font-size: clamp(1.5rem, 3vw, 2rem); }
+      .form-login-direto > p:not(.mensagem-login) { margin: 0 0 1.5rem; color: #5c6b73; font-size: 0.92rem; }
+      .campo-login svg { fill: #087fce; }
+      .form-login-direto input { border-color: #d9e1e7; background: #f9fafb; color: #12343b; }
+      .form-login-direto input::placeholder { color: #687782; opacity: 1; }
+      .form-login-direto input:focus { border-color: #087fce; background: #ffffff; box-shadow: 0 0 0 3px rgba(8, 127, 206, 0.2); }
+      .botao-login { background: #087fce; box-shadow: 0 8px 16px rgba(8, 127, 206, 0.25); color: #ffffff; }
+      .botao-login:hover { background: #075fa8; box-shadow: 0 10px 22px rgba(7, 95, 168, 0.26); color: #ffffff; }
+      .link-login { color: #075fa8; font-weight: 600; }
+      .link-login:hover { color: #043f70; }
+      .mensagem-login { color: #b42318; }
       .sr-only { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0, 0, 0, 0); white-space: nowrap; border: 0; }
       .dashboard { width: min(1200px, 100%); margin: 0 auto; }
       .cabecalho-dashboard { display: flex; align-items: center; justify-content: space-between; gap: 1rem; margin-bottom: 1.5rem; }
@@ -275,14 +299,31 @@
         .alternativas-prova { grid-template-columns: 1fr; }
         .alternativa-prova { min-height: 74px; }
       }
+      .alto-contraste .tela-login { background: #000000; }
+      .alto-contraste .login-painel, .alto-contraste .login-apresentacao, .alto-contraste .form-login-direto { border: 3px solid #ffffff; box-shadow: none; background: #000000; }
+      .alto-contraste .login-apresentacao::before, .alto-contraste .login-apresentacao::after { display: none; }
+      .alto-contraste .login-titulo, .alto-contraste .login-subtitulo, .alto-contraste .login-descricao, .alto-contraste .form-login-direto h2, .alto-contraste .form-login-direto > p:not(.mensagem-login) { color: #ffffff; }
+
+      @media (max-width: 760px) {
+        .login-painel { grid-template-columns: 1fr; min-height: 0; }
+        .login-apresentacao { min-height: 330px; padding: 2.5rem 2rem; }
+        .form-login-direto { width: auto; margin: 0; border-radius: 0; box-shadow: none; }
+      }
     </style>
   </head>
   <body>
     <!-- Tela de login: identifica automaticamente Professor ou Aluno pelas credenciais. -->
     <section id="telaLogin" class="tela tela-login">
+      <div class="login-painel">
+        <aside class="login-apresentacao" aria-labelledby="tituloApresentacaoLogin">
+          <p class="login-subtitulo">BEM-VINDO À</p>
+          <h1 id="tituloApresentacaoLogin" class="login-titulo">PLATAFORMA DE AVALIAÇÃO INCLUSIVA</h1>
+          <p class="login-descricao">Um ambiente digital desenvolvido para garantir que todos os alunos realizem avaliações acadêmicas de forma adaptada. A PAI elimina barreiras tecnológicas aplicando recursos de acessibilidade cognitiva, visual e motora em tempo real.</p>
+        </aside>
       <form id="formLogin" class="form-login-direto">
         <img class="logo-acessibilidade" src="assets/ACESSIBILIDADE.avif" alt="Logotipo de acessibilidade da Plataforma de Avaliação Inclusiva" />
-        <h1>Avaliação Acadêmica Inclusiva</h1>
+        <h2>Entrar</h2>
+        <p>Use seus dados de acesso para continuar.</p>
         <label class="campo-login">
           <span class="sr-only">Usuário</span>
           <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 12a5 5 0 1 0 0-10 5 5 0 0 0 0 10Zm0 2c-4.42 0-8 2.24-8 5v3h16v-3c0-2.76-3.58-5-8-5Z" /></svg>
@@ -298,6 +339,7 @@
         <a class="link-login" href="#recuperar-senha">Esqueceu a senha?</a>
         <p id="mensagemLogin" class="mensagem-login" role="status" aria-live="polite"></p>
       </form>
+      </div>
     </section>
 
     <!-- Tela de cadastro do aluno -->
