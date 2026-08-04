@@ -4,6 +4,8 @@ const multer = require('multer');
 const pdfParse = require('pdf-parse');
 
 const MAX_PDF_SIZE_BYTES = 15 * 1024 * 1024;
+const OCR_MAX_WAIT_MS = Math.min(Number(process.env.OCR_MAX_WAIT_MS || 8000), 8000);
+const OCR_POLL_INTERVAL_MS = 800;
 const upload = multer({
   storage: multer.memoryStorage(),
   limits: { fileSize: MAX_PDF_SIZE_BYTES, files: 1 },
@@ -33,6 +35,76 @@ function repairTextEncoding(value) {
 
 function normalizeText(value) {
   return repairTextEncoding(value).replace(/\r/g, '').replace(/[ \t]+/g, ' ').replace(/\n{3,}/g, '\n\n').trim();
+}
+
+function wait(milliseconds) {
+  return new Promise((resolve) => setTimeout(resolve, milliseconds));
+}
+
+function isAzureOcrConfigured() {
+  return Boolean(process.env.AZURE_DOCUMENT_INTELLIGENCE_ENDPOINT && process.env.AZURE_DOCUMENT_INTELLIGENCE_KEY);
+}
+
+function hasBrokenPdfText(text) {
+  return /\(cid:\d+\)|\uFFFD/.test(String(text || ''));
+}
+
+function countQuestionNumberGaps(questions) {
+  return questions.slice(1).reduce((gaps, question, index) => {
+    const previous = questions[index];
+    return gaps + (question.id - previous.id > 1 ? 1 : 0);
+  }, 0);
+}
+
+function shouldTryOcr(text, questions) {
+  return hasBrokenPdfText(text) || questions.length < 2 || countQuestionNumberGaps(questions) > 0;
+}
+
+function ocrResultToText(payload) {
+  const pages = payload && payload.analyzeResult && Array.isArray(payload.analyzeResult.pages)
+    ? payload.analyzeResult.pages
+    : [];
+  return pages.flatMap((page) => Array.isArray(page.lines) ? page.lines.map((line) => line.content) : [])
+    .filter(Boolean)
+    .join('\n')
+    .trim();
+}
+
+/**
+ * OCR opcional com Azure AI Document Intelligence. O PDF permanece somente em
+ * memória: nenhum arquivo é salvo no disco da função Vercel. O serviço devolve
+ * texto com posição de leitura, útil para provas escaneadas e páginas em colunas.
+ */
+async function extractTextWithAzureOcr(pdfBuffer) {
+  if (!isAzureOcrConfigured()) return { text: null, status: 'not_configured' };
+
+  const endpoint = process.env.AZURE_DOCUMENT_INTELLIGENCE_ENDPOINT.replace(/\/$/, '');
+  const apiVersion = process.env.AZURE_DOCUMENT_INTELLIGENCE_API_VERSION || '2024-11-30';
+  const analyzeUrl = `${endpoint}/documentintelligence/documentModels/prebuilt-read:analyze?api-version=${apiVersion}`;
+  const headers = {
+    'Ocp-Apim-Subscription-Key': process.env.AZURE_DOCUMENT_INTELLIGENCE_KEY,
+    'Content-Type': 'application/pdf'
+  };
+
+  const submitted = await fetch(analyzeUrl, { method: 'POST', headers, body: pdfBuffer });
+  if (!submitted.ok) {
+    throw new Error(`OCR remoto recusou o PDF (HTTP ${submitted.status}).`);
+  }
+
+  const operationUrl = submitted.headers.get('operation-location');
+  if (!operationUrl) throw new Error('O serviço OCR não retornou a URL de acompanhamento.');
+
+  const startedAt = Date.now();
+  while (Date.now() - startedAt < OCR_MAX_WAIT_MS) {
+    await wait(OCR_POLL_INTERVAL_MS);
+    const operation = await fetch(operationUrl, { headers: { 'Ocp-Apim-Subscription-Key': process.env.AZURE_DOCUMENT_INTELLIGENCE_KEY } });
+    if (!operation.ok) throw new Error(`Não foi possível consultar o OCR (HTTP ${operation.status}).`);
+    const result = await operation.json();
+    if (result.status === 'succeeded') return { text: ocrResultToText(result), status: 'succeeded' };
+    if (result.status === 'failed') throw new Error('O serviço OCR não conseguiu reconhecer este PDF.');
+  }
+
+  return { text: null, status: 'pending' };
 }
 
 function fileNameWithoutExtension(fileName) {
@@ -330,9 +402,42 @@ async function uploadPdf(request, response, next) {
       });
     }
 
-    const textoProva = String(parsedPdf.text || '').trim();
+    const textoNativo = String(parsedPdf.text || '').trim();
+    let textoProva = textoNativo;
+    let questoesDetectadas = extrairQuestoesProva(textoNativo);
+    let ocr = { tentado: false, usado: false, status: 'not_needed' };
+
+    // O OCR só é acionado quando há indícios objetivos de extração ruim. Assim,
+    // PDFs digitais normais continuam rápidos e não enviam dados a outro serviço.
+    if (shouldTryOcr(textoNativo, questoesDetectadas)) {
+      ocr.tentado = true;
+      try {
+        const resultadoOcr = await extractTextWithAzureOcr(request.file.buffer);
+        ocr.status = resultadoOcr.status;
+        if (resultadoOcr.text) {
+          const questoesOcr = extrairQuestoesProva(resultadoOcr.text);
+          const ocrMelhorouLeitura = questoesOcr.length > questoesDetectadas.length
+            || countQuestionNumberGaps(questoesOcr) < countQuestionNumberGaps(questoesDetectadas)
+            || hasBrokenPdfText(textoNativo);
+          if (ocrMelhorouLeitura) {
+            textoProva = resultadoOcr.text;
+            questoesDetectadas = questoesOcr;
+            ocr.usado = true;
+          }
+        }
+      } catch (ocrError) {
+        // A prova ainda pode ser exibida pelo texto nativo. O motivo fica nos
+        // metadados para o professor revisar a importação, sem derrubar o upload.
+        console.error('OCR complementar indisponível:', ocrError);
+        ocr.status = 'failed';
+        ocr.detalhe = ocrError.message;
+      }
+    }
+
     if (!textoProva) {
-      return response.status(422).json({ erro: 'Não foi possível extrair texto do PDF. Verifique se o documento não é uma imagem digitalizada.' });
+      return response.status(422).json({
+        erro: 'Não foi possível extrair texto do PDF. Este arquivo parece ser uma imagem; configure o OCR para processá-lo.'
+      });
     }
 
     const questions = parseExamQuestions(textoProva);
@@ -353,6 +458,7 @@ async function uploadPdf(request, response, next) {
       metadados: {
         idioma: 'pt-BR',
         total_questoes: questions.length,
+        ocr,
         origem: { arquivo: request.file.originalname, tamanho_bytes: request.file.size, processado_em: new Date().toISOString() }
       },
       questoes: questions
