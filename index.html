@@ -496,6 +496,56 @@
         return elemento.innerHTML;
       }
 
+      // Ignora capa, orientações e introduções: a prova começa somente na questão 1.
+      function processarTextoProva(textoBruto) {
+        const texto = String(textoBruto || '').replace(/\r/g, '').replace(/\n{3,}/g, '\n\n').trim();
+        const inicio = texto.search(/(?:^|\n)\s*(?:quest[ãa]o\s*1\b\s*(?:\.|\)|-)?|1\s*(?:\.|\)|-))/im);
+        if (inicio < 0) return [];
+
+        const textoDasQuestoes = texto.slice(inicio);
+        const blocos = textoDasQuestoes
+          .split(/(?=^\s*(?:(?:quest[ãa]o\s*)?\d+\b\s*(?:\.|\)|-)?))/im)
+          .map((bloco) => bloco.trim())
+          .filter(Boolean);
+
+        return blocos.map((bloco) => {
+          const cabecalho = bloco.match(/^\s*(?:quest[ãa]o\s*)?(\d+)\b\s*(?:\.|\)|-)?\s*/i);
+          if (!cabecalho) return null;
+
+          const alternativasEncontradas = [...bloco.matchAll(/^\s*([A-D])\s*(?:\.|\)|-|:)\s*(.+)$/gim)];
+          if (!alternativasEncontradas.length) return null;
+
+          const inicioPergunta = cabecalho[0].length;
+          const fimPergunta = alternativasEncontradas[0].index;
+          const pergunta = bloco.slice(inicioPergunta, fimPergunta).replace(/\s*\n\s*/g, ' ').trim();
+          const alternativas = alternativasEncontradas.slice(0, 4).map((item) => item[2].trim());
+          if (!pergunta || alternativas.length < 2) return null;
+
+          return {
+            id: Number(cabecalho[1]),
+            pergunta,
+            alternativas,
+            correta: 0
+          };
+        }).filter(Boolean);
+      }
+
+      function converterPerguntasParaQuestoes(perguntas) {
+        return perguntas.map((pergunta, indice) => ({
+          ordem: pergunta.id || indice + 1,
+          tipo: 'MULTIPLA_ESCOLHA',
+          enunciado: pergunta.pergunta,
+          alternativas: pergunta.alternativas.map((texto, indiceAlternativa) => ({
+            id: String.fromCharCode(65 + indiceAlternativa),
+            texto
+          }))
+        }));
+      }
+
+      // Exemplo de texto "sujo": o parser mantém somente a questão iniciada por "1.".
+      const textoProvaDemonstracao = `CADERNO DE QUESTÕES\nLeia as instruções antes de iniciar.\n\n1. Qual cor representa a alternativa azul?\nA. Vermelho\nB. Azul\nC. Verde\nD. Amarelo`;
+      const demonstracaoParser = processarTextoProva(textoProvaDemonstracao);
+
       function obterAluno(login) {
         return mockAlunos.find((aluno) => aluno.login === login);
       }
@@ -724,13 +774,17 @@
           const resposta = await fetch('/api/upload-pdf', { method: 'POST', body: dadosUpload });
           const provaProcessada = await resposta.json().catch(() => ({}));
           if (!resposta.ok) throw new Error(provaProcessada.erro || 'Não foi possível processar o PDF.');
+          const perguntasFiltradas = processarTextoProva(provaProcessada.textoProva);
+          const questoesFiltradas = converterPerguntasParaQuestoes(perguntasFiltradas);
 
           mockProvas.push({
             id: Date.now(),
             titulo: provaProcessada.titulo || arquivo.name.replace(/\.pdf$/i, ''),
             alunoLogin,
             adaptacoes,
-            questoes: Array.isArray(provaProcessada.questoes) ? provaProcessada.questoes : []
+            questoes: questoesFiltradas.length
+              ? questoesFiltradas
+              : (Array.isArray(provaProcessada.questoes) ? provaProcessada.questoes : [])
           });
           formularioProva.reset();
           document.querySelector('#mensagemCadastro').textContent = 'Prova processada, salva e atribuída com sucesso!';
