@@ -157,6 +157,129 @@ function extractInstructions(pdfText) {
   return null;
 }
 
+function textItemsToLines(items) {
+  const orderedItems = [...items].sort((left, right) => right.y - left.y || left.x - right.x);
+  const lines = [];
+
+  for (const item of orderedItems) {
+    const currentLine = lines[lines.length - 1];
+    if (currentLine && Math.abs(currentLine.y - item.y) <= 3) {
+      currentLine.items.push(item);
+    } else {
+      lines.push({ y: item.y, items: [item] });
+    }
+  }
+
+  return lines.map((line) => line.items
+    .sort((left, right) => left.x - right.x)
+    .map((item) => item.text)
+    .join(' ')
+    .replace(/\s+/g, ' ')
+    .trim()
+  ).filter(Boolean).join('\n');
+}
+
+async function renderPageInReadingOrder(pageData) {
+  const content = await pageData.getTextContent({ normalizeWhitespace: false, disableCombineTextItems: false });
+  const items = content.items
+    .filter((item) => String(item.str || '').trim())
+    .map((item) => ({ text: item.str, x: item.transform[4], y: item.transform[5] }));
+  const pageWidth = pageData.view[2] - pageData.view[0];
+  const middle = pageWidth / 2;
+  const leftColumn = items.filter((item) => item.x < middle);
+  const rightColumn = items.filter((item) => item.x >= middle);
+
+  // Provas como a de 3º ano usam duas colunas: lê toda a esquerda antes da direita.
+  if (leftColumn.length >= 8 && rightColumn.length >= 8) {
+    return [textItemsToLines(leftColumn), textItemsToLines(rightColumn)].filter(Boolean).join('\n');
+  }
+  return textItemsToLines(items);
+}
+
+function getExamQuestionMarkers(text) {
+  const explicitPattern = /(?:^|\n)\s*quest[ãa]o\s*0*(\d{1,3})\b\s*/gi;
+  const explicitMarkers = [...text.matchAll(explicitPattern)];
+  if (explicitMarkers.length) return explicitMarkers;
+  const genericPattern = /(?:^|\n|\s)(?:quest[ãa]o\s*)?0*(\d{1,3})\s*(?:\.|\)|-|:)/gi;
+  return [...text.matchAll(genericPattern)];
+}
+
+function getSupportTextsByQuestion(text, questionMarkers) {
+  const supportPattern = /(?:^|\n)\s*TEXTO\s+PARA\s+AS?\s+QUEST[ÕO]ES?\s+0*(\d{1,3})(?:\s*(?:E|A|À|ATÉ|ATE|-)\s*0*(\d{1,3}))?\b/gi;
+  const supportMarkers = [...text.matchAll(supportPattern)];
+  const supportByQuestion = new Map();
+
+  supportMarkers.forEach((marker, index) => {
+    const nextSupport = supportMarkers[index + 1];
+    const nextQuestion = questionMarkers.find((question) => question.index > marker.index);
+    const end = Math.min(
+      nextSupport ? nextSupport.index : text.length,
+      nextQuestion ? nextQuestion.index : text.length
+    );
+    const supportText = text.slice(marker.index + marker[0].length, end).replace(/\s+/g, ' ').trim();
+    if (!supportText) return;
+
+    const firstQuestion = Number(marker[1]);
+    const lastQuestion = Number(marker[2] || marker[1]);
+    for (let questionNumber = firstQuestion; questionNumber <= lastQuestion; questionNumber += 1) {
+      supportByQuestion.set(questionNumber, supportText);
+    }
+  });
+
+  return { supportMarkers, supportByQuestion };
+}
+
+function parseExamQuestions(pdfText) {
+  const text = normalizeText(pdfText);
+  const markers = getExamQuestionMarkers(text);
+  const { supportByQuestion } = getSupportTextsByQuestion(text, markers);
+  const alternativesPattern = /(?:^|\n)\s*(?:\(\s*)?([A-D])\s*(?:\))?\s*(?:\.|\)|-|:)?\s+/gi;
+
+  return markers.map((marker, index) => {
+    const nextMarker = markers[index + 1];
+    const start = marker.index + marker[0].length;
+    const end = nextMarker ? nextMarker.index : text.length;
+    const block = text.slice(start, end).trim();
+    const alternatives = [...block.matchAll(alternativesPattern)];
+    if (alternatives.length < 2) return null;
+
+    const statement = block.slice(0, alternatives[0].index).replace(/\s+/g, ' ').trim();
+    const parsedAlternatives = alternatives.slice(0, 4).map((alternative, alternativeIndex) => {
+      const nextAlternative = alternatives[alternativeIndex + 1];
+      const alternativeStart = alternative.index + alternative[0].length;
+      const alternativeEnd = nextAlternative ? nextAlternative.index : block.length;
+      return {
+        id: alternative[1].toUpperCase(),
+        texto: block.slice(alternativeStart, alternativeEnd).replace(/\s+/g, ' ').trim()
+      };
+    }).filter((alternative) => alternative.texto);
+
+    if (!statement || parsedAlternatives.length < 2) return null;
+    return {
+      ordem: Number(marker[1]),
+      tipo: 'MULTIPLA_ESCOLHA',
+      enunciado: statement,
+      texto_apoio: supportByQuestion.get(Number(marker[1])) || null,
+      alternativas: parsedAlternatives,
+      imagem_url: null,
+      descricao_imagem: null,
+      recursos_acessibilidade: { texto_para_narracao: statement, descricao_imagem: null }
+    };
+  }).filter(Boolean).sort((left, right) => left.ordem - right.ordem).map((question, index) => ({ ...question, ordem: index + 1 }));
+}
+
+function extractExamInstructions(pdfText) {
+  const text = normalizeText(pdfText);
+  const markers = getExamQuestionMarkers(text);
+  if (!markers.length) return null;
+  const { supportMarkers } = getSupportTextsByQuestion(text, markers);
+  const firstContentIndex = Math.min(
+    markers[0].index,
+    supportMarkers.length ? supportMarkers[0].index : text.length
+  );
+  return text.slice(0, firstContentIndex).replace(/\s+/g, ' ').trim() || null;
+}
+
 async function uploadPdf(request, response, next) {
   try {
     if (!request.file) return response.status(400).json({ erro: 'Envie um arquivo PDF no campo "arquivo".' });
@@ -166,7 +289,7 @@ async function uploadPdf(request, response, next) {
 
     let parsedPdf;
     try {
-      parsedPdf = await pdfParse(request.file.buffer);
+      parsedPdf = await pdfParse(request.file.buffer, { pagerender: renderPageInReadingOrder });
     } catch (pdfError) {
       console.error('Falha ao extrair texto do PDF:', pdfError);
       return response.status(500).json({
@@ -180,8 +303,8 @@ async function uploadPdf(request, response, next) {
       return response.status(422).json({ erro: 'Não foi possível extrair texto do PDF. Verifique se o documento não é uma imagem digitalizada.' });
     }
 
-    const questions = parseStructuredQuestions(textoProva);
-    const instructions = extractInstructions(textoProva);
+    const questions = parseExamQuestions(textoProva);
+    const instructions = extractExamInstructions(textoProva);
     if (!questions.length) {
       return response.status(422).json({
         erro: 'Não foram encontradas questões de múltipla escolha no padrão 1. / Questão 1 com alternativas A, B, C ou D.'
