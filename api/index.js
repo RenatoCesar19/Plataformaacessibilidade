@@ -197,15 +197,15 @@ async function renderPageInReadingOrder(pageData) {
 }
 
 function getExamQuestionMarkers(text) {
-  const explicitPattern = /(?:^|\n)\s*quest[ãa]o\s*0*(\d{1,3})\b\s*/gi;
+  const explicitPattern = /(?:^|\n)\s*quest(?:ão|ao)\s*0*(\d{1,3})\b\s*/gi;
   const explicitMarkers = [...text.matchAll(explicitPattern)];
   if (explicitMarkers.length) return explicitMarkers;
-  const genericPattern = /(?:^|\n|\s)(?:quest[ãa]o\s*)?0*(\d{1,3})\s*(?:\.|\)|-|:)/gi;
+  const genericPattern = /(?:^|\n|\s)(?:quest(?:ão|ao)\s*)?0*(\d{1,3})\s*(?:\.|\)|-|:)/gi;
   return [...text.matchAll(genericPattern)];
 }
 
 function getSupportTextsByQuestion(text, questionMarkers) {
-  const supportPattern = /(?:^|\n)\s*TEXTO\s+PARA\s+AS?\s+QUEST[ÕO]ES?\s+0*(\d{1,3})(?:\s*(?:E|A|À|ATÉ|ATE|-)\s*0*(\d{1,3}))?\b/gi;
+  const supportPattern = /(?:^|\n)\s*TEXTO\s+PARA\s+AS?\s+QUEST(?:ÕES|OES)\s+0*(\d{1,3})(?:\s*(?:E|A|À|ATÉ|ATE|-)\s*0*(\d{1,3}))?\b/gi;
   const supportMarkers = [...text.matchAll(supportPattern)];
   const supportByQuestion = new Map();
 
@@ -229,59 +229,66 @@ function getSupportTextsByQuestion(text, questionMarkers) {
   return { supportMarkers, supportByQuestion };
 }
 
-function parseAlternativesFromBlock(block) {
-  const statementLines = [];
-  const alternatives = [];
-  let currentAlternative = null;
+/**
+ * Extrai exclusivamente questões objetivas do texto do PDF.
+ * O delimitador exige que "1.", "01 -" ou "QUESTÃO 01" esteja no começo
+ * de uma linha. Tudo antes do primeiro marcador é descartado: cabeçalho,
+ * instruções, textos de leitura e dados da escola não viram questão.
+ */
+function extrairQuestoesProva(textoBruto) {
+  const texto = normalizeText(textoBruto).replace(/\n{2,}/g, '\n');
+  const delimitadorQuestao = /(?:^|\n)\s*(?:quest(?:ão|ao)\s*0*(\d{1,3})\b\s*[.\-:)]?|\(?0*(\d{1,3})\)?\s*[.\-])\s*/gim;
+  const marcadoresQuestoes = [...texto.matchAll(delimitadorQuestao)];
 
-  for (const rawLine of block.split('\n')) {
-    const line = rawLine.trim();
-    if (!line) continue;
-    const marker = line.match(/^\s*(?:\(\s*([A-D])\s*\)|([A-D])\s*[.)\-:])\s*(.*)$/i);
+  if (!marcadoresQuestoes.length) return [];
 
-    if (marker && alternatives.length < 4) {
-      currentAlternative = { id: (marker[1] || marker[2]).toUpperCase(), parts: [marker[3]] };
-      alternatives.push(currentAlternative);
-    } else if (currentAlternative) {
-      currentAlternative.parts.push(line);
-    } else {
-      statementLines.push(line);
-    }
-  }
+  return marcadoresQuestoes.map((marcador, indice) => {
+    const proximoMarcador = marcadoresQuestoes[indice + 1];
+    const inicio = marcador.index + marcador[0].length;
+    const fim = proximoMarcador ? proximoMarcador.index : texto.length;
+    const bloco = texto.slice(inicio, fim).trim();
+    const id = Number(marcador[1] || marcador[2]);
 
-  return {
-    statement: statementLines.join(' ').replace(/\s+/g, ' ').trim(),
-    alternatives: alternatives.map((alternative) => ({
-      id: alternative.id,
-      texto: alternative.parts.join(' ').replace(/\s+/g, ' ').trim()
-    })).filter((alternative) => alternative.texto)
-  };
+    // Aceita A), (A), A., A - e versões minúsculas. Limitar a A-E impede
+    // que algarismos romanos I, II e III do enunciado virem alternativas.
+    const delimitadorAlternativa = /(?:^|\n|\s+)(?:\(\s*([A-E])\s*\)|([A-E])\s*[.)\-])\s*/gim;
+    const marcadoresAlternativas = [...bloco.matchAll(delimitadorAlternativa)];
+
+    // Instruções, rodapés e páginas não têm alternativas suficientes.
+    if (!Number.isFinite(id) || marcadoresAlternativas.length < 2) return null;
+
+    const pergunta = bloco.slice(0, marcadoresAlternativas[0].index).replace(/\s+/g, ' ').trim();
+    if (!pergunta) return null;
+
+    const alternativas = marcadoresAlternativas.map((alternativa, alternativaIndice) => {
+      const proximaAlternativa = marcadoresAlternativas[alternativaIndice + 1];
+      const inicioAlternativa = alternativa.index + alternativa[0].length;
+      const fimAlternativa = proximaAlternativa ? proximaAlternativa.index : bloco.length;
+      return bloco.slice(inicioAlternativa, fimAlternativa).replace(/\s+/g, ' ').trim();
+    }).filter(Boolean);
+
+    return alternativas.length < 2 ? null : { id, pergunta, alternativas, correta: null };
+  }).filter(Boolean).sort((esquerda, direita) => esquerda.id - direita.id);
 }
 
 function parseExamQuestions(pdfText) {
   const text = normalizeText(pdfText);
-  const markers = getExamQuestionMarkers(text);
-  const { supportByQuestion } = getSupportTextsByQuestion(text, markers);
+  const supportMarkers = getExamQuestionMarkers(text);
+  const { supportByQuestion } = getSupportTextsByQuestion(text, supportMarkers);
 
-  return markers.map((marker, index) => {
-    const nextMarker = markers[index + 1];
-    const start = marker.index + marker[0].length;
-    const end = nextMarker ? nextMarker.index : text.length;
-    const block = text.slice(start, end).trim();
-    const { statement, alternatives: parsedAlternatives } = parseAlternativesFromBlock(block);
-
-    if (!statement || parsedAlternatives.length < 2) return null;
-    return {
-      ordem: Number(marker[1]),
-      tipo: 'MULTIPLA_ESCOLHA',
-      enunciado: statement,
-      texto_apoio: supportByQuestion.get(Number(marker[1])) || null,
-      alternativas: parsedAlternatives,
-      imagem_url: null,
-      descricao_imagem: null,
-      recursos_acessibilidade: { texto_para_narracao: statement, descricao_imagem: null }
-    };
-  }).filter(Boolean).sort((left, right) => left.ordem - right.ordem).map((question, index) => ({ ...question, ordem: index + 1 }));
+  return extrairQuestoesProva(text).map((question, index) => ({
+    ordem: index + 1,
+    tipo: 'MULTIPLA_ESCOLHA',
+    enunciado: question.pergunta,
+    texto_apoio: supportByQuestion.get(question.id) || null,
+    alternativas: question.alternativas.map((texto, alternativaIndex) => ({
+      id: String.fromCharCode(65 + alternativaIndex),
+      texto
+    })),
+    imagem_url: null,
+    descricao_imagem: null,
+    recursos_acessibilidade: { texto_para_narracao: question.pergunta, descricao_imagem: null }
+  }));
 }
 
 function extractExamInstructions(pdfText) {
