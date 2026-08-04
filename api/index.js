@@ -137,6 +137,26 @@ function parseStructuredQuestions(pdfText) {
   }).filter(Boolean).map((question, index) => ({ ...question, ordem: index + 1 }));
 }
 
+function extractInstructions(pdfText) {
+  const text = normalizeText(pdfText);
+  const questionPattern = /(?:^|\n|\s)(?:quest[ãa]o\s*)?0*(\d{1,3})\s*(?:\.|\)|-|:)/gi;
+  const markers = [...text.matchAll(questionPattern)];
+  const alternativePattern = /(?:^|\n|\s)([A-D])\s*(?:\.|\)|-|:)/gi;
+
+  for (let index = 0; index < markers.length; index += 1) {
+    const marker = markers[index];
+    const nextMarker = markers[index + 1];
+    const blockStart = marker.index + marker[0].length;
+    const blockEnd = nextMarker ? nextMarker.index : text.length;
+    const alternatives = [...text.slice(blockStart, blockEnd).matchAll(alternativePattern)];
+    if (alternatives.length >= 2) {
+      const instructions = text.slice(0, marker.index).replace(/\s+/g, ' ').trim();
+      return instructions || null;
+    }
+  }
+  return null;
+}
+
 async function uploadPdf(request, response, next) {
   try {
     if (!request.file) return response.status(400).json({ erro: 'Envie um arquivo PDF no campo "arquivo".' });
@@ -161,6 +181,7 @@ async function uploadPdf(request, response, next) {
     }
 
     const questions = parseStructuredQuestions(textoProva);
+    const instructions = extractInstructions(textoProva);
     if (!questions.length) {
       return response.status(422).json({
         erro: 'Não foram encontradas questões de múltipla escolha no padrão 1. / Questão 1 com alternativas A, B, C ou D.'
@@ -172,6 +193,7 @@ async function uploadPdf(request, response, next) {
       textoProva,
       titulo: normalizeText(request.body.titulo) || fileNameWithoutExtension(request.file.originalname),
       descricao: normalizeText(request.body.descricao) || null,
+      instrucoes: instructions,
       versao: '1.0',
       metadados: {
         idioma: 'pt-BR',
