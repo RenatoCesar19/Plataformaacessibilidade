@@ -229,30 +229,46 @@ function getSupportTextsByQuestion(text, questionMarkers) {
   return { supportMarkers, supportByQuestion };
 }
 
+function parseAlternativesFromBlock(block) {
+  const statementLines = [];
+  const alternatives = [];
+  let currentAlternative = null;
+
+  for (const rawLine of block.split('\n')) {
+    const line = rawLine.trim();
+    if (!line) continue;
+    const marker = line.match(/^\s*(?:\(\s*([A-D])\s*\)|([A-D])\s*[.)\-:])\s*(.*)$/i);
+
+    if (marker && alternatives.length < 4) {
+      currentAlternative = { id: (marker[1] || marker[2]).toUpperCase(), parts: [marker[3]] };
+      alternatives.push(currentAlternative);
+    } else if (currentAlternative) {
+      currentAlternative.parts.push(line);
+    } else {
+      statementLines.push(line);
+    }
+  }
+
+  return {
+    statement: statementLines.join(' ').replace(/\s+/g, ' ').trim(),
+    alternatives: alternatives.map((alternative) => ({
+      id: alternative.id,
+      texto: alternative.parts.join(' ').replace(/\s+/g, ' ').trim()
+    })).filter((alternative) => alternative.texto)
+  };
+}
+
 function parseExamQuestions(pdfText) {
   const text = normalizeText(pdfText);
   const markers = getExamQuestionMarkers(text);
   const { supportByQuestion } = getSupportTextsByQuestion(text, markers);
-  const alternativesPattern = /(?:^|\n)\s*(?:\(\s*)?([A-D])\s*(?:\))?\s*(?:\.|\)|-|:)?\s+/gi;
 
   return markers.map((marker, index) => {
     const nextMarker = markers[index + 1];
     const start = marker.index + marker[0].length;
     const end = nextMarker ? nextMarker.index : text.length;
     const block = text.slice(start, end).trim();
-    const alternatives = [...block.matchAll(alternativesPattern)];
-    if (alternatives.length < 2) return null;
-
-    const statement = block.slice(0, alternatives[0].index).replace(/\s+/g, ' ').trim();
-    const parsedAlternatives = alternatives.slice(0, 4).map((alternative, alternativeIndex) => {
-      const nextAlternative = alternatives[alternativeIndex + 1];
-      const alternativeStart = alternative.index + alternative[0].length;
-      const alternativeEnd = nextAlternative ? nextAlternative.index : block.length;
-      return {
-        id: alternative[1].toUpperCase(),
-        texto: block.slice(alternativeStart, alternativeEnd).replace(/\s+/g, ' ').trim()
-      };
-    }).filter((alternative) => alternative.texto);
+    const { statement, alternatives: parsedAlternatives } = parseAlternativesFromBlock(block);
 
     if (!statement || parsedAlternatives.length < 2) return null;
     return {
@@ -270,6 +286,15 @@ function parseExamQuestions(pdfText) {
 
 function extractExamInstructions(pdfText) {
   const text = normalizeText(pdfText);
+  const instructionStart = text.search(/LEIA\s+COM\s+ATENÇÃO\s+AS\s+INSTRUÇÕES\s+ABAIXO/i);
+  if (instructionStart >= 0) {
+    const textAfterStart = text.slice(instructionStart);
+    const instructionEnd = /BOA\s+PROVA!?/i.exec(textAfterStart);
+    if (instructionEnd) {
+      return textAfterStart.slice(0, instructionEnd.index + instructionEnd[0].length).replace(/\s+/g, ' ').trim();
+    }
+  }
+
   const markers = getExamQuestionMarkers(text);
   if (!markers.length) return null;
   const { supportMarkers } = getSupportTextsByQuestion(text, markers);
