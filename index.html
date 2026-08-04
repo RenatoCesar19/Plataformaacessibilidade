@@ -223,6 +223,8 @@
       .cabecalho-prova { display: flex; align-items: center; justify-content: space-between; gap: 1rem; min-height: 110px; padding: 1.25rem clamp(1rem, 4vw, 4rem); background: #ffffff; border-bottom: 3px solid #d8dce0; }
       .cabecalho-prova h1 { margin: 0; color: #292929; font-size: clamp(1.4rem, 3vw, 2.4rem); }
       .apoio-prova { margin: 0.35rem 0 0; }
+      .acoes-prova { display: flex; align-items: center; justify-content: flex-end; flex-wrap: wrap; gap: 0.7rem; }
+      .acoes-prova button:disabled { cursor: not-allowed; opacity: 0.48; transform: none; }
       .painel-prova { display: grid; grid-template-columns: 150px minmax(0, 1fr) 150px; align-items: start; gap: 1.5rem; padding: clamp(1rem, 3vw, 2rem); }
       .contador-questao { display: grid; place-items: center; width: 98px; height: 98px; border-radius: 50%; background: #7b3fc1; color: #ffffff; font-size: 1.45rem; font-weight: 800; box-shadow: none; }
       .questao-prova { width: min(100%, 850px); min-height: 250px; margin: 0 auto; border: 0; border-radius: 0; box-shadow: none; text-align: center; }
@@ -294,6 +296,8 @@
         .menu { grid-template-columns: 1fr 1fr; }
         .tabela { font-size: 0.9rem; }
         .cabecalho-prova { min-height: auto; align-items: stretch; flex-direction: column; }
+        .acoes-prova { justify-content: stretch; }
+        .acoes-prova button { flex: 1 1 150px; }
         .painel-prova { grid-template-columns: 1fr; }
         .contador-questao { width: 62px; height: 62px; font-size: 1rem; }
         .alternativas-prova { grid-template-columns: 1fr; }
@@ -432,12 +436,16 @@
       <div class="dashboard">
         <header class="cabecalho-prova">
           <div><h1 id="tituloProva">Prova</h1><p class="apoio-prova">Leia com calma e escolha uma alternativa.</p></div>
-          <button id="voltarProvas" class="botao-neutro" type="button">Voltar para Minhas Provas</button>
+          <div class="acoes-prova">
+            <button id="retrocederQuestao" class="botao-neutro" type="button">← Retroceder</button>
+            <button id="avancarQuestao" type="button">Avançar →</button>
+            <button id="voltarProvas" class="botao-neutro" type="button">Voltar para Minhas Provas</button>
+          </div>
         </header>
         <div class="painel-prova">
           <div id="contadorQuestao" class="contador-questao" aria-label="Questão atual">1</div>
           <main class="card questao-prova">
-            <p id="enunciadoProva" class="enunciado-prova"></p>
+            <p id="enunciadoProva" class="enunciado-prova" tabindex="-1"></p>
             <figure id="imagemQuestao" class="imagem-questao oculto">
               <img id="imagemQuestaoArquivo" src="" alt="" />
             </figure>
@@ -740,6 +748,7 @@
         const prova = mockProvas.find((item) => String(item.id) === String(idProva));
         if (!prova) return;
         provaAtual = prova;
+        provaAtual.respostas = provaAtual.respostas || {};
         indiceQuestaoAtual = 0;
         document.querySelector('#tituloProva').textContent = prova.titulo;
         renderizarQuestaoAtual();
@@ -760,10 +769,15 @@
         const imagem = document.querySelector('#imagemQuestao');
         const imagemArquivo = document.querySelector('#imagemQuestaoArquivo');
         const feedback = document.querySelector('#feedbackProva');
+        const botaoRetroceder = document.querySelector('#retrocederQuestao');
+        const botaoAvancar = document.querySelector('#avancarQuestao');
         const estilos = ['kahoot-vermelho', 'kahoot-azul', 'kahoot-amarelo', 'kahoot-verde'];
         const simbolos = ['▲', '◆', '●', '■'];
+        const chaveResposta = String(questao.ordem || indiceQuestaoAtual + 1);
 
         contador.textContent = `${indiceQuestaoAtual + 1}/${questoes.length}`;
+        botaoRetroceder.disabled = indiceQuestaoAtual === 0;
+        botaoAvancar.disabled = indiceQuestaoAtual >= questoes.length - 1;
         contador.setAttribute('aria-label', `Questão ${indiceQuestaoAtual + 1} de ${questoes.length}`);
         enunciado.textContent = questao.enunciado || 'Questão sem enunciado.';
         feedback.className = '';
@@ -786,12 +800,14 @@
             const botao = document.createElement('button');
             botao.type = 'button';
             botao.className = `alternativa-prova ${estilos[indice % estilos.length]}`;
+            if (provaAtual.respostas[chaveResposta] === alternativa.id) botao.classList.add('selecionada');
             botao.setAttribute('aria-label', `Alternativa ${alternativa.id || indice + 1}: ${alternativa.texto}`);
             botao.innerHTML = `<span class="simbolo-alternativa" aria-hidden="true">${simbolos[indice % simbolos.length]}</span><span class="texto-alternativa"></span>`;
             botao.querySelector('.texto-alternativa').textContent = alternativa.texto;
             botao.addEventListener('click', () => {
               alternativas.querySelectorAll('.alternativa-prova').forEach((item) => item.classList.remove('selecionada'));
               botao.classList.add('selecionada');
+              provaAtual.respostas[chaveResposta] = alternativa.id;
               feedback.className = 'estado-selecionado';
               feedback.textContent = `Resposta ${alternativa.id || indice + 1} selecionada.`;
             });
@@ -804,6 +820,10 @@
         resposta.className = 'resposta-discursiva';
         resposta.placeholder = 'Digite sua resposta aqui...';
         resposta.setAttribute('aria-label', 'Resposta discursiva');
+        resposta.value = provaAtual.respostas[chaveResposta] || '';
+        resposta.addEventListener('input', () => {
+          provaAtual.respostas[chaveResposta] = resposta.value;
+        });
         alternativas.appendChild(resposta);
       }
 
@@ -814,6 +834,21 @@
         evento.stopImmediatePropagation();
         abrirProva(botaoIniciar.dataset.iniciar);
       }, true);
+
+      document.querySelector('#retrocederQuestao').addEventListener('click', () => {
+        if (!provaAtual || indiceQuestaoAtual === 0) return;
+        indiceQuestaoAtual -= 1;
+        renderizarQuestaoAtual();
+        document.querySelector('#enunciadoProva').focus();
+      });
+
+      document.querySelector('#avancarQuestao').addEventListener('click', () => {
+        const totalQuestoes = provaAtual?.questoes?.length || 1;
+        if (!provaAtual || indiceQuestaoAtual >= totalQuestoes - 1) return;
+        indiceQuestaoAtual += 1;
+        renderizarQuestaoAtual();
+        document.querySelector('#enunciadoProva').focus();
+      });
 
       document.querySelector('#voltarProvas').addEventListener('click', () => {
         renderizarProvasDoAluno();

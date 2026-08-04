@@ -18,12 +18,25 @@ app.disable('x-powered-by');
 app.use(cors());
 app.use(express.json({ limit: '1mb' }));
 
+function repairTextEncoding(value) {
+  const original = String(value || '');
+  // O Multer trata o nome do arquivo como latin1 em alguns navegadores.
+  // Corrige sequências como "3Âº" e "MÃ‰DIO" de volta para UTF-8.
+  if (!/[ÃÂâ]/.test(original)) return original;
+  try {
+    const repaired = Buffer.from(original, 'latin1').toString('utf8');
+    return repaired.includes('\uFFFD') ? original : repaired;
+  } catch (_error) {
+    return original;
+  }
+}
+
 function normalizeText(value) {
-  return String(value || '').replace(/\r/g, '').replace(/[ \t]+/g, ' ').replace(/\n{3,}/g, '\n\n').trim();
+  return repairTextEncoding(value).replace(/\r/g, '').replace(/[ \t]+/g, ' ').replace(/\n{3,}/g, '\n\n').trim();
 }
 
 function fileNameWithoutExtension(fileName) {
-  return String(fileName || 'Prova').replace(/^.*[\\/]/, '').replace(/\.pdf$/i, '').trim() || 'Prova';
+  return repairTextEncoding(fileName).replace(/^.*[\\/]/, '').replace(/\.pdf$/i, '').trim() || 'Prova';
 }
 
 function parseQuestions(pdfText) {
