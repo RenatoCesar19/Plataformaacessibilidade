@@ -698,10 +698,11 @@
       });
       document.querySelector('#formNovaProva').addEventListener('submit', async (evento) => {
         evento.preventDefault();
+        const formularioProva = evento.currentTarget;
         const arquivo = document.querySelector('#arquivoProva').files[0];
         const alunoLogin = document.querySelector('#alunoAlvo').value;
         const adaptacoes = [...document.querySelectorAll('input[name="adaptacao"]:checked')].map((input) => input.value);
-        const botaoEnviar = evento.currentTarget.querySelector('button[type="submit"]');
+        const botaoEnviar = formularioProva.querySelector('button[type="submit"]');
         if (!arquivo || !alunoLogin) {
           alert('Selecione uma prova e um aluno alvo.');
           return;
@@ -723,7 +724,7 @@
             adaptacoes,
             questoes: Array.isArray(provaProcessada.questoes) ? provaProcessada.questoes : []
           });
-          evento.currentTarget.reset();
+          formularioProva.reset();
           document.querySelector('#mensagemCadastro').textContent = 'Prova processada, salva e atribuída com sucesso!';
           renderizarTabelaProvas();
           mostrarAbaProfessor('lista');
