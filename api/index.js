@@ -308,56 +308,72 @@ function getSupportTextsByQuestion(text, questionMarkers) {
  * instruções, textos de leitura e dados da escola não viram questão.
  */
 function extrairQuestoesProva(textoBruto) {
-  // Normaliza o artefato comum de PDFs em colunas: "QUEST Ã O", "Q U E S T A O"
-  // ou "QUESTAO" passam a usar um único marcador previsível.
-  const textoNormalizado = normalizeText(textoBruto)
-    .replace(/Q\s*U\s*E\s*S\s*T\s*[ÃA]\s*O/gi, 'QUESTÃO')
-    .replace(/\n{2,}/g, '\n');
+  const paragraphMarker = '__PAI_PARAGRAPH__';
+  const questionMarker = '__PAI_QUESTION__';
+  const alternativeMarker = '__PAI_ALTERNATIVE__';
+  const unwantedText = ['PROCESSO SELETIVO', 'POLÍCIA MILITAR', 'Página'];
+
+  // 1) Normaliza caracteres quebrados, kerning severo e hifenização de linha.
+  let text = normalizeText(textoBruto)
+    .replace(/Q\s*U\s*E\s*S\s*T\s*(?:Ã\s*O|A\s*O)/gi, 'QUESTÃO')
+    .replace(/([a-záàâãéêíóôõúç])-\s*\n\s*([a-záàâãéêíóôõúç])/gi, '$1$2')
+    .replace(/(^|\n)\s*([a-e])\s*-\s+/gim, '$1$2) ');
+
+  // 2) Remove cabeçalhos e rodapés conhecidos. A lista é intencionalmente
+  // editável para que novos modelos de prova possam ser incluídos sem mudar o parser.
+  unwantedText.forEach((unwanted) => {
+    text = text.replace(new RegExp(unwanted, 'gi'), '');
+  });
+
+  // 3) Preserva os únicos inícios de linha relevantes antes de converter quebras
+  // simples em espaço. Isso impede que PDFs com quebras erráticas percam estrutura.
+  text = text
+    .replace(/(^|\n)\s*((?:QUESTÃO\s*0*\d{1,3}\b\s*[:.)-]?|\(?0*\d{1,3}\)?\s*[.\-]))/gim, `$1${questionMarker}$2`)
+    .replace(/(^|\n)\s*((?:\(\s*[a-e]\s*\)|[a-e]\s*[.)]))\s+/gim, `$1${alternativeMarker}$2 `)
+    .replace(/\n{2,}/g, paragraphMarker)
+    .replace(/\n/g, ' ')
+    .replaceAll(paragraphMarker, '\n\n')
+    .replaceAll(questionMarker, '\n')
+    .replaceAll(alternativeMarker, '\n')
+    .replace(/[ \t]{2,}/g, ' ')
+    .trim();
 
   /*
-   * Fatiamento agressivo: o lookahead mantém o marcador no início de cada
-   * fatia. Assim, todo cabeçalho, instrução ou texto anterior à primeira
-   * questão fica isolado no primeiro item e pode ser descartado sem risco de
-   * contaminar o enunciado.
+   * Fatiamento blindado: o lookahead mantém o marcador no início de cada bloco.
+   * O ^ com flag multiline exige que o marcador esteja em uma linha estrutural,
+   * evitando cortar citações como "responda à questão 1" no meio de um texto.
    */
-  const blocos = textoNormalizado.split(/(?=\bQUESTÃO\s+\d+\b|^\s*\d+\s*[.\-])/gmi);
-  if (blocos.length && !/^\s*(?:QUESTÃO\s+\d+\b|\d+\s*[.\-])/i.test(blocos[0])) {
-    blocos.shift();
+  const blocks = text.split(/(?=^\s*(?:QUESTÃO\s*\d+\b\s*[:.)-]?|\d+\s*[.\-]))/gmi);
+  if (blocks.length && !/^\s*(?:QUESTÃO\s*\d+\b|\d+\s*[.\-])/i.test(blocks[0])) {
+    blocks.shift();
   }
 
-  return blocos.map((blocoBruto) => {
-    const bloco = blocoBruto.trim();
-    if (!bloco) return null;
+  return blocks.map((rawBlock) => {
+    const block = rawBlock.trim();
+    if (!block) return null;
 
-    // O número vem do começo da fatia e nunca do meio do enunciado.
-    const idTexto = bloco.replace(/^\s*(?:QUESTÃO\s*)?0*(\d{1,3})\s*[.\-:)]?.*$/is, '$1');
-    const id = Number(idTexto);
+    const id = Number(block.replace(/^\s*(?:QUESTÃO\s*)?0*(\d{1,3})\s*[:.)-]?.*$/is, '$1'));
     if (!Number.isFinite(id)) return null;
 
-    /*
-     * Segundo fatiamento: reconhece (A), A), A., A- e versões minúsculas.
-     * Como as opções se limitam a A-E, itens romanos I, II e III dentro da
-     * pergunta não são falsamente tratados como alternativas.
-     */
-    // Não usamos "\s*" antes do lookahead: ele também encontraria o "A)"
-    // dentro de "(A)", gerando uma fatia isolada com apenas "(".
-    const partes = bloco.split(/(?=(?:\([a-eA-E]\)|(?<!\()[a-eA-E][.\-)])\s+)/g);
-    if (partes.length < 3) return null; // instruções e rodapés não viram questão
+    // Segundo split: somente marcadores de alternativa no começo de linha.
+    // A-E evita falsos positivos em itens romanos I, II e III do enunciado.
+    const parts = block.split(/(?=^\s*(?:\(\s*[a-e]\s*\)|[a-e]\s*[.)])\s+)/gim);
+    if (parts.length < 3) return null;
 
-    const pergunta = partes[0]
-      .replace(/^\s*(?:QUESTÃO\s*)?0*\d{1,3}\s*[.\-:)]?\s*/i, '')
+    const pergunta = parts[0]
+      .replace(/^\s*(?:QUESTÃO\s*)?0*\d{1,3}\s*[:.)-]?\s*/i, '')
       .replace(/\s+/g, ' ')
       .trim();
     if (!pergunta) return null;
 
-    const alternativas = partes.slice(1).map((parte) => parte
-      .replace(/^\s*(?:\(\s*[a-eA-E]\s*\)|[a-eA-E][.\-)])\s*/i, '')
+    const alternativas = parts.slice(1).map((part) => part
+      .replace(/^\s*(?:\(\s*[a-e]\s*\)|[a-e]\s*[.)])\s*/i, '')
       .replace(/\s+/g, ' ')
       .trim()
     ).filter(Boolean);
 
     return alternativas.length < 2 ? null : { id, pergunta, alternativas, correta: null };
-  }).filter(Boolean).sort((esquerda, direita) => esquerda.id - direita.id);
+  }).filter(Boolean).sort((left, right) => left.id - right.id);
 }
 
 function parseExamQuestions(pdfText) {
