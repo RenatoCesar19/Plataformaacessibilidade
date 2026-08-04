@@ -225,9 +225,9 @@
       .apoio-prova { margin: 0.35rem 0 0; }
       .acoes-prova { display: flex; align-items: center; justify-content: flex-end; flex-wrap: wrap; gap: 0.7rem; }
       .acoes-prova button:disabled { cursor: not-allowed; opacity: 0.48; transform: none; }
-      .painel-prova { display: grid; grid-template-columns: 150px minmax(0, 1fr) 150px; align-items: start; gap: 1.5rem; padding: clamp(1rem, 3vw, 2rem); }
+      .painel-prova { display: grid; grid-template-columns: 120px minmax(0, 1fr); align-items: start; gap: 1.5rem; width: 100%; padding: clamp(1rem, 3vw, 2rem); }
       .contador-questao { display: grid; place-items: center; width: 98px; height: 98px; border-radius: 50%; background: #7b3fc1; color: #ffffff; font-size: 1.45rem; font-weight: 800; box-shadow: none; }
-      .questao-prova { width: min(100%, 850px); min-height: 250px; margin: 0 auto; border: 0; border-radius: 0; box-shadow: none; text-align: center; }
+      .questao-prova { width: 100%; max-width: none; min-height: 250px; margin: 0; border: 0; border-radius: 0; box-shadow: none; text-align: center; }
       .enunciado-prova { margin: 0; font-size: clamp(1.25rem, 2.5vw, 2rem); font-weight: 800; line-height: 1.4; }
       .imagem-questao { width: min(100%, 620px); margin: 1.5rem auto 0; }
       .imagem-questao img { display: block; width: 100%; max-height: 310px; object-fit: contain; border-radius: 10px; }
@@ -825,6 +825,7 @@
         const feedback = document.querySelector('#feedbackProva');
         const botaoRetroceder = document.querySelector('#retrocederQuestao');
         const botaoAvancar = document.querySelector('#avancarQuestao');
+
         const estilos = ['kahoot-vermelho', 'kahoot-azul', 'kahoot-amarelo', 'kahoot-verde'];
         const simbolos = ['▲', '◆', '●', '■'];
         const chaveResposta = String(questao.ordem || indiceQuestaoAtual + 1);

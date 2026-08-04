@@ -92,6 +92,51 @@ function parseQuestions(pdfText) {
   }));
 }
 
+function parseStructuredQuestions(pdfText) {
+  const text = normalizeText(pdfText);
+  const questionPattern = /(?:^|\n|\s)(?:quest[ãa]o\s*)?0*(\d{1,3})\s*(?:\.|\)|-|:)/gi;
+  const allQuestionMarkers = [...text.matchAll(questionPattern)];
+  const firstQuestionIndex = allQuestionMarkers.findIndex((marker) => Number(marker[1]) === 1);
+  if (firstQuestionIndex < 0) return [];
+
+  const questionMarkers = allQuestionMarkers.slice(firstQuestionIndex);
+  return questionMarkers.map((marker, index) => {
+    const nextMarker = questionMarkers[index + 1];
+    const blockStart = marker.index + marker[0].length;
+    const blockEnd = nextMarker ? nextMarker.index : text.length;
+    const block = text.slice(blockStart, blockEnd).trim();
+    const alternativePattern = /(?:^|\n|\s)([A-D])\s*(?:\.|\)|-|:)/gi;
+    const alternativeMarkers = [...block.matchAll(alternativePattern)];
+
+    // A numbered instruction is not a question unless it has at least two alternatives.
+    if (alternativeMarkers.length < 2) return null;
+    const statement = block.slice(0, alternativeMarkers[0].index).replace(/\s+/g, ' ').trim();
+    if (!statement) return null;
+
+    const alternatives = alternativeMarkers.slice(0, 4).map((alternative, alternativeIndex) => {
+      const nextAlternative = alternativeMarkers[alternativeIndex + 1];
+      const textStart = alternative.index + alternative[0].length;
+      const textEnd = nextAlternative ? nextAlternative.index : block.length;
+      return {
+        id: alternative[1].toUpperCase(),
+        texto: block.slice(textStart, textEnd).replace(/\s+/g, ' ').trim()
+      };
+    }).filter((alternative) => alternative.texto);
+
+    if (alternatives.length < 2) return null;
+    return {
+      ordem: Number(marker[1]),
+      tipo: 'MULTIPLA_ESCOLHA',
+      enunciado: statement,
+      texto_apoio: null,
+      alternativas: alternatives,
+      imagem_url: null,
+      descricao_imagem: null,
+      recursos_acessibilidade: { texto_para_narracao: statement, descricao_imagem: null }
+    };
+  }).filter(Boolean).map((question, index) => ({ ...question, ordem: index + 1 }));
+}
+
 async function uploadPdf(request, response, next) {
   try {
     if (!request.file) return response.status(400).json({ erro: 'Envie um arquivo PDF no campo "arquivo".' });
@@ -115,7 +160,12 @@ async function uploadPdf(request, response, next) {
       return response.status(422).json({ erro: 'Não foi possível extrair texto do PDF. Verifique se o documento não é uma imagem digitalizada.' });
     }
 
-    const questions = parseQuestions(textoProva);
+    const questions = parseStructuredQuestions(textoProva);
+    if (!questions.length) {
+      return response.status(422).json({
+        erro: 'Não foram encontradas questões de múltipla escolha no padrão 1. / Questão 1 com alternativas A, B, C ou D.'
+      });
+    }
     return response.status(200).json({
       status: 'sucesso',
       message: 'PDF recebido e processado com sucesso.',
