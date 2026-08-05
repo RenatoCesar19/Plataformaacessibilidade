@@ -226,9 +226,15 @@
       .apoio-prova { margin: 0.35rem 0 0; }
       .acoes-prova { display: flex; align-items: center; justify-content: flex-end; flex-wrap: wrap; gap: 0.7rem; }
       .acoes-prova button:disabled { cursor: not-allowed; opacity: 0.48; transform: none; }
-      .painel-prova { display: grid; grid-template-columns: 120px minmax(0, 1fr); align-items: start; gap: 1.5rem; width: 100%; padding: clamp(1rem, 3vw, 2rem); }
-      .contador-questao { display: grid; place-items: center; width: 98px; height: 98px; border-radius: 50%; background: #7b3fc1; color: #ffffff; font-size: 1.45rem; font-weight: 800; box-shadow: none; }
-      .questao-prova { width: 100%; max-width: none; min-height: 250px; margin: 0; border: 0; border-radius: 0; box-shadow: none; text-align: center; }
+      .mapa-questoes { display: flex; flex-wrap: wrap; gap: 0.45rem; margin: 0.85rem 0 0; }
+      .mapa-questoes-titulo { display: block; margin-bottom: 0.4rem; color: #075574; font-size: 0.86rem; font-weight: 800; text-transform: uppercase; letter-spacing: 0.04em; }
+      .mapa-questoes-itens { display: flex; flex-wrap: wrap; gap: 0.4rem; margin: 0; padding: 0; list-style: none; }
+      .mapa-questao { display: grid; place-items: center; width: 32px; height: 32px; border: 2px solid #54717b; border-radius: 7px; background: #ffffff; color: #12343b; font-size: 0.85rem; font-weight: 800; }
+      .mapa-questao.atual { border-color: #087fce; box-shadow: 0 0 0 3px rgba(8, 127, 206, 0.2); }
+      .mapa-questao.respondida { border-color: #28a745; background-color: #28a745; color: #ffffff; }
+      .painel-prova { width: 100%; padding: clamp(1rem, 3vw, 2rem); }
+      .contador-questao { display: grid; place-items: center; width: fit-content; min-width: 98px; height: 44px; margin: 0 auto 1rem; border-radius: 999px; padding: 0 1rem; background: #7b3fc1; color: #ffffff; font-size: 1.1rem; font-weight: 800; box-shadow: none; }
+      .questao-prova { width: 100%; max-width: 1200px; min-height: 250px; margin: 0 auto; border: 0; border-radius: 0; box-shadow: none; text-align: center; }
       .enunciado-prova { margin: 0; font-size: clamp(1.25rem, 2.5vw, 2rem); font-weight: 800; line-height: 1.4; }
       .texto-apoio-prova { max-width: 1100px; margin: 1.25rem auto 0; padding: 1rem 1.25rem; border-left: 6px solid #087fce; border-radius: 8px; background: #eef8fe; color: #12343b; font-size: 1.05rem; line-height: 1.65; text-align: left; white-space: pre-line; }
       .instrucoes-prova { max-width: 1100px; margin: 0 auto; font-size: clamp(1.1rem, 2vw, 1.55rem); font-weight: 600; line-height: 1.7; text-align: left; white-space: pre-line; }
@@ -252,7 +258,7 @@
       /* Adaptações aplicadas automaticamente conforme o perfil do aluno logado. */
       .modo-dislexia { font-family: Arial, Helvetica, sans-serif; line-height: 1.8; letter-spacing: 0.1em; word-spacing: 0.2em; }
       .modo-tdah *, .modo-tdah *::before, .modo-tdah *::after { transition: none !important; animation: none !important; }
-      .modo-tdah #telaProva .cabecalho-prova .apoio-prova, .modo-tdah #telaProva .contador-questao { display: none; }
+      .modo-tdah #telaProva .cabecalho-prova .apoio-prova, .modo-tdah #telaProva .contador-questao, .modo-tdah #telaProva .mapa-questoes { display: none; }
       .modo-tdah #telaProva .painel-prova { display: block; }
       .modo-tdah #telaProva .questao-prova { max-width: 760px; }
       .modo-motora button, .modo-motora .alternativa-prova {
@@ -288,6 +294,8 @@
       .alto-contraste .campo-login svg { fill: #ffff00; }
       .alto-contraste .logo-acessibilidade { border-color: #ffff00; box-shadow: none; }
       .alto-contraste .adaptacoes-perfil, .alto-contraste .alternativa-prova { border: 3px solid #ffffff; background: #000000; color: #ffffff; }
+      .alto-contraste .mapa-questao { border: 3px solid #ffffff; background: #000000; color: #ffffff; box-shadow: none; }
+      .alto-contraste .mapa-questao.respondida { border-color: #ffff00; background: #ffff00; color: #000000; }
       .alto-contraste .texto-apoio-prova { border: 3px solid #ffffff; background: #000000; color: #ffffff; }
       .fonte-ampliada { font-size: 1.2em; }
 
@@ -303,8 +311,7 @@
         .cabecalho-prova { min-height: auto; align-items: stretch; flex-direction: column; }
         .acoes-prova { justify-content: stretch; }
         .acoes-prova button { flex: 1 1 150px; }
-        .painel-prova { grid-template-columns: 1fr; }
-        .contador-questao { width: 62px; height: 62px; font-size: 1rem; }
+        .contador-questao { min-width: 62px; width: 62px; height: 62px; font-size: 1rem; }
         .alternativas-prova { grid-template-columns: 1fr; }
         .alternativa-prova { min-height: 74px; }
       }
@@ -440,7 +447,16 @@
     <section id="telaProva" class="tela tela-prova-kahoot oculto">
       <div class="dashboard">
         <header class="cabecalho-prova">
-          <div><h1 id="tituloProva">Prova</h1><p class="apoio-prova">Leia com calma e escolha uma alternativa.</p></div>
+          <div>
+            <h1 id="tituloProva">Prova</h1>
+            <p class="apoio-prova">Leia com calma e escolha uma alternativa.</p>
+            <nav id="mapaQuestoes" class="mapa-questoes" aria-label="Mapa de Questões">
+              <div>
+                <span class="mapa-questoes-titulo">Mapa de Questões</span>
+                <ol id="itensMapaQuestoes" class="mapa-questoes-itens"></ol>
+              </div>
+            </nav>
+          </div>
           <div class="acoes-prova">
             <button id="retrocederQuestao" class="botao-neutro" type="button">← Retroceder</button>
             <button id="avancarQuestao" type="button">Avançar →</button>
@@ -507,6 +523,7 @@
       let indiceQuestaoAtual = 0;
       let indiceAlunoParaExcluir = null;
       let temporizadorToast = null;
+      let temporizadorAvancoAutomatico = null;
       const telas = document.querySelectorAll('.tela');
 
       function mostrarTela(idTela) {
@@ -870,9 +887,54 @@
         }
       });
 
+      function obterQuestoesDaProvaAtual() {
+        return Array.isArray(provaAtual?.questoes) ? provaAtual.questoes : [];
+      }
+
+      function chaveDaQuestao(questao, indice) {
+        return String(questao?.ordem || indice + 1);
+      }
+
+      function renderizarMapaQuestoes() {
+        const itensMapa = document.querySelector('#itensMapaQuestoes');
+        const questoes = obterQuestoesDaProvaAtual();
+        if (!questoes.length) {
+          itensMapa.innerHTML = '';
+          return;
+        }
+
+        itensMapa.innerHTML = questoes.map((questao, indice) => {
+          const chave = chaveDaQuestao(questao, indice);
+          const resposta = provaAtual?.respostas?.[chave];
+          const respondida = resposta !== undefined && resposta !== null && String(resposta).trim() !== '';
+          const atual = indice === indiceQuestaoAtual;
+          return `<li class="mapa-questao${respondida ? ' respondida' : ''}${atual ? ' atual' : ''}" data-mapa-questao="${chave}" aria-label="Questão ${indice + 1}${respondida ? ', respondida' : ', ainda não respondida'}">${indice + 1}</li>`;
+        }).join('');
+      }
+
+      function marcarQuestaoComoRespondida(chaveResposta) {
+        const item = [...document.querySelectorAll('.mapa-questao')]
+          .find((elemento) => elemento.dataset.mapaQuestao === String(chaveResposta));
+        if (item) {
+          item.classList.add('respondida');
+          item.setAttribute('aria-label', `${item.textContent}, respondida`);
+        }
+      }
+
+      function avancarParaProximaQuestao() {
+        clearTimeout(temporizadorAvancoAutomatico);
+        temporizadorAvancoAutomatico = null;
+        const totalQuestoes = obterQuestoesDaProvaAtual().length;
+        if (!provaAtual || indiceQuestaoAtual >= totalQuestoes - 1) return;
+        indiceQuestaoAtual += 1;
+        renderizarQuestaoAtual();
+        document.querySelector('#enunciadoProva').focus();
+      }
+
       function abrirProva(idProva) {
         const prova = mockProvas.find((item) => String(item.id) === String(idProva));
         if (!prova) return;
+        clearTimeout(temporizadorAvancoAutomatico);
         provaAtual = prova;
         provaAtual.respostas = provaAtual.respostas || {};
         indiceQuestaoAtual = provaAtual.instrucoes ? -1 : 0;
@@ -899,6 +961,8 @@
         const botaoRetroceder = document.querySelector('#retrocederQuestao');
         const botaoAvancar = document.querySelector('#avancarQuestao');
 
+        renderizarMapaQuestoes();
+
         if (indiceQuestaoAtual === -1 && provaAtual?.instrucoes) {
           contador.textContent = 'INSTRUÇÕES';
           contador.setAttribute('aria-label', 'Instruções da prova');
@@ -921,7 +985,7 @@
 
         const estilos = ['kahoot-vermelho', 'kahoot-azul', 'kahoot-amarelo', 'kahoot-verde'];
         const simbolos = ['▲', '◆', '●', '■'];
-        const chaveResposta = String(questao.ordem || indiceQuestaoAtual + 1);
+        const chaveResposta = chaveDaQuestao(questao, indiceQuestaoAtual);
 
         contador.textContent = `${indiceQuestaoAtual + 1}/${questoes.length}`;
         botaoRetroceder.disabled = indiceQuestaoAtual === 0 && !provaAtual.instrucoes;
@@ -955,11 +1019,20 @@
             botao.innerHTML = `<span class="simbolo-alternativa" aria-hidden="true">${simbolos[indice % simbolos.length]}</span><span class="texto-alternativa"></span>`;
             botao.querySelector('.texto-alternativa').textContent = alternativa.texto;
             botao.addEventListener('click', () => {
+              if (temporizadorAvancoAutomatico) return;
               alternativas.querySelectorAll('.alternativa-prova').forEach((item) => item.classList.remove('selecionada'));
               botao.classList.add('selecionada');
               provaAtual.respostas[chaveResposta] = alternativa.id;
+              marcarQuestaoComoRespondida(chaveResposta);
               feedback.className = 'estado-selecionado';
               feedback.textContent = `Resposta ${alternativa.id || indice + 1} selecionada.`;
+              alternativas.querySelectorAll('.alternativa-prova').forEach((item) => { item.disabled = true; });
+
+              // Mantém o feedback visível antes de seguir automaticamente.
+              temporizadorAvancoAutomatico = setTimeout(() => {
+                temporizadorAvancoAutomatico = null;
+                avancarParaProximaQuestao();
+              }, 600);
             });
             alternativas.appendChild(botao);
           });
@@ -987,20 +1060,20 @@
 
       document.querySelector('#retrocederQuestao').addEventListener('click', () => {
         if (!provaAtual || indiceQuestaoAtual === -1 || (indiceQuestaoAtual === 0 && !provaAtual.instrucoes)) return;
+        clearTimeout(temporizadorAvancoAutomatico);
+        temporizadorAvancoAutomatico = null;
         indiceQuestaoAtual -= 1;
         renderizarQuestaoAtual();
         document.querySelector('#enunciadoProva').focus();
       });
 
       document.querySelector('#avancarQuestao').addEventListener('click', () => {
-        const totalQuestoes = provaAtual?.questoes?.length || 1;
-        if (!provaAtual || indiceQuestaoAtual >= totalQuestoes - 1) return;
-        indiceQuestaoAtual += 1;
-        renderizarQuestaoAtual();
-        document.querySelector('#enunciadoProva').focus();
+        avancarParaProximaQuestao();
       });
 
       document.querySelector('#voltarProvas').addEventListener('click', () => {
+        clearTimeout(temporizadorAvancoAutomatico);
+        temporizadorAvancoAutomatico = null;
         renderizarProvasDoAluno();
         mostrarTela('#telaAluno');
       });
