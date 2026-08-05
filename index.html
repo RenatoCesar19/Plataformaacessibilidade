@@ -590,18 +590,14 @@
       const checkDislexia = document.querySelector('#chkDislexia');
       const checkEspacamento = document.querySelector('#chkEspacamento');
       const checkTempoLivre = document.querySelector('#chkTempoLivre');
-      const controlesAcessibilidade = [checkFonte, checkContraste, checkLeitura, checkDislexia, checkEspacamento, checkTempoLivre];
-      const chavePreferenciasAcessibilidade = 'pai_preferencias_acessibilidade';
+      const chaveAdaptacoesProvaAtual = 'adaptacoesProvaAtual';
+      let leituraTelaAtiva = false;
+      let tempoLivreAtivo = false;
 
-      function aplicarPreferenciasNoBody() {
-        document.body.classList.toggle('acessibilidade-fonte-ampliada', checkFonte.checked);
-        document.body.classList.toggle('acessibilidade-alto-contraste', checkContraste.checked);
-        document.body.classList.toggle('acessibilidade-dislexia', checkDislexia.checked);
-        document.body.classList.toggle('acessibilidade-espacamento', checkEspacamento.checked);
-      }
-
-      function salvarPreferencias() {
-        const preferencias = {
+      // TELA DO PROFESSOR: somente captura e salva a configuração. Não aplica
+      // nenhuma classe visual no body enquanto o professor marca as opções.
+      function capturarAdaptacoesDoFormulario() {
+        return {
           fonteAmpliada: checkFonte.checked,
           altoContraste: checkContraste.checked,
           leituraTela: checkLeitura.checked,
@@ -609,32 +605,56 @@
           espacamento: checkEspacamento.checked,
           tempoLivre: checkTempoLivre.checked
         };
-        localStorage.setItem(chavePreferenciasAcessibilidade, JSON.stringify(preferencias));
       }
 
-      function carregarPreferencias() {
+      function salvarAdaptacoesProvaAtual(adaptacoes) {
         try {
-          const preferencias = JSON.parse(localStorage.getItem(chavePreferenciasAcessibilidade) || '{}');
-          checkFonte.checked = Boolean(preferencias.fonteAmpliada);
-          checkContraste.checked = Boolean(preferencias.altoContraste);
-          checkLeitura.checked = Boolean(preferencias.leituraTela);
-          checkDislexia.checked = Boolean(preferencias.dislexia);
-          checkEspacamento.checked = Boolean(preferencias.espacamento);
-          checkTempoLivre.checked = Boolean(preferencias.tempoLivre);
-          aplicarPreferenciasNoBody();
-        } catch (_erro) {
-          localStorage.removeItem(chavePreferenciasAcessibilidade);
+          localStorage.setItem(chaveAdaptacoesProvaAtual, JSON.stringify(adaptacoes));
+        } catch (erro) {
+          console.warn('Não foi possível salvar as adaptações da prova.', erro);
         }
       }
 
-      controlesAcessibilidade.forEach((controle) => controle.addEventListener('change', () => {
-        aplicarPreferenciasNoBody();
-        salvarPreferencias();
-      }));
+      function lerAdaptacoesProvaAtual() {
+        try {
+          return JSON.parse(localStorage.getItem(chaveAdaptacoesProvaAtual) || '{}');
+        } catch (_erro) {
+          return {};
+        }
+      }
+
+      function adaptacoesLegadas(listaAdaptacoes) {
+        const adaptacoes = Array.isArray(listaAdaptacoes) ? listaAdaptacoes : [];
+        return {
+          fonteAmpliada: adaptacoes.includes('Fonte Ampliada'),
+          altoContraste: adaptacoes.includes('Alto Contraste'),
+          leituraTela: adaptacoes.includes('Leitura de Tela'),
+          dislexia: adaptacoes.includes('Fonte para Dislexia'),
+          espacamento: adaptacoes.includes('Espaçamento Ampliado'),
+          tempoLivre: adaptacoes.includes('Tempo de Prova Estendido/Livre')
+        };
+      }
+
+      // TELA DA PROVA: esta é a única função que altera classes visuais.
+      function aplicarAdaptacoesNaExecucao(adaptacoes) {
+        document.body.classList.toggle('acessibilidade-fonte-ampliada', Boolean(adaptacoes.fonteAmpliada));
+        document.body.classList.toggle('acessibilidade-alto-contraste', Boolean(adaptacoes.altoContraste));
+        document.body.classList.toggle('acessibilidade-dislexia', Boolean(adaptacoes.dislexia));
+        document.body.classList.toggle('acessibilidade-espacamento', Boolean(adaptacoes.espacamento));
+        leituraTelaAtiva = Boolean(adaptacoes.leituraTela);
+        tempoLivreAtivo = Boolean(adaptacoes.tempoLivre);
+      }
+
+      function limparAdaptacoesDaExecucao() {
+        document.body.classList.remove('acessibilidade-fonte-ampliada', 'acessibilidade-alto-contraste', 'acessibilidade-dislexia', 'acessibilidade-espacamento');
+        leituraTelaAtiva = false;
+        tempoLivreAtivo = false;
+        delete document.body.dataset.execucaoProva;
+      }
 
       // Leitura do enunciado pela API nativa do navegador, quando selecionada.
       function lerTexto(texto) {
-        if (!checkLeitura.checked || !('speechSynthesis' in window)) return;
+        if (!leituraTelaAtiva || !('speechSynthesis' in window)) return;
         window.speechSynthesis.cancel();
         const leitura = new SpeechSynthesisUtterance(String(texto || ''));
         leitura.lang = 'pt-BR';
@@ -642,19 +662,11 @@
         window.speechSynthesis.speak(leitura);
       }
 
-      function aplicarControlesDaProva(prova) {
-        if (!prova) {
-          carregarPreferencias();
-          return;
-        }
-        const adaptacoes = Array.isArray(prova?.adaptacoes) ? prova.adaptacoes : [];
-        checkFonte.checked = adaptacoes.includes('Fonte Ampliada');
-        checkContraste.checked = adaptacoes.includes('Alto Contraste');
-        checkLeitura.checked = adaptacoes.includes('Leitura de Tela');
-        checkDislexia.checked = adaptacoes.includes('Fonte para Dislexia');
-        checkEspacamento.checked = adaptacoes.includes('Espaçamento Ampliado');
-        checkTempoLivre.checked = adaptacoes.includes('Tempo de Prova Estendido/Livre');
-        aplicarPreferenciasNoBody();
+      function iniciarExecucaoDaProva(prova) {
+        const adaptacoes = prova?.adaptacoesAcessibilidade || adaptacoesLegadas(prova?.adaptacoes);
+        salvarAdaptacoesProvaAtual(adaptacoes);
+        document.body.dataset.execucaoProva = 'true';
+        aplicarAdaptacoesNaExecucao(lerAdaptacoesProvaAtual());
       }
 
       function mostrarTela(idTela) {
@@ -978,6 +990,7 @@
         const arquivo = document.querySelector('#arquivoProva').files[0];
         const alunoLogin = document.querySelector('#alunoAlvo').value;
         const adaptacoes = [...document.querySelectorAll('input[name="adaptacao"]:checked')].map((input) => input.value);
+        const adaptacoesAcessibilidade = capturarAdaptacoesDoFormulario();
         const botaoEnviar = formularioProva.querySelector('button[type="submit"]');
         if (!arquivo || !alunoLogin) {
           alert('Selecione uma prova e um aluno alvo.');
@@ -987,6 +1000,7 @@
           alert('Formato não suportado. Selecione um arquivo Word no formato .docx.');
           return;
         }
+        salvarAdaptacoesProvaAtual(adaptacoesAcessibilidade);
         botaoEnviar.disabled = true;
         document.querySelector('#mensagemCadastro').textContent = 'Lendo o arquivo Word...';
 
@@ -1003,6 +1017,7 @@
             titulo: arquivo.name.replace(/\.docx$/i, ''),
             alunoLogin,
             adaptacoes,
+            adaptacoesAcessibilidade,
             instrucoes: null,
             questoes: questoesFiltradas
           });
@@ -1067,7 +1082,7 @@
         if (!prova) return;
         clearTimeout(temporizadorAvancoAutomatico);
         provaAtual = prova;
-        aplicarControlesDaProva(provaAtual);
+        iniciarExecucaoDaProva(provaAtual);
         provaAtual.respostas = provaAtual.respostas || {};
         indiceQuestaoAtual = provaAtual.instrucoes ? -1 : 0;
         document.querySelector('#tituloProva').textContent = prova.titulo;
@@ -1162,10 +1177,12 @@
               alternativas.querySelectorAll('.alternativa-prova').forEach((item) => { item.disabled = true; });
 
               // Mantém o feedback visível antes de seguir automaticamente.
-              temporizadorAvancoAutomatico = setTimeout(() => {
-                temporizadorAvancoAutomatico = null;
-                avancarParaProximaQuestao();
-              }, 600);
+              if (!tempoLivreAtivo) {
+                temporizadorAvancoAutomatico = setTimeout(() => {
+                  temporizadorAvancoAutomatico = null;
+                  avancarParaProximaQuestao();
+                }, 600);
+              }
             });
             alternativas.appendChild(botao);
           });
@@ -1207,7 +1224,7 @@
       document.querySelector('#voltarProvas').addEventListener('click', () => {
         clearTimeout(temporizadorAvancoAutomatico);
         temporizadorAvancoAutomatico = null;
-        aplicarControlesDaProva(null);
+        limparAdaptacoesDaExecucao();
         if ('speechSynthesis' in window) window.speechSynthesis.cancel();
         renderizarProvasDoAluno();
         mostrarTela('#telaAluno');
@@ -1219,7 +1236,11 @@
         mostrarTela('#telaLogin');
       }));
 
-      document.addEventListener('DOMContentLoaded', carregarPreferencias);
+      document.addEventListener('DOMContentLoaded', () => {
+        if (document.body.dataset.execucaoProva === 'true') {
+          aplicarAdaptacoesNaExecucao(lerAdaptacoesProvaAtual());
+        }
+      });
       preencherSelectAlunos();
       mostrarTela('#telaLogin');
     </script>
