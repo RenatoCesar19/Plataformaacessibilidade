@@ -4,6 +4,7 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>PAI — Plataforma de Acessibilidade Integrada</title>
+    <script src="https://cdn.jsdelivr.net/npm/mammoth@1.12.0/mammoth.browser.min.js" defer></script>
     <style>
       :root {
         --azul-bebe: #4ac2fa;
@@ -402,7 +403,7 @@
             <section id="abaCadastro" class="card oculto">
               <h2>Cadastrar Nova Prova</h2>
               <form id="formNovaProva">
-                <label>Anexe o arquivo da prova <input id="arquivoProva" type="file" accept="application/pdf" required /></label>
+                <label>Anexe o arquivo Word da prova <input id="arquivoProva" type="file" accept=".docx,application/vnd.openxmlformats-officedocument.wordprocessingml.document" required /></label>
                 <label>Aluno alvo <select id="alunoAlvo" required></select></label>
                 <fieldset class="adaptacoes">
                   <legend>Adaptações necessárias</legend>
@@ -522,29 +523,68 @@
         return elemento.innerHTML;
       }
 
+      function arquivoDocxValido(arquivo) {
+        return Boolean(arquivo) && (
+          /\.docx$/i.test(arquivo.name || '') ||
+          arquivo.type === 'application/vnd.openxmlformats-officedocument.wordprocessingml.document'
+        );
+      }
+
+      // Lê o Word inteiramente no navegador. O arquivo não é enviado à API.
+      function lerArquivoDocx(arquivo) {
+        return new Promise((resolve, reject) => {
+          if (!arquivoDocxValido(arquivo)) {
+            reject(new Error('Envie somente um arquivo Word no formato .docx.'));
+            return;
+          }
+          if (!window.mammoth) {
+            reject(new Error('A biblioteca de leitura do Word não foi carregada. Verifique sua conexão e tente novamente.'));
+            return;
+          }
+
+          const leitor = new FileReader();
+          leitor.onerror = () => reject(new Error('Não foi possível ler o arquivo Word selecionado.'));
+          leitor.onload = async () => {
+            try {
+              const resultado = await window.mammoth.extractRawText({ arrayBuffer: leitor.result });
+              const texto = String(resultado.value || '').trim();
+              if (!texto) throw new Error('O arquivo Word não possui texto que possa ser lido.');
+              resolve(texto);
+            } catch (erro) {
+              reject(new Error(`Não foi possível extrair o texto do Word: ${erro.message}`));
+            }
+          };
+          leitor.readAsArrayBuffer(arquivo);
+        });
+      }
+
       // Ignora capa, orientações e introduções: a prova começa somente na questão 1.
       function processarTextoProva(textoBruto) {
-        const texto = String(textoBruto || '').replace(/\r/g, '').replace(/\n{3,}/g, '\n\n').trim();
-        const inicio = texto.search(/(?:^|\n)\s*(?:quest[ãa]o\s*1\b\s*(?:\.|\)|-)?|1\s*(?:\.|\)|-))/im);
+        const texto = String(textoBruto || '')
+          .replace(/\r/g, '')
+          .replace(/Q\s*U\s*E\s*S\s*T\s*(?:Ã\s*O|A\s*O)/gi, 'QUESTÃO')
+          .replace(/\n{3,}/g, '\n\n')
+          .trim();
+        const inicio = texto.search(/(?:^|\n)\s*(?:quest(?:ão|ao)\s*1\b\s*(?:\.|\)|-|:)?|1\s*(?:\.|\)|-|:))/im);
         if (inicio < 0) return [];
 
         const textoDasQuestoes = texto.slice(inicio);
         const blocos = textoDasQuestoes
-          .split(/(?=^\s*(?:(?:quest[ãa]o\s*)?\d+\b\s*(?:\.|\)|-)?))/im)
+          .split(/(?=^\s*(?:(?:quest(?:ão|ao)\s*)?\d+\b\s*(?:\.|\)|-|:)?))/im)
           .map((bloco) => bloco.trim())
           .filter(Boolean);
 
         return blocos.map((bloco) => {
-          const cabecalho = bloco.match(/^\s*(?:quest[ãa]o\s*)?(\d+)\b\s*(?:\.|\)|-)?\s*/i);
+          const cabecalho = bloco.match(/^\s*(?:quest(?:ão|ao)\s*)?(\d+)\b\s*(?:\.|\)|-|:)?\s*/i);
           if (!cabecalho) return null;
 
-          const alternativasEncontradas = [...bloco.matchAll(/^\s*([A-D])\s*(?:\.|\)|-|:)\s*(.+)$/gim)];
+          const alternativasEncontradas = [...bloco.matchAll(/^\s*(?:\(\s*([A-E])\s*\)|([A-E])\s*[.)\-:])\s*(.+)$/gim)];
           if (!alternativasEncontradas.length) return null;
 
           const inicioPergunta = cabecalho[0].length;
           const fimPergunta = alternativasEncontradas[0].index;
           const pergunta = bloco.slice(inicioPergunta, fimPergunta).replace(/\s*\n\s*/g, ' ').trim();
-          const alternativas = alternativasEncontradas.slice(0, 4).map((item) => item[2].trim());
+          const alternativas = alternativasEncontradas.slice(0, 5).map((item) => item[3].trim());
           if (!pergunta || alternativas.length < 2) return null;
 
           return {
@@ -795,30 +835,31 @@
           alert('Selecione uma prova e um aluno alvo.');
           return;
         }
-        const dadosUpload = new FormData();
-        dadosUpload.append('arquivo', arquivo);
+        if (!arquivoDocxValido(arquivo)) {
+          alert('Formato não suportado. Selecione um arquivo Word no formato .docx.');
+          return;
+        }
         botaoEnviar.disabled = true;
-        document.querySelector('#mensagemCadastro').textContent = 'Processando o PDF...';
+        document.querySelector('#mensagemCadastro').textContent = 'Lendo o arquivo Word...';
 
         try {
-          const resposta = await fetch('/api/upload-pdf', { method: 'POST', body: dadosUpload });
-          const provaProcessada = await resposta.json().catch(() => ({}));
-          if (!resposta.ok) throw new Error(provaProcessada.erro || 'Não foi possível processar o PDF.');
-          const perguntasFiltradas = processarTextoProva(provaProcessada.textoProva);
+          const textoProva = await lerArquivoDocx(arquivo);
+          const perguntasFiltradas = processarTextoProva(textoProva);
           const questoesFiltradas = converterPerguntasParaQuestoes(perguntasFiltradas);
+          if (!questoesFiltradas.length) {
+            throw new Error('Nenhuma questão com alternativas foi identificada no Word. Use marcadores como 1., QUESTÃO 1 e A), B), C), D).');
+          }
 
           mockProvas.push({
             id: Date.now(),
-            titulo: provaProcessada.titulo || arquivo.name.replace(/\.pdf$/i, ''),
+            titulo: arquivo.name.replace(/\.docx$/i, ''),
             alunoLogin,
             adaptacoes,
-            instrucoes: provaProcessada.instrucoes || null,
-            questoes: Array.isArray(provaProcessada.questoes) && provaProcessada.questoes.length
-              ? provaProcessada.questoes
-              : questoesFiltradas
+            instrucoes: null,
+            questoes: questoesFiltradas
           });
           formularioProva.reset();
-          document.querySelector('#mensagemCadastro').textContent = 'Prova processada, salva e atribuída com sucesso!';
+          document.querySelector('#mensagemCadastro').textContent = 'Prova Word processada, salva e atribuída com sucesso!';
           renderizarTabelaProvas();
           mostrarAbaProfessor('lista');
         } catch (erro) {
