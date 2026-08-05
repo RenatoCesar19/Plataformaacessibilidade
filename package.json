@@ -2,7 +2,7 @@
   "name": "plataforma-avaliacao-inclusiva",
   "version": "1.0.0",
   "private": true,
-  "description": "Backend e PWA offline-first da Plataforma de Avaliação Inclusiva.",
+  "description": "Backend e PWA offline-first da Plataforma de Acessibilidade Integrada.",
   "main": "api/index.js",
   "scripts": {
     "start": "node api/index.js",

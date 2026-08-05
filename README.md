@@ -1,4 +1,4 @@
-# Plataforma de Avaliação Inclusiva (PAI)
+# Plataforma de Acessibilidade Integrada (PAI)
 
 Sistema PWA offline-first para avaliações escolares acessíveis a estudantes com deficiências motoras, visuais e neurodivergências.
 
