@@ -232,21 +232,21 @@
       .mapa-questao { display: grid; place-items: center; width: 32px; height: 32px; border: 2px solid #54717b; border-radius: 7px; background: #ffffff; color: #12343b; font-size: 0.85rem; font-weight: 800; }
       .mapa-questao.atual { border-color: #087fce; box-shadow: 0 0 0 3px rgba(8, 127, 206, 0.2); }
       .mapa-questao.respondida { border-color: #28a745; background-color: #28a745; color: #ffffff; }
-      .painel-prova { width: 100%; padding: clamp(1rem, 3vw, 2rem); }
+      .painel-prova { width: 100%; padding: 0; }
       .contador-questao { display: grid; place-items: center; width: fit-content; min-width: 98px; height: 44px; margin: 0 auto 1rem; border-radius: 999px; padding: 0 1rem; background: #7b3fc1; color: #ffffff; font-size: 1.1rem; font-weight: 800; box-shadow: none; }
-      .questao-prova { width: 100%; max-width: 1200px; min-height: 250px; margin: 0 auto; border: 0; border-radius: 0; box-shadow: none; text-align: center; }
-      .enunciado-prova { margin: 0; font-size: clamp(1.25rem, 2.5vw, 2rem); font-weight: 800; line-height: 1.4; }
+      .questao-prova { width: 100%; max-width: none; min-height: 250px; margin: 0; border: 0; border-radius: 0; padding: 40px 20px; box-shadow: none; text-align: left; }
+      .enunciado-prova { max-width: 900px; margin: 0 auto; color: #12343b; font-size: clamp(1.1rem, 1.8vw, 1.55rem); font-weight: 500; line-height: 1.6; text-align: left; }
       .texto-apoio-prova { max-width: 1100px; margin: 1.25rem auto 0; padding: 1rem 1.25rem; border-left: 6px solid #087fce; border-radius: 8px; background: #eef8fe; color: #12343b; font-size: 1.05rem; line-height: 1.65; text-align: left; white-space: pre-line; }
       .instrucoes-prova { max-width: 1100px; margin: 0 auto; font-size: clamp(1.1rem, 2vw, 1.55rem); font-weight: 600; line-height: 1.7; text-align: left; white-space: pre-line; }
       .aviso-instrucoes { margin: 2rem 0 0; color: #075574; font-weight: 800; }
       .imagem-questao { width: min(100%, 620px); margin: 1.5rem auto 0; }
       .imagem-questao img { display: block; width: 100%; max-height: 310px; object-fit: contain; border-radius: 10px; }
-      .alternativas-prova { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 0.8rem; margin-top: 1.5rem; }
-      .alternativa-prova { display: flex; align-items: center; width: 100%; min-height: 112px; border: 3px solid transparent; border-radius: 6px; padding: 1rem 1.35rem; color: #ffffff; text-align: left; box-shadow: none; font-size: clamp(1rem, 2vw, 1.35rem); }
+      .alternativas-prova { display: grid; grid-template-columns: repeat(2, 1fr); width: 100%; max-width: 1000px; gap: 20px; margin: 30px auto 0; }
+      .alternativa-prova { display: flex; align-items: center; width: 100%; min-height: 112px; border: 3px solid transparent; border-radius: 6px; padding: 1.25rem 1.5rem; color: #ffffff; text-align: left; box-shadow: none; font-size: clamp(1rem, 1.8vw, 1.25rem); }
       .alternativa-prova:hover { filter: brightness(1.08); color: #ffffff; }
       .alternativa-prova.selecionada { border-color: #1f2937; box-shadow: 0 0 0 4px #ffffff, 0 0 0 7px #1f2937; }
       .simbolo-alternativa { flex: 0 0 auto; width: 42px; margin-right: 1rem; color: #ffffff; font-size: 2.3rem; line-height: 1; }
-      .texto-alternativa { font-weight: 800; }
+      .texto-alternativa { font-weight: 600; line-height: 1.45; }
       .kahoot-vermelho { background: #e21b3c; }
       .kahoot-azul { background: #1368ce; }
       .kahoot-amarelo { background: #d89e00; }
