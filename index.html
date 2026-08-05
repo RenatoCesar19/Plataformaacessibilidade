@@ -12,6 +12,10 @@
         --azul-medio: #087f8c;
         --texto: #12343b;
         --branco: #ffffff;
+        --bg-color: #4ac2fa;
+        --text-color: var(--texto);
+        --font-base: 16px;
+        --font-family: Arial, Helvetica, sans-serif;
         --sombra: 0 10px 30px rgba(0, 0, 0, 0.08);
         --sombra-botao: 0 8px 18px rgba(8, 127, 140, 0.22);
       }
@@ -20,9 +24,21 @@
       body {
         min-height: 100vh;
         margin: 0;
-        background: #4ac2fa;
-        color: var(--texto);
-        font-family: Arial, Helvetica, sans-serif;
+        background-color: var(--bg-color);
+        color: var(--text-color);
+        font-size: var(--font-base);
+        font-family: var(--font-family);
+        transition: background-color 0.3s ease, color 0.3s ease, font-size 0.3s ease;
+      }
+      body.acessibilidade-fonte-ampliada, body.fonte-ampliada { --font-base: 24px; }
+      body.acessibilidade-alto-contraste { --bg-color: #000000; --text-color: #ffff00; }
+      body.acessibilidade-dislexia { --font-family: OpenDyslexic, 'Comic Sans MS', Arial, sans-serif; }
+      body.acessibilidade-espacamento .enunciado-prova,
+      body.acessibilidade-espacamento .texto-alternativa,
+      body.acessibilidade-espacamento .texto-apoio-prova,
+      body.acessibilidade-espacamento .instrucoes-prova {
+        line-height: 2;
+        letter-spacing: 0.12em;
       }
       button, input, select { font: inherit; }
       button {
@@ -39,7 +55,7 @@
       }
       button:hover { background: var(--azul-escuro); box-shadow: 0 12px 24px rgba(7, 85, 116, 0.3); transform: translateY(-2px); }
       button:active { transform: translateY(0); }
-      button:focus-visible, input:focus-visible, select:focus-visible { outline: none; box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.5); }
+      button:focus-visible, input:focus-visible, select:focus-visible, textarea:focus-visible, a:focus-visible { outline: 4px solid #0056b3; outline-offset: 2px; box-shadow: none; }
       .tela { min-height: 100vh; padding: 2rem; }
       .animar-entrada { animation: entrada-suave 0.38s ease-out both; }
       .centralizada { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 1.5rem; text-align: center; }
@@ -298,7 +314,45 @@
       .alto-contraste .mapa-questao { border: 3px solid #ffffff; background: #000000; color: #ffffff; box-shadow: none; }
       .alto-contraste .mapa-questao.respondida { border-color: #ffff00; background: #ffff00; color: #000000; }
       .alto-contraste .texto-apoio-prova { border: 3px solid #ffffff; background: #000000; color: #ffffff; }
-      .fonte-ampliada { font-size: 1.2em; }
+      .fonte-ampliada:not(body) { font-size: 1.2em; }
+
+      /* Nomes padronizados para controles externos de acessibilidade. */
+      body.acessibilidade-alto-contraste .tela,
+      body.acessibilidade-alto-contraste .card,
+      body.acessibilidade-alto-contraste .item-prova,
+      body.acessibilidade-alto-contraste .item-aluno,
+      body.acessibilidade-alto-contraste .modal,
+      body.acessibilidade-alto-contraste .form-login-direto,
+      body.acessibilidade-alto-contraste .login-painel,
+      body.acessibilidade-alto-contraste .login-apresentacao {
+        border: 3px solid #ffff00;
+        background: #000000;
+        box-shadow: none;
+        color: #ffff00;
+      }
+      body.acessibilidade-alto-contraste h1,
+      body.acessibilidade-alto-contraste h2,
+      body.acessibilidade-alto-contraste h3,
+      body.acessibilidade-alto-contraste p,
+      body.acessibilidade-alto-contraste label,
+      body.acessibilidade-alto-contraste legend,
+      body.acessibilidade-alto-contraste td,
+      body.acessibilidade-alto-contraste th { color: #ffff00; }
+      body.acessibilidade-alto-contraste input,
+      body.acessibilidade-alto-contraste select,
+      body.acessibilidade-alto-contraste textarea,
+      body.acessibilidade-alto-contraste button {
+        border: 3px solid #ffff00;
+        background: #000000;
+        box-shadow: none;
+        color: #ffff00;
+      }
+      body.acessibilidade-alto-contraste button:hover,
+      body.acessibilidade-alto-contraste button:focus-visible {
+        background: #ffff00;
+        color: #000000;
+        transform: none;
+      }
 
       @media (prefers-reduced-motion: reduce) {
         *, *::before, *::after { animation-duration: 0.01ms !important; transition-duration: 0.01ms !important; scroll-behavior: auto !important; }
@@ -416,9 +470,12 @@
                 <label>Aluno alvo <select id="alunoAlvo" required></select></label>
                 <fieldset class="adaptacoes">
                   <legend>Adaptações necessárias</legend>
-                  <label><input type="checkbox" name="adaptacao" value="Fonte Ampliada" /> Fonte Ampliada</label>
-                  <label><input type="checkbox" name="adaptacao" value="Alto Contraste" /> Alto Contraste</label>
-                  <label><input type="checkbox" name="adaptacao" value="Leitura de Tela" /> Leitura de Tela</label>
+                  <label><input id="chkFonteAmpliada" type="checkbox" name="adaptacao" value="Fonte Ampliada" /> Fonte Ampliada</label>
+                  <label><input id="chkAltoContraste" type="checkbox" name="adaptacao" value="Alto Contraste" /> Alto Contraste</label>
+                  <label><input id="chkLeituraTela" type="checkbox" name="adaptacao" value="Leitura de Tela" /> Leitura de Tela</label>
+                  <label><input id="chkDislexia" type="checkbox" name="adaptacao" value="Fonte para Dislexia" /> Fonte para Dislexia</label>
+                  <label><input id="chkEspacamento" type="checkbox" name="adaptacao" value="Espaçamento Ampliado" /> Espaçamento Ampliado</label>
+                  <label><input id="chkTempoLivre" type="checkbox" name="adaptacao" value="Tempo de Prova Estendido/Livre" /> Tempo de Prova Estendido/Livre</label>
                 </fieldset>
                 <button type="submit">Salvar e Atribuir Prova</button>
                 <p id="mensagemCadastro" class="mensagem-sucesso" role="status" aria-live="polite"></p>
@@ -527,6 +584,78 @@
       let temporizadorToast = null;
       let temporizadorAvancoAutomatico = null;
       const telas = document.querySelectorAll('.tela');
+      const checkFonte = document.querySelector('#chkFonteAmpliada');
+      const checkContraste = document.querySelector('#chkAltoContraste');
+      const checkLeitura = document.querySelector('#chkLeituraTela');
+      const checkDislexia = document.querySelector('#chkDislexia');
+      const checkEspacamento = document.querySelector('#chkEspacamento');
+      const checkTempoLivre = document.querySelector('#chkTempoLivre');
+      const controlesAcessibilidade = [checkFonte, checkContraste, checkLeitura, checkDislexia, checkEspacamento, checkTempoLivre];
+      const chavePreferenciasAcessibilidade = 'pai_preferencias_acessibilidade';
+
+      function aplicarPreferenciasNoBody() {
+        document.body.classList.toggle('acessibilidade-fonte-ampliada', checkFonte.checked);
+        document.body.classList.toggle('acessibilidade-alto-contraste', checkContraste.checked);
+        document.body.classList.toggle('acessibilidade-dislexia', checkDislexia.checked);
+        document.body.classList.toggle('acessibilidade-espacamento', checkEspacamento.checked);
+      }
+
+      function salvarPreferencias() {
+        const preferencias = {
+          fonteAmpliada: checkFonte.checked,
+          altoContraste: checkContraste.checked,
+          leituraTela: checkLeitura.checked,
+          dislexia: checkDislexia.checked,
+          espacamento: checkEspacamento.checked,
+          tempoLivre: checkTempoLivre.checked
+        };
+        localStorage.setItem(chavePreferenciasAcessibilidade, JSON.stringify(preferencias));
+      }
+
+      function carregarPreferencias() {
+        try {
+          const preferencias = JSON.parse(localStorage.getItem(chavePreferenciasAcessibilidade) || '{}');
+          checkFonte.checked = Boolean(preferencias.fonteAmpliada);
+          checkContraste.checked = Boolean(preferencias.altoContraste);
+          checkLeitura.checked = Boolean(preferencias.leituraTela);
+          checkDislexia.checked = Boolean(preferencias.dislexia);
+          checkEspacamento.checked = Boolean(preferencias.espacamento);
+          checkTempoLivre.checked = Boolean(preferencias.tempoLivre);
+          aplicarPreferenciasNoBody();
+        } catch (_erro) {
+          localStorage.removeItem(chavePreferenciasAcessibilidade);
+        }
+      }
+
+      controlesAcessibilidade.forEach((controle) => controle.addEventListener('change', () => {
+        aplicarPreferenciasNoBody();
+        salvarPreferencias();
+      }));
+
+      // Leitura do enunciado pela API nativa do navegador, quando selecionada.
+      function lerTexto(texto) {
+        if (!checkLeitura.checked || !('speechSynthesis' in window)) return;
+        window.speechSynthesis.cancel();
+        const leitura = new SpeechSynthesisUtterance(String(texto || ''));
+        leitura.lang = 'pt-BR';
+        leitura.rate = 0.9;
+        window.speechSynthesis.speak(leitura);
+      }
+
+      function aplicarControlesDaProva(prova) {
+        if (!prova) {
+          carregarPreferencias();
+          return;
+        }
+        const adaptacoes = Array.isArray(prova?.adaptacoes) ? prova.adaptacoes : [];
+        checkFonte.checked = adaptacoes.includes('Fonte Ampliada');
+        checkContraste.checked = adaptacoes.includes('Alto Contraste');
+        checkLeitura.checked = adaptacoes.includes('Leitura de Tela');
+        checkDislexia.checked = adaptacoes.includes('Fonte para Dislexia');
+        checkEspacamento.checked = adaptacoes.includes('Espaçamento Ampliado');
+        checkTempoLivre.checked = adaptacoes.includes('Tempo de Prova Estendido/Livre');
+        aplicarPreferenciasNoBody();
+      }
 
       function mostrarTela(idTela) {
         telas.forEach((tela) => tela.classList.add('oculto'));
@@ -938,6 +1067,7 @@
         if (!prova) return;
         clearTimeout(temporizadorAvancoAutomatico);
         provaAtual = prova;
+        aplicarControlesDaProva(provaAtual);
         provaAtual.respostas = provaAtual.respostas || {};
         indiceQuestaoAtual = provaAtual.instrucoes ? -1 : 0;
         document.querySelector('#tituloProva').textContent = prova.titulo;
@@ -996,6 +1126,7 @@
         enunciado.textContent = questao.enunciado || 'Questão sem enunciado.';
         textoApoio.textContent = questao.texto_apoio || '';
         textoApoio.classList.toggle('oculto', !questao.texto_apoio);
+        lerTexto(`Questão ${indiceQuestaoAtual + 1}. ${enunciado.textContent}${questao.texto_apoio ? `. Texto de apoio: ${questao.texto_apoio}` : ''}`);
         feedback.className = '';
         feedback.textContent = '';
         alternativas.innerHTML = '';
@@ -1076,6 +1207,8 @@
       document.querySelector('#voltarProvas').addEventListener('click', () => {
         clearTimeout(temporizadorAvancoAutomatico);
         temporizadorAvancoAutomatico = null;
+        aplicarControlesDaProva(null);
+        if ('speechSynthesis' in window) window.speechSynthesis.cancel();
         renderizarProvasDoAluno();
         mostrarTela('#telaAluno');
       });
@@ -1086,6 +1219,7 @@
         mostrarTela('#telaLogin');
       }));
 
+      document.addEventListener('DOMContentLoaded', carregarPreferencias);
       preencherSelectAlunos();
       mostrarTela('#telaLogin');
     </script>
