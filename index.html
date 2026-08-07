@@ -250,7 +250,11 @@
       .mapa-questao.respondida { border-color: #28a745; background-color: #28a745; color: #ffffff; }
       .painel-prova { display: flex; flex-direction: column; align-items: stretch; width: 100%; max-width: 100% !important; padding: 20px 40px; box-sizing: border-box; }
       .contador-questao { display: grid; place-items: center; width: fit-content; min-width: 98px; height: 44px; margin: 0 auto 1rem; border-radius: 999px; padding: 0 1rem; background: #7b3fc1; color: #ffffff; font-size: 1.1rem; font-weight: 800; box-shadow: none; }
-      .questao-prova { width: 100%; max-width: 1400px; min-height: 250px; margin: 0 auto; border: 0; border-radius: 0; padding: 30px; box-sizing: border-box; box-shadow: none; text-align: left; }
+      .questao-prova { position: relative; width: 100%; max-width: 1400px; min-height: 250px; margin: 0 auto; border: 0; border-radius: 0; padding: 30px; box-sizing: border-box; box-shadow: none; text-align: left; }
+      .botao-ouvir-questao { position: absolute; top: 20px; right: 20px; display: grid; place-items: center; width: 52px; min-width: 52px; height: 52px; min-height: 52px; padding: 0; border: 3px solid #075574; border-radius: 50%; background: #ffffff; box-shadow: 0 4px 12px rgba(7, 85, 116, 0.25); color: #075574; font-size: 1.45rem; }
+      .botao-ouvir-questao:hover { background: #075574; color: #ffffff; transform: translateY(-2px); }
+      .botao-ouvir-questao.lendo { border-color: #b42318; background: #b42318; color: #ffffff; }
+      .botao-ouvir-questao:focus-visible { outline: 4px solid #0056b3; outline-offset: 3px; }
       .enunciado-prova { width: 100%; max-width: 100%; margin: 0; color: #12343b; font-size: 1.15rem; font-weight: 500; line-height: 1.6; text-align: left; word-break: break-word; }
       .texto-apoio-prova { max-width: 1100px; margin: 1.25rem auto 0; padding: 1rem 1.25rem; border-left: 6px solid #087fce; border-radius: 8px; background: #eef8fe; color: #12343b; font-size: 1.05rem; line-height: 1.65; text-align: left; white-space: pre-line; }
       .instrucoes-prova { max-width: 1100px; margin: 0 auto; font-size: clamp(1.1rem, 2vw, 1.55rem); font-weight: 600; line-height: 1.7; text-align: left; white-space: pre-line; }
@@ -367,6 +371,7 @@
         .acoes-prova { justify-content: stretch; }
         .acoes-prova button { flex: 1 1 150px; }
         .painel-prova { padding: 16px; }
+        .botao-ouvir-questao { top: 12px; right: 12px; }
         .contador-questao { min-width: 62px; width: 62px; height: 62px; font-size: 1rem; }
         .alternativas-prova { grid-template-columns: 1fr; }
         .alternativa-prova { min-height: 74px; }
@@ -525,6 +530,9 @@
         <div class="painel-prova">
           <div id="contadorQuestao" class="contador-questao" aria-label="Questão atual">1</div>
           <main class="card questao-prova">
+            <button id="btn-ouvir-questao" class="botao-ouvir-questao oculto" type="button" aria-label="Ouvir a questão em áudio" aria-pressed="false" title="Ouvir a questão">
+              <span id="iconeOuvirQuestao" aria-hidden="true">🔊</span>
+            </button>
             <p id="enunciadoProva" class="enunciado-prova" tabindex="-1"></p>
             <p id="textoApoioProva" class="texto-apoio-prova oculto"></p>
             <figure id="imagemQuestao" class="imagem-questao oculto">
@@ -590,9 +598,13 @@
       const checkDislexia = document.querySelector('#chkDislexia');
       const checkEspacamento = document.querySelector('#chkEspacamento');
       const checkTempoLivre = document.querySelector('#chkTempoLivre');
+      const botaoOuvirQuestao = document.querySelector('#btn-ouvir-questao');
+      const iconeOuvirQuestao = document.querySelector('#iconeOuvirQuestao');
       const chaveAdaptacoesProvaAtual = 'adaptacoesProvaAtual';
       let leituraTelaAtiva = false;
       let tempoLivreAtivo = false;
+      let leituraEmAndamento = false;
+      let textoAtualParaLeitura = '';
 
       // TELA DO PROFESSOR: somente captura e salva a configuração. Não aplica
       // nenhuma classe visual no body enquanto o professor marca as opções.
@@ -649,18 +661,54 @@
         document.body.classList.remove('acessibilidade-fonte-ampliada', 'acessibilidade-alto-contraste', 'acessibilidade-dislexia', 'acessibilidade-espacamento');
         leituraTelaAtiva = false;
         tempoLivreAtivo = false;
+        textoAtualParaLeitura = '';
+        pararLeituraDaQuestao();
         delete document.body.dataset.execucaoProva;
       }
 
-      // Leitura do enunciado pela API nativa do navegador, quando selecionada.
+      function atualizarBotaoOuvir() {
+        const disponivel = leituraTelaAtiva && 'speechSynthesis' in window && Boolean(textoAtualParaLeitura);
+        botaoOuvirQuestao.classList.toggle('oculto', !disponivel);
+        botaoOuvirQuestao.classList.toggle('lendo', leituraEmAndamento);
+        botaoOuvirQuestao.setAttribute('aria-pressed', String(leituraEmAndamento));
+        botaoOuvirQuestao.setAttribute('aria-label', leituraEmAndamento ? 'Parar leitura da questão' : 'Ouvir a questão em áudio');
+        botaoOuvirQuestao.title = leituraEmAndamento ? 'Parar leitura' : 'Ouvir a questão';
+        iconeOuvirQuestao.textContent = leituraEmAndamento ? '🔇' : '🔊';
+      }
+
+      function pararLeituraDaQuestao() {
+        if ('speechSynthesis' in window) window.speechSynthesis.cancel();
+        leituraEmAndamento = false;
+        atualizarBotaoOuvir();
+      }
+
+      // A leitura só começa após um clique explícito do aluno no botão de áudio.
       function lerTexto(texto) {
-        if (!leituraTelaAtiva || !('speechSynthesis' in window)) return;
+        if (!leituraTelaAtiva || !('speechSynthesis' in window) || !texto) return;
         window.speechSynthesis.cancel();
         const leitura = new SpeechSynthesisUtterance(String(texto || ''));
         leitura.lang = 'pt-BR';
         leitura.rate = 0.9;
+        leitura.onend = () => {
+          leituraEmAndamento = false;
+          atualizarBotaoOuvir();
+        };
+        leitura.onerror = () => {
+          leituraEmAndamento = false;
+          atualizarBotaoOuvir();
+        };
+        leituraEmAndamento = true;
+        atualizarBotaoOuvir();
         window.speechSynthesis.speak(leitura);
       }
+
+      botaoOuvirQuestao.addEventListener('click', () => {
+        if (leituraEmAndamento) {
+          pararLeituraDaQuestao();
+          return;
+        }
+        lerTexto(textoAtualParaLeitura);
+      });
 
       function iniciarExecucaoDaProva(prova) {
         const adaptacoes = prova?.adaptacoesAcessibilidade || adaptacoesLegadas(prova?.adaptacoes);
@@ -1108,6 +1156,8 @@
         const botaoRetroceder = document.querySelector('#retrocederQuestao');
         const botaoAvancar = document.querySelector('#avancarQuestao');
 
+        textoAtualParaLeitura = '';
+        pararLeituraDaQuestao();
         renderizarMapaQuestoes();
 
         if (indiceQuestaoAtual === -1 && provaAtual?.instrucoes) {
@@ -1125,6 +1175,7 @@
           imagemArquivo.removeAttribute('src');
           imagemArquivo.alt = '';
           imagem.classList.add('oculto');
+          atualizarBotaoOuvir();
           return;
         }
 
@@ -1141,7 +1192,11 @@
         enunciado.textContent = questao.enunciado || 'Questão sem enunciado.';
         textoApoio.textContent = questao.texto_apoio || '';
         textoApoio.classList.toggle('oculto', !questao.texto_apoio);
-        lerTexto(`Questão ${indiceQuestaoAtual + 1}. ${enunciado.textContent}${questao.texto_apoio ? `. Texto de apoio: ${questao.texto_apoio}` : ''}`);
+        const alternativasParaLeitura = (questao.alternativas || []).map((alternativa, indice) => {
+          return `Alternativa ${alternativa.id || indice + 1}: ${alternativa.texto}`;
+        }).join('. ');
+        textoAtualParaLeitura = `Questão ${indiceQuestaoAtual + 1}. ${enunciado.textContent}${questao.texto_apoio ? `. Texto de apoio: ${questao.texto_apoio}` : ''}${alternativasParaLeitura ? `. ${alternativasParaLeitura}` : ''}`;
+        atualizarBotaoOuvir();
         feedback.className = '';
         feedback.textContent = '';
         alternativas.innerHTML = '';
