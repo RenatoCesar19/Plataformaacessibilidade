@@ -1192,7 +1192,8 @@
         textoApoio.textContent = questao.texto_apoio || '';
         textoApoio.classList.toggle('oculto', !questao.texto_apoio);
         const alternativasParaLeitura = (questao.alternativas || []).map((alternativa, indice) => {
-          return `Alternativa ${alternativa.id || indice + 1}: ${alternativa.texto}`;
+          const letraAlternativa = String.fromCharCode(65 + indice);
+          return `Alternativa ${letraAlternativa}: ${alternativa.texto}`;
         }).join('. ');
         textoAtualParaLeitura = `Questão ${indiceQuestaoAtual + 1}. ${enunciado.textContent}${questao.texto_apoio ? `. Texto de apoio: ${questao.texto_apoio}` : ''}${alternativasParaLeitura ? `. ${alternativasParaLeitura}` : ''}`;
         atualizarBotaoOuvir();
@@ -1213,12 +1214,13 @@
 
         if (questao.tipo === 'MULTIPLA_ESCOLHA' && questao.alternativas?.length) {
           questao.alternativas.forEach((alternativa, indice) => {
+            const letraAlternativa = String.fromCharCode(65 + indice);
             const botao = document.createElement('button');
             botao.type = 'button';
             botao.className = 'alternativa-prova';
             if (provaAtual.respostas[chaveResposta] === alternativa.id) botao.classList.add('selecionada');
-            botao.setAttribute('aria-label', `Alternativa ${alternativa.id || indice + 1}: ${alternativa.texto}`);
-            botao.textContent = alternativa.texto;
+            botao.setAttribute('aria-label', `Alternativa ${letraAlternativa}: ${alternativa.texto}`);
+            botao.textContent = `${letraAlternativa}) ${alternativa.texto}`;
             botao.addEventListener('click', () => {
               if (temporizadorAvancoAutomatico) return;
               alternativas.querySelectorAll('.alternativa-prova').forEach((item) => item.classList.remove('selecionada'));
@@ -1226,7 +1228,7 @@
               provaAtual.respostas[chaveResposta] = alternativa.id;
               marcarQuestaoComoRespondida(chaveResposta);
               feedback.className = 'estado-selecionado';
-              feedback.textContent = `Resposta ${alternativa.id || indice + 1} selecionada.`;
+              feedback.textContent = `Resposta ${letraAlternativa} selecionada.`;
               alternativas.querySelectorAll('.alternativa-prova').forEach((item) => { item.disabled = true; });
 
               // Mantém o feedback visível antes de seguir automaticamente.
