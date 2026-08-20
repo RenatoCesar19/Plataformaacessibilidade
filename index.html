@@ -34,7 +34,7 @@
       body.acessibilidade-alto-contraste { --bg-color: #000000; --text-color: #ffff00; }
       body.acessibilidade-dislexia { --font-family: OpenDyslexic, 'Comic Sans MS', Arial, sans-serif; }
       body.acessibilidade-espacamento .enunciado-prova,
-      body.acessibilidade-espacamento .texto-alternativa,
+      body.acessibilidade-espacamento .alternativa-prova,
       body.acessibilidade-espacamento .texto-apoio-prova,
       body.acessibilidade-espacamento .instrucoes-prova {
         line-height: 2;
@@ -263,15 +263,16 @@
       .imagem-questao img { display: block; width: 100%; max-height: 310px; object-fit: contain; border-radius: 10px; }
       .alternativas-prova { display: grid; grid-template-columns: repeat(2, 1fr); width: 100%; max-width: 100%; gap: 20px; margin-top: 30px; }
       .alternativas-prova button:last-child:nth-child(odd) { grid-column: 1 / -1; }
-      .alternativa-prova { display: flex; align-items: center; width: 100%; min-height: 112px; border: 3px solid transparent; border-radius: 6px; padding: 1.25rem 1.5rem; color: #ffffff; text-align: left; box-shadow: none; font-size: clamp(1rem, 1.8vw, 1.25rem); }
-      .alternativa-prova:hover { filter: brightness(1.08); color: #ffffff; }
-      .alternativa-prova.selecionada { border-color: #1f2937; box-shadow: 0 0 0 4px #ffffff, 0 0 0 7px #1f2937; }
-      .simbolo-alternativa { flex: 0 0 auto; width: 42px; margin-right: 1rem; color: #ffffff; font-size: 2.3rem; line-height: 1; }
-      .texto-alternativa { font-weight: 600; line-height: 1.45; }
-      .kahoot-vermelho { background: #e21b3c; }
-      .kahoot-azul { background: #1368ce; }
-      .kahoot-amarelo { background: #d89e00; }
-      .kahoot-verde { background: #26890c; }
+      /* Alternativas em tons pastéis: sem ícones, formas ou estímulos visuais extras. */
+      .alternativa-prova { display: flex; align-items: center; width: 100%; min-height: 112px; border: 2px solid #2d3748; border-radius: 10px; padding: 1.35rem 1.6rem; background: #ffffff; box-shadow: 0 3px 8px rgba(45, 55, 72, 0.18); color: #2d3748; text-align: left; font-size: clamp(1rem, 1.8vw, 1.25rem); font-weight: 600; line-height: 1.5; }
+      .alternativas-prova .alternativa-prova:nth-child(1) { background: #ffd1dc; }
+      .alternativas-prova .alternativa-prova:nth-child(2) { background: #aec6cf; }
+      .alternativas-prova .alternativa-prova:nth-child(3) { background: #fdfd96; }
+      .alternativas-prova .alternativa-prova:nth-child(4) { background: #77dd77; }
+      .alternativas-prova .alternativa-prova:nth-child(5) { background: #cbaacb; }
+      .alternativa-prova:hover { filter: brightness(0.95); color: #2d3748; transform: none; }
+      .alternativa-prova.selecionada { border-color: #0056b3; box-shadow: 0 0 0 4px rgba(0, 86, 179, 0.3); }
+      .alternativa-prova:focus-visible { outline: 4px solid #0056b3; outline-offset: 3px; }
       .resposta-discursiva { width: 100%; min-height: 150px; margin-top: 1.5rem; border: 2px solid #cbd5e1; border-radius: 10px; padding: 1rem; font: inherit; }
       .estado-correto, .estado-incorreto, .estado-selecionado { margin: 1rem 0 0; font-weight: 800; }
       .estado-selecionado { color: #12343b; }
@@ -1181,8 +1182,6 @@
 
         enunciado.classList.remove('instrucoes-prova');
 
-        const estilos = ['kahoot-vermelho', 'kahoot-azul', 'kahoot-amarelo', 'kahoot-verde'];
-        const simbolos = ['▲', '◆', '●', '■'];
         const chaveResposta = chaveDaQuestao(questao, indiceQuestaoAtual);
 
         contador.textContent = `${indiceQuestaoAtual + 1}/${questoes.length}`;
@@ -1216,11 +1215,10 @@
           questao.alternativas.forEach((alternativa, indice) => {
             const botao = document.createElement('button');
             botao.type = 'button';
-            botao.className = `alternativa-prova ${estilos[indice % estilos.length]}`;
+            botao.className = 'alternativa-prova';
             if (provaAtual.respostas[chaveResposta] === alternativa.id) botao.classList.add('selecionada');
             botao.setAttribute('aria-label', `Alternativa ${alternativa.id || indice + 1}: ${alternativa.texto}`);
-            botao.innerHTML = `<span class="simbolo-alternativa" aria-hidden="true">${simbolos[indice % simbolos.length]}</span><span class="texto-alternativa"></span>`;
-            botao.querySelector('.texto-alternativa').textContent = alternativa.texto;
+            botao.textContent = alternativa.texto;
             botao.addEventListener('click', () => {
               if (temporizadorAvancoAutomatico) return;
               alternativas.querySelectorAll('.alternativa-prova').forEach((item) => item.classList.remove('selecionada'));
