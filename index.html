@@ -276,6 +276,20 @@
       .resposta-discursiva { width: 100%; min-height: 150px; margin-top: 1.5rem; border: 2px solid #cbd5e1; border-radius: 10px; padding: 1rem; font: inherit; }
       .estado-correto, .estado-incorreto, .estado-selecionado { margin: 1rem 0 0; font-weight: 800; }
       .estado-selecionado { color: #12343b; }
+      .painel-revisao-prova { width: 100%; max-width: 1400px; margin: 0 auto; padding: 2rem clamp(1rem, 4vw, 3rem) 3rem; }
+      .painel-revisao-prova h2 { margin: 0; color: #12343b; }
+      .painel-revisao-prova > p { margin: 0.5rem 0 1.5rem; color: #38545d; line-height: 1.6; }
+      .lista-revisao-prova { display: grid; gap: 1.25rem; }
+      .item-revisao-questao { padding: 1.5rem; border: 2px solid #cbd5e1; border-radius: 14px; background: #ffffff; box-shadow: 0 5px 14px rgba(18, 52, 59, 0.08); }
+      .item-revisao-questao h3 { margin: 0 0 0.8rem; color: #12343b; font-size: 1.08rem; line-height: 1.55; }
+      .lista-alternativas-revisao { display: grid; gap: 0.65rem; margin: 0; padding: 0; list-style: none; }
+      .alternativa-revisao { display: flex; gap: 0.75rem; align-items: flex-start; padding: 0.9rem 1rem; border: 1px solid #b9c7cc; border-radius: 9px; background: #f8fafb; color: #2d3748; line-height: 1.5; }
+      .alternativa-revisao.marcada { border: 3px solid #16803d; background: #e8f7ed; }
+      .selo-resposta { flex: 0 0 auto; padding: 0.15rem 0.55rem; border-radius: 999px; background: #16803d; color: #ffffff; font-size: 0.78rem; font-weight: 800; }
+      .resposta-discursiva-revisao { margin: 0; padding: 1rem; border-left: 5px solid #16803d; border-radius: 6px; background: #f1fbf4; color: #203237; line-height: 1.65; white-space: pre-wrap; }
+      .acoes-revisao-prova { display: flex; justify-content: flex-end; flex-wrap: wrap; gap: 0.75rem; margin-top: 1.5rem; }
+      .botao-finalizar-prova { background: #16803d; color: #ffffff; }
+      .botao-finalizar-prova:hover { background: #0e6630; box-shadow: 0 10px 20px rgba(22, 128, 61, 0.28); }
 
       /* Adaptações aplicadas automaticamente conforme o perfil do aluno logado. */
       .modo-dislexia { font-family: Arial, Helvetica, sans-serif; line-height: 1.8; letter-spacing: 0.1em; word-spacing: 0.2em; }
@@ -308,7 +322,7 @@
       .alto-contraste input, .alto-contraste select { border: 3px solid #ffffff; background: #000000; color: #ffffff; box-shadow: none; }
       .alto-contraste button { border: 3px solid #ffffff; background: #000000; box-shadow: none; color: #ffffff; }
       .alto-contraste button:hover, .alto-contraste .item-prova:hover { box-shadow: none; transform: none; background: #ffffff; color: #000000; }
-      .alto-contraste .item-aluno, .alto-contraste .modal, .alto-contraste .toast { border: 3px solid #ffffff; box-shadow: none; background: #000000; color: #ffffff; }
+      .alto-contraste .item-aluno, .alto-contraste .modal, .alto-contraste .toast, .alto-contraste .item-revisao-questao, .alto-contraste .alternativa-revisao, .alto-contraste .resposta-discursiva-revisao { border: 3px solid #ffffff; box-shadow: none; background: #000000; color: #ffffff; }
       .alto-contraste .modal-fundo { backdrop-filter: none; background: rgba(0, 0, 0, 0.9); }
       .alto-contraste .botao-excluir, .alto-contraste .botao-neutro, .alto-contraste .botao-perigo { border: 3px solid #ffffff; box-shadow: none; background: #000000; color: #ffffff; }
       .alto-contraste .form-login-direto input { border: 3px solid #ffff00; background: #000000; color: #ffffff; }
@@ -327,6 +341,9 @@
       body.acessibilidade-alto-contraste .item-prova,
       body.acessibilidade-alto-contraste .item-aluno,
       body.acessibilidade-alto-contraste .modal,
+      body.acessibilidade-alto-contraste .item-revisao-questao,
+      body.acessibilidade-alto-contraste .alternativa-revisao,
+      body.acessibilidade-alto-contraste .resposta-discursiva-revisao,
       body.acessibilidade-alto-contraste .form-login-direto,
       body.acessibilidade-alto-contraste .login-painel,
       body.acessibilidade-alto-contraste .login-apresentacao {
@@ -543,6 +560,15 @@
             <p id="feedbackProva" role="status" aria-live="polite"></p>
           </main>
         </div>
+        <section id="painelRevisaoProva" class="painel-revisao-prova oculto" aria-labelledby="tituloRevisaoProva" tabindex="-1">
+          <h2 id="tituloRevisaoProva">Revise suas respostas</h2>
+          <p>Confira cada questão antes de finalizar o envio da prova.</p>
+          <div id="listaRevisaoProva" class="lista-revisao-prova"></div>
+          <div class="acoes-revisao-prova">
+            <button id="voltarQuestoesRevisao" class="botao-neutro" type="button">← Voltar às questões</button>
+            <button id="confirmarFinalizacaoProva" class="botao-finalizar-prova" type="button">Finalizar</button>
+          </div>
+        </section>
       </div>
     </section>
 
@@ -553,6 +579,17 @@
         <div class="modal-acoes">
           <button id="cancelarExclusao" class="botao-neutro" type="button">Cancelar</button>
           <button id="confirmarExclusao" class="botao-perigo" type="button">Sim, Excluir</button>
+        </div>
+      </div>
+    </div>
+
+    <div id="modalFinalizarProva" class="modal-fundo oculto" role="dialog" aria-modal="true" aria-labelledby="tituloModalFinalizarProva" aria-describedby="textoModalFinalizarProva">
+      <div class="modal">
+        <h2 id="tituloModalFinalizarProva">Finalizar prova?</h2>
+        <p id="textoModalFinalizarProva">Você respondeu todas as questões. Deseja revisar suas respostas antes de finalizar?</p>
+        <div class="modal-acoes">
+          <button id="cancelarFinalizacaoProva" class="botao-neutro" type="button">Não</button>
+          <button id="revisarAntesDeFinalizar" class="botao-finalizar-prova" type="button">Sim</button>
         </div>
       </div>
     </div>
@@ -1116,11 +1153,95 @@
         }
       }
 
+      function todasQuestoesForamRespondidas() {
+        const questoes = obterQuestoesDaProvaAtual();
+        return questoes.length > 0 && questoes.every((questao, indice) => {
+          const resposta = provaAtual?.respostas?.[chaveDaQuestao(questao, indice)];
+          return resposta !== undefined && resposta !== null && String(resposta).trim() !== '';
+        });
+      }
+
+      function fecharModalFinalizacao() {
+        document.querySelector('#modalFinalizarProva').classList.add('oculto');
+      }
+
+      function solicitarFinalizacaoDaProva() {
+        if (!todasQuestoesForamRespondidas()) {
+          const feedback = document.querySelector('#feedbackProva');
+          feedback.className = 'estado-incorreto';
+          feedback.textContent = 'Responda todas as questões antes de finalizar a prova.';
+          return;
+        }
+        clearTimeout(temporizadorAvancoAutomatico);
+        temporizadorAvancoAutomatico = null;
+        const modal = document.querySelector('#modalFinalizarProva');
+        modal.classList.remove('oculto');
+        document.querySelector('#cancelarFinalizacaoProva').focus();
+      }
+
+      function renderizarRevisaoDaProva() {
+        const destino = document.querySelector('#listaRevisaoProva');
+        const questoes = obterQuestoesDaProvaAtual();
+        destino.innerHTML = questoes.map((questao, indice) => {
+          const chave = chaveDaQuestao(questao, indice);
+          const resposta = provaAtual.respostas[chave];
+          const tituloQuestao = escaparHtml(questao.enunciado || 'Questão sem enunciado.');
+
+          if (questao.tipo === 'MULTIPLA_ESCOLHA' && Array.isArray(questao.alternativas)) {
+            const alternativas = questao.alternativas.map((alternativa, indiceAlternativa) => {
+              const letra = String.fromCharCode(65 + indiceAlternativa);
+              const marcada = String(alternativa.id) === String(resposta);
+              return `<li class="alternativa-revisao${marcada ? ' marcada' : ''}"><span><strong>${letra})</strong> ${escaparHtml(alternativa.texto)}</span>${marcada ? '<span class="selo-resposta">Sua resposta</span>' : ''}</li>`;
+            }).join('');
+            return `<article class="item-revisao-questao"><h3>Questão ${indice + 1}</h3><p>${tituloQuestao}</p><ol class="lista-alternativas-revisao">${alternativas}</ol></article>`;
+          }
+
+          return `<article class="item-revisao-questao"><h3>Questão ${indice + 1}</h3><p>${tituloQuestao}</p><p class="resposta-discursiva-revisao"><strong>Sua resposta:</strong><br>${escaparHtml(resposta || 'Sem resposta.')}</p></article>`;
+        }).join('');
+      }
+
+      function mostrarRevisaoDaProva() {
+        fecharModalFinalizacao();
+        pararLeituraDaQuestao();
+        renderizarRevisaoDaProva();
+        document.querySelector('.painel-prova').classList.add('oculto');
+        document.querySelector('#painelRevisaoProva').classList.remove('oculto', 'animar-entrada');
+        void document.querySelector('#painelRevisaoProva').offsetWidth;
+        document.querySelector('#painelRevisaoProva').classList.add('animar-entrada');
+        document.querySelector('#painelRevisaoProva').focus();
+      }
+
+      function voltarDaRevisaoParaQuestoes() {
+        document.querySelector('#painelRevisaoProva').classList.add('oculto');
+        document.querySelector('.painel-prova').classList.remove('oculto');
+        renderizarQuestaoAtual();
+        document.querySelector('#enunciadoProva').focus();
+      }
+
+      function finalizarProvaDoAluno() {
+        if (!provaAtual || !todasQuestoesForamRespondidas()) {
+          fecharModalFinalizacao();
+          voltarDaRevisaoParaQuestoes();
+          return;
+        }
+        provaAtual.finalizada = true;
+        fecharModalFinalizacao();
+        document.querySelector('#painelRevisaoProva').classList.add('oculto');
+        limparAdaptacoesDaExecucao();
+        renderizarProvasDoAluno();
+        mostrarTela('#telaAluno');
+        exibirToast('Prova finalizada com sucesso.');
+      }
+
       function avancarParaProximaQuestao() {
         clearTimeout(temporizadorAvancoAutomatico);
         temporizadorAvancoAutomatico = null;
         const totalQuestoes = obterQuestoesDaProvaAtual().length;
-        if (!provaAtual || indiceQuestaoAtual >= totalQuestoes - 1) return;
+        if (!provaAtual) return;
+        if (indiceQuestaoAtual >= totalQuestoes - 1) {
+          solicitarFinalizacaoDaProva();
+          return;
+        }
         indiceQuestaoAtual += 1;
         renderizarQuestaoAtual();
         document.querySelector('#enunciadoProva').focus();
@@ -1134,6 +1255,9 @@
         iniciarExecucaoDaProva(provaAtual);
         provaAtual.respostas = provaAtual.respostas || {};
         indiceQuestaoAtual = provaAtual.instrucoes ? -1 : 0;
+        document.querySelector('#painelRevisaoProva').classList.add('oculto');
+        document.querySelector('.painel-prova').classList.remove('oculto');
+        fecharModalFinalizacao();
         document.querySelector('#tituloProva').textContent = prova.titulo;
         renderizarQuestaoAtual();
         mostrarTela('#telaProva');
@@ -1166,6 +1290,7 @@
           contador.setAttribute('aria-label', 'Instruções da prova');
           botaoRetroceder.disabled = true;
           botaoAvancar.disabled = questoes.length === 0;
+          botaoAvancar.textContent = 'Avançar →';
           enunciado.classList.add('instrucoes-prova');
           enunciado.textContent = provaAtual.instrucoes;
           textoApoio.classList.add('oculto');
@@ -1186,7 +1311,8 @@
 
         contador.textContent = `${indiceQuestaoAtual + 1}/${questoes.length}`;
         botaoRetroceder.disabled = indiceQuestaoAtual === 0 && !provaAtual.instrucoes;
-        botaoAvancar.disabled = indiceQuestaoAtual >= questoes.length - 1;
+        botaoAvancar.disabled = false;
+        botaoAvancar.textContent = indiceQuestaoAtual >= questoes.length - 1 ? 'Finalizar prova' : 'Avançar →';
         contador.setAttribute('aria-label', `Questão ${indiceQuestaoAtual + 1} de ${questoes.length}`);
         enunciado.textContent = questao.enunciado || 'Questão sem enunciado.';
         textoApoio.textContent = questao.texto_apoio || '';
@@ -1251,6 +1377,8 @@
         resposta.value = provaAtual.respostas[chaveResposta] || '';
         resposta.addEventListener('input', () => {
           provaAtual.respostas[chaveResposta] = resposta.value;
+          if (resposta.value.trim()) marcarQuestaoComoRespondida(chaveResposta);
+          else renderizarMapaQuestoes();
         });
         alternativas.appendChild(resposta);
       }
@@ -1276,9 +1404,16 @@
         avancarParaProximaQuestao();
       });
 
+      document.querySelector('#cancelarFinalizacaoProva').addEventListener('click', fecharModalFinalizacao);
+      document.querySelector('#revisarAntesDeFinalizar').addEventListener('click', mostrarRevisaoDaProva);
+      document.querySelector('#voltarQuestoesRevisao').addEventListener('click', voltarDaRevisaoParaQuestoes);
+      document.querySelector('#confirmarFinalizacaoProva').addEventListener('click', finalizarProvaDoAluno);
+
       document.querySelector('#voltarProvas').addEventListener('click', () => {
         clearTimeout(temporizadorAvancoAutomatico);
         temporizadorAvancoAutomatico = null;
+        fecharModalFinalizacao();
+        document.querySelector('#painelRevisaoProva').classList.add('oculto');
         limparAdaptacoesDaExecucao();
         if ('speechSynthesis' in window) window.speechSynthesis.cancel();
         renderizarProvasDoAluno();
