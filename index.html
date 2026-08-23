@@ -597,9 +597,10 @@
     <div id="toast" class="toast oculto" role="status" aria-live="polite"></div>
 
     <script>
-      // Mock de dados em memória: recarregar a página apaga cadastros e provas criadas.
+      // Dados locais do protótipo: alunos e provas processadas permanecem neste navegador.
       const mockProfessores = [{ login: 'Renato', senha: '1234' }];
       const CHAVE_ALUNOS_STORAGE = 'pai_alunos';
+      const CHAVE_PROVAS_STORAGE = 'pai_provas';
 
       function carregarAlunosDoStorage() {
         try {
@@ -621,7 +622,35 @@
         }
       }
 
-      const mockProvas = [];
+      function carregarProvasDoStorage() {
+        try {
+          const provasSalvas = JSON.parse(localStorage.getItem(CHAVE_PROVAS_STORAGE) || '[]');
+          if (!Array.isArray(provasSalvas)) return [];
+          return provasSalvas
+            .filter((prova) => prova && typeof prova === 'object')
+            .map((prova) => ({
+              ...prova,
+              adaptacoes: Array.isArray(prova.adaptacoes) ? prova.adaptacoes : [],
+              questoes: Array.isArray(prova.questoes) ? prova.questoes : [],
+              respostas: prova.respostas && typeof prova.respostas === 'object' ? prova.respostas : {}
+            }));
+        } catch (erro) {
+          console.error('Não foi possível carregar as provas salvas.', erro);
+          return [];
+        }
+      }
+
+      const mockProvas = carregarProvasDoStorage();
+
+      function salvarProvasNoStorage() {
+        try {
+          localStorage.setItem(CHAVE_PROVAS_STORAGE, JSON.stringify(mockProvas));
+          return true;
+        } catch (erro) {
+          console.error('Não foi possível salvar as provas neste navegador.', erro);
+          return false;
+        }
+      }
 
       let alunoLogado = null;
       let provaAtual = null;
@@ -1107,6 +1136,10 @@
             instrucoes: null,
             questoes: questoesFiltradas
           });
+          if (!salvarProvasNoStorage()) {
+            mockProvas.pop();
+            throw new Error('Não foi possível salvar a prova neste navegador. Libere espaço no armazenamento e tente novamente.');
+          }
           formularioProva.reset();
           document.querySelector('#mensagemCadastro').textContent = 'Prova Word processada, salva e atribuída com sucesso!';
           renderizarTabelaProvas();
@@ -1225,6 +1258,7 @@
           return;
         }
         provaAtual.finalizada = true;
+        salvarProvasNoStorage();
         fecharModalFinalizacao();
         document.querySelector('#painelRevisaoProva').classList.add('oculto');
         limparAdaptacoesDaExecucao();
@@ -1352,6 +1386,7 @@
               alternativas.querySelectorAll('.alternativa-prova').forEach((item) => item.classList.remove('selecionada'));
               botao.classList.add('selecionada');
               provaAtual.respostas[chaveResposta] = alternativa.id;
+              salvarProvasNoStorage();
               marcarQuestaoComoRespondida(chaveResposta);
               feedback.className = 'estado-selecionado';
               feedback.textContent = `Resposta ${letraAlternativa} selecionada.`;
@@ -1377,6 +1412,7 @@
         resposta.value = provaAtual.respostas[chaveResposta] || '';
         resposta.addEventListener('input', () => {
           provaAtual.respostas[chaveResposta] = resposta.value;
+          salvarProvasNoStorage();
           if (resposta.value.trim()) marcarQuestaoComoRespondida(chaveResposta);
           else renderizarMapaQuestoes();
         });
