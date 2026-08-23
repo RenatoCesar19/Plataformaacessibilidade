@@ -249,9 +249,9 @@
       .mapa-questao { display: grid; place-items: center; width: 32px; height: 32px; border: 2px solid #54717b; border-radius: 7px; background: #ffffff; color: #12343b; font-size: 0.85rem; font-weight: 800; }
       .mapa-questao.atual { border-color: #087fce; box-shadow: 0 0 0 3px rgba(8, 127, 206, 0.2); }
       .mapa-questao.respondida { border-color: #28a745; background-color: #28a745; color: #ffffff; }
-      .painel-prova { display: flex; flex-direction: column; align-items: stretch; width: 100%; max-width: 100% !important; padding: 20px 40px; box-sizing: border-box; }
+      .painel-prova { display: flex; flex-direction: column; align-items: stretch; width: 100%; max-width: 100% !important; padding: 10px 0; box-sizing: border-box; }
       .contador-questao { display: grid; place-items: center; width: fit-content; min-width: 98px; height: 44px; margin: 0 auto 1rem; border-radius: 999px; padding: 0 1rem; background: #7b3fc1; color: #ffffff; font-size: 1.1rem; font-weight: 800; box-shadow: none; }
-      .questao-prova { position: relative; width: 100%; max-width: 1400px; min-height: 250px; margin: 0 auto; border: 0; border-radius: 0; padding: 30px; box-sizing: border-box; box-shadow: none; text-align: left; }
+      .questao-prova { position: relative; width: 100%; max-width: none; min-height: 250px; margin: 0; border: 0; border-radius: 0; padding: 20px clamp(12px, 2vw, 30px); box-sizing: border-box; box-shadow: none; text-align: left; }
       .botao-ouvir-questao { position: absolute; top: 20px; right: 20px; display: grid; place-items: center; width: 52px; min-width: 52px; height: 52px; min-height: 52px; padding: 0; border: 3px solid #075574; border-radius: 50%; background: #ffffff; box-shadow: 0 4px 12px rgba(7, 85, 116, 0.25); color: #075574; font-size: 1.45rem; }
       .botao-ouvir-questao:hover { background: #075574; color: #ffffff; transform: translateY(-2px); }
       .botao-ouvir-questao.lendo { border-color: #b42318; background: #b42318; color: #ffffff; }
@@ -262,7 +262,7 @@
       .aviso-instrucoes { margin: 2rem 0 0; color: #075574; font-weight: 800; }
       .imagem-questao { width: min(100%, 620px); margin: 1.5rem auto 0; }
       .imagem-questao img { display: block; width: 100%; max-height: 310px; object-fit: contain; border-radius: 10px; }
-      .alternativas-prova { display: grid; grid-template-columns: repeat(2, 1fr); width: 100%; max-width: 100%; gap: 20px; margin-top: 30px; }
+      .alternativas-prova { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); width: 100%; max-width: 100%; gap: 12px; margin-top: 18px; }
       .alternativas-prova button:last-child:nth-child(odd) { grid-column: 1 / -1; }
       /* Alternativas em tons pastéis: sem ícones, formas ou estímulos visuais extras. */
       .alternativa-prova { display: flex; align-items: center; width: 100%; min-height: 112px; border: 2px solid #2d3748; border-radius: 10px; padding: 1.35rem 1.6rem; background: #ffffff; box-shadow: 0 3px 8px rgba(45, 55, 72, 0.18); color: #2d3748; text-align: left; font-size: clamp(1rem, 1.8vw, 1.25rem); font-weight: 600; line-height: 1.5; }
@@ -316,7 +316,7 @@
       /* Classe aplicada diretamente na tela para garantir aumento forte no conteúdo principal. */
       #telaProva.fonte-ampliada-prova .enunciado-prova,
       #telaProva.fonte-ampliada-prova .instrucoes-prova { font-size: clamp(1.75rem, 3vw, 2.15rem) !important; line-height: 1.7; }
-      #telaProva.fonte-ampliada-prova .alternativa-prova { min-height: 140px; padding: 1.65rem 1.8rem; font-size: clamp(1.55rem, 2.5vw, 1.9rem) !important; line-height: 1.6; }
+      #telaProva.fonte-ampliada-prova .alternativa-prova { min-height: 96px; padding: 1rem 1.25rem; font-size: clamp(1.55rem, 2.5vw, 1.9rem) !important; line-height: 1.45; }
       #telaProva.fonte-ampliada-prova .texto-apoio-prova,
       #telaProva.fonte-ampliada-prova .resposta-discursiva,
       #telaProva.fonte-ampliada-prova #feedbackProva { font-size: 1.65rem !important; }
@@ -421,7 +421,8 @@
         .cabecalho-prova { min-height: auto; align-items: stretch; flex-direction: column; }
         .acoes-prova { justify-content: stretch; }
         .acoes-prova button { flex: 1 1 150px; }
-        .painel-prova { padding: 16px; }
+        .painel-prova { padding: 8px 0; }
+        .questao-prova { padding-inline: 12px; }
         .botao-ouvir-questao { top: 12px; right: 12px; }
         .contador-questao { min-width: 62px; width: 62px; height: 62px; font-size: 1rem; }
         .alternativas-prova { grid-template-columns: 1fr; }
