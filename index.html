@@ -313,6 +313,17 @@
       body.acessibilidade-fonte-ampliada #telaProva .alternativa-revisao,
       body.acessibilidade-fonte-ampliada #telaProva .resposta-discursiva-revisao { font-size: 1.35rem; }
 
+      /* Classe aplicada diretamente na tela para garantir aumento forte no conteúdo principal. */
+      #telaProva.fonte-ampliada-prova .enunciado-prova,
+      #telaProva.fonte-ampliada-prova .instrucoes-prova { font-size: clamp(1.75rem, 3vw, 2.15rem) !important; line-height: 1.7; }
+      #telaProva.fonte-ampliada-prova .alternativa-prova { min-height: 140px; padding: 1.65rem 1.8rem; font-size: clamp(1.55rem, 2.5vw, 1.9rem) !important; line-height: 1.6; }
+      #telaProva.fonte-ampliada-prova .texto-apoio-prova,
+      #telaProva.fonte-ampliada-prova .resposta-discursiva,
+      #telaProva.fonte-ampliada-prova #feedbackProva { font-size: 1.65rem !important; }
+      #telaProva.fonte-ampliada-prova .item-revisao-questao > p,
+      #telaProva.fonte-ampliada-prova .alternativa-revisao,
+      #telaProva.fonte-ampliada-prova .resposta-discursiva-revisao { font-size: 1.55rem !important; }
+
       /* Adaptações aplicadas automaticamente conforme o perfil do aluno logado. */
       .modo-dislexia { font-family: Arial, Helvetica, sans-serif; line-height: 1.8; letter-spacing: 0.1em; word-spacing: 0.2em; }
       .modo-tdah *, .modo-tdah *::before, .modo-tdah *::after { transition: none !important; animation: none !important; }
@@ -738,7 +749,9 @@
 
       // TELA DA PROVA: esta é a única função que altera classes visuais.
       function aplicarAdaptacoesNaExecucao(adaptacoes) {
-        document.body.classList.toggle('acessibilidade-fonte-ampliada', Boolean(adaptacoes.fonteAmpliada));
+        const fonteAmpliadaAtiva = Boolean(adaptacoes.fonteAmpliada);
+        document.body.classList.toggle('acessibilidade-fonte-ampliada', fonteAmpliadaAtiva);
+        document.querySelector('#telaProva').classList.toggle('fonte-ampliada-prova', fonteAmpliadaAtiva);
         document.body.classList.toggle('acessibilidade-alto-contraste', Boolean(adaptacoes.altoContraste));
         document.body.classList.toggle('acessibilidade-dislexia', Boolean(adaptacoes.dislexia));
         document.body.classList.toggle('acessibilidade-espacamento', Boolean(adaptacoes.espacamento));
@@ -748,6 +761,7 @@
 
       function limparAdaptacoesDaExecucao() {
         document.body.classList.remove('acessibilidade-fonte-ampliada', 'acessibilidade-alto-contraste', 'acessibilidade-dislexia', 'acessibilidade-espacamento');
+        document.querySelector('#telaProva').classList.remove('fonte-ampliada-prova');
         leituraTelaAtiva = false;
         tempoLivreAtivo = false;
         textoAtualParaLeitura = '';
@@ -800,7 +814,10 @@
       });
 
       function iniciarExecucaoDaProva(prova) {
-        const adaptacoes = prova?.adaptacoesAcessibilidade || adaptacoesLegadas(prova?.adaptacoes);
+        const adaptacoes = {
+          ...adaptacoesLegadas(prova?.adaptacoes),
+          ...(prova?.adaptacoesAcessibilidade || {})
+        };
         salvarAdaptacoesProvaAtual(adaptacoes);
         document.body.dataset.execucaoProva = 'true';
         aplicarAdaptacoesNaExecucao(lerAdaptacoesProvaAtual());
