@@ -237,12 +237,13 @@
       /* Tela de prova inspirada no fluxo visual do Kahoot: uma questão por vez. */
       .tela-prova-kahoot { padding: 0; background: #f2f3f5; }
       .tela-prova-kahoot .dashboard { display: flex; flex-direction: column; align-items: stretch; width: 100%; max-width: none; }
-      .cabecalho-prova { display: flex; align-items: center; justify-content: space-between; gap: 1rem; min-height: 110px; padding: 1.25rem clamp(1rem, 4vw, 4rem); background: #ffffff; border-bottom: 3px solid #d8dce0; }
-      .cabecalho-prova h1 { margin: 0; color: #292929; font-size: clamp(1.4rem, 3vw, 2.4rem); }
-      .apoio-prova { margin: 0.35rem 0 0; }
+      .cabecalho-prova { display: flex; align-items: center; justify-content: space-between; gap: 0.75rem; min-height: 76px; padding: 0.65rem clamp(0.8rem, 2vw, 2rem); background: #ffffff; border-bottom: 2px solid #d8dce0; }
+      .cabecalho-prova h1 { margin: 0; color: #292929; font-size: clamp(1.15rem, 2vw, 1.65rem); line-height: 1.2; }
+      .apoio-prova { margin: 0.2rem 0 0; font-size: 0.88rem; line-height: 1.35; }
       .acoes-prova { display: flex; align-items: center; justify-content: flex-end; flex-wrap: wrap; gap: 0.7rem; }
+      .acoes-prova button { min-height: 42px; padding: 0.55rem 0.8rem; font-size: 0.95rem; }
       .acoes-prova button:disabled { cursor: not-allowed; opacity: 0.48; transform: none; }
-      .mapa-questoes { display: flex; flex-wrap: wrap; gap: 0.45rem; margin: 0.85rem 0 0; }
+      .mapa-questoes { display: flex; flex-wrap: wrap; gap: 0.45rem; margin: 0.5rem 0 0; }
       .mapa-questoes-titulo { display: block; margin-bottom: 0.4rem; color: #075574; font-size: 0.86rem; font-weight: 800; text-transform: uppercase; letter-spacing: 0.04em; }
       .mapa-questoes-itens { display: flex; flex-wrap: wrap; gap: 0.4rem; margin: 0; padding: 0; list-style: none; }
       .mapa-questao { display: grid; place-items: center; width: 32px; height: 32px; border: 2px solid #54717b; border-radius: 7px; background: #ffffff; color: #12343b; font-size: 0.85rem; font-weight: 800; }
@@ -290,6 +291,27 @@
       .acoes-revisao-prova { display: flex; justify-content: flex-end; flex-wrap: wrap; gap: 0.75rem; margin-top: 1.5rem; }
       .botao-finalizar-prova { background: #16803d; color: #ffffff; }
       .botao-finalizar-prova:hover { background: #0e6630; box-shadow: 0 10px 20px rgba(22, 128, 61, 0.28); }
+
+      /* Fonte ampliada: aumenta explicitamente somente a experiência da prova. */
+      body.acessibilidade-fonte-ampliada #telaProva .cabecalho-prova { min-height: 100px; padding: 1rem clamp(1rem, 3vw, 3rem); }
+      body.acessibilidade-fonte-ampliada #telaProva .cabecalho-prova h1 { font-size: clamp(1.75rem, 3vw, 2.35rem); }
+      body.acessibilidade-fonte-ampliada #telaProva .apoio-prova,
+      body.acessibilidade-fonte-ampliada #telaProva .mapa-questoes-titulo { font-size: 1.2rem; }
+      body.acessibilidade-fonte-ampliada #telaProva .acoes-prova button { min-height: 56px; padding: 0.85rem 1.15rem; font-size: 1.25rem; }
+      body.acessibilidade-fonte-ampliada #telaProva .mapa-questao { width: 44px; height: 44px; font-size: 1.15rem; }
+      body.acessibilidade-fonte-ampliada #telaProva .contador-questao { min-width: 118px; height: 54px; font-size: 1.35rem; }
+      body.acessibilidade-fonte-ampliada #telaProva .enunciado-prova,
+      body.acessibilidade-fonte-ampliada #telaProva .instrucoes-prova { font-size: 1.55rem; }
+      body.acessibilidade-fonte-ampliada #telaProva .texto-apoio-prova,
+      body.acessibilidade-fonte-ampliada #telaProva .alternativa-prova,
+      body.acessibilidade-fonte-ampliada #telaProva .resposta-discursiva,
+      body.acessibilidade-fonte-ampliada #telaProva #feedbackProva { font-size: 1.4rem; }
+      body.acessibilidade-fonte-ampliada #telaProva .painel-revisao-prova h2 { font-size: 2rem; }
+      body.acessibilidade-fonte-ampliada #telaProva .painel-revisao-prova > p,
+      body.acessibilidade-fonte-ampliada #telaProva .item-revisao-questao h3,
+      body.acessibilidade-fonte-ampliada #telaProva .item-revisao-questao > p,
+      body.acessibilidade-fonte-ampliada #telaProva .alternativa-revisao,
+      body.acessibilidade-fonte-ampliada #telaProva .resposta-discursiva-revisao { font-size: 1.35rem; }
 
       /* Adaptações aplicadas automaticamente conforme o perfil do aluno logado. */
       .modo-dislexia { font-family: Arial, Helvetica, sans-serif; line-height: 1.8; letter-spacing: 0.1em; word-spacing: 0.2em; }
