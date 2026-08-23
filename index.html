@@ -168,6 +168,48 @@
       .vazio { padding: 1rem; border-radius: 10px; background: #e9fbfd; }
       .oculto { display: none !important; }
 
+      /* Dashboard LMS corporativo. */
+      .tela-lms { min-height: 100vh; padding: 0; background: #f1f5f9; }
+      .lms-sidebar { position: fixed; z-index: 10; inset: 0 auto 0 0; display: flex; flex-direction: column; width: 260px; min-height: 100vh; padding: 1.5rem 1rem; background: #0f2742; color: #ffffff; }
+      .lms-marca { display: flex; align-items: center; gap: 0.75rem; padding: 0 0.5rem 1.5rem; border-bottom: 1px solid rgba(255, 255, 255, 0.14); }
+      .lms-marca img { width: 46px; height: 46px; padding: 3px; border-radius: 50%; background: #ffffff; object-fit: cover; }
+      .lms-marca strong { display: block; font-size: 1.15rem; }
+      .lms-marca span { color: #b8c8d9; font-size: 0.78rem; }
+      .lms-menu { display: grid; gap: 0.4rem; margin-top: 1.5rem; }
+      .lms-menu button { display: flex; align-items: center; justify-content: flex-start; min-height: 46px; border-radius: 8px; padding: 0.7rem 0.85rem; background: transparent; box-shadow: none; color: #dbe7f3; text-align: left; font-weight: 600; }
+      .lms-menu button:hover, .lms-menu button.ativo { background: #1d4f7a; box-shadow: none; color: #ffffff; transform: none; }
+      .lms-sidebar .sair { margin-top: auto; border: 1px solid rgba(255, 255, 255, 0.35); background: transparent; box-shadow: none; }
+      .lms-area { min-height: 100vh; margin-left: 260px; }
+      .lms-topbar { position: sticky; z-index: 5; top: 0; display: flex; align-items: center; justify-content: space-between; gap: 1rem; min-height: 78px; padding: 1rem clamp(1rem, 3vw, 2.5rem); border-bottom: 1px solid #d8e0e8; background: rgba(255, 255, 255, 0.96); backdrop-filter: blur(8px); }
+      .lms-topbar h1 { margin: 0; color: #102a43; font-size: clamp(1.35rem, 2.5vw, 2rem); }
+      .lms-topbar p { margin: 0.25rem 0 0; color: #627d98; }
+      .lms-conteudo { width: 100%; max-width: 1500px; margin: 0 auto; padding: clamp(1rem, 3vw, 2.5rem); }
+      .lms-painel { width: 100%; }
+      .lms-card { width: 100%; max-width: none; border: 1px solid #dbe4ec; border-radius: 12px; padding: clamp(1.1rem, 2vw, 1.75rem); background: #ffffff; box-shadow: 0 4px 16px rgba(15, 39, 66, 0.06); }
+      .lms-card h2 { margin-top: 0; color: #102a43; }
+      .lms-cabecalho-secao { display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 1rem; margin-bottom: 1.25rem; }
+      .lms-cabecalho-secao h2, .lms-cabecalho-secao p { margin: 0; }
+      .lms-cabecalho-secao p { margin-top: 0.25rem; color: #627d98; }
+      .lms-acoes { display: flex; flex-wrap: wrap; gap: 0.65rem; }
+      .lms-grid-metricas { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 1rem; }
+      .lms-metrica { padding: 1.25rem; border: 1px solid #dbe4ec; border-radius: 12px; background: #ffffff; box-shadow: 0 4px 14px rgba(15, 39, 66, 0.05); }
+      .lms-metrica span { display: block; color: #627d98; font-size: 0.9rem; font-weight: 700; }
+      .lms-metrica strong { display: block; margin-top: 0.45rem; color: #102a43; font-size: 2rem; }
+      .lms-lista { display: grid; gap: 0.85rem; }
+      .lms-item { display: flex; align-items: center; justify-content: space-between; gap: 1rem; padding: 1rem 1.15rem; border: 1px solid #dbe4ec; border-radius: 10px; background: #ffffff; }
+      .lms-item h3, .lms-item p { margin: 0; }
+      .lms-item p { margin-top: 0.3rem; color: #627d98; }
+      .lms-status { display: inline-flex; align-items: center; min-height: 28px; margin-top: 0.45rem; border-radius: 999px; padding: 0.2rem 0.65rem; background: #fff3cd; color: #7a5200; font-size: 0.8rem; font-weight: 800; }
+      .lms-status.concluida { background: #dcfce7; color: #166534; }
+      .lms-form-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 1rem; }
+      .lms-form-grid .campo-largo { grid-column: 1 / -1; }
+      textarea { width: 100%; min-height: 120px; border: 1px solid #d6e0e8; border-radius: 10px; padding: 0.8rem; background: #f9fbfc; color: #12343b; font: inherit; }
+      input[type="number"], input[type="date"] { width: 100%; min-height: 46px; border: 1px solid #d6e0e8; border-radius: 10px; padding: 0.65rem; background: #f9fbfc; color: #12343b; font: inherit; }
+      .campo-nota { display: flex; align-items: end; gap: 0.55rem; }
+      .campo-nota input { width: 100px; }
+      .cronometro-prova { display: grid; place-items: center; min-width: 126px; min-height: 46px; border: 2px solid #1d4f7a; border-radius: 9px; padding: 0.45rem 0.75rem; background: #eef6fc; color: #102a43; font-weight: 800; }
+      .cronometro-prova.alerta { border-color: #b42318; background: #fff1f0; color: #b42318; }
+
       .lista-alunos { display: grid; gap: 0.9rem; }
       .item-aluno {
         display: flex;
@@ -438,6 +480,20 @@
         .login-apresentacao { min-height: 330px; padding: 2.5rem 2rem; }
         .form-login-direto { width: auto; margin: 0; border-radius: 0; box-shadow: none; }
       }
+      @media (max-width: 980px) {
+        .lms-sidebar { position: relative; width: 100%; min-height: auto; }
+        .lms-menu { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+        .lms-sidebar .sair { margin-top: 1rem; }
+        .lms-area { margin-left: 0; }
+        .lms-grid-metricas { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+      }
+      @media (max-width: 620px) {
+        .lms-menu, .lms-grid-metricas, .lms-form-grid { grid-template-columns: 1fr; }
+        .lms-form-grid .campo-largo { grid-column: auto; }
+        .lms-item { align-items: stretch; flex-direction: column; }
+        .campo-nota { align-items: stretch; flex-direction: column; }
+        .campo-nota input { width: 100%; }
+      }
     </style>
   </head>
   <body>
@@ -486,23 +542,47 @@
       </div>
     </section>
 
-    <!-- Tela 3: dashboard do professor -->
-    <section id="telaProfessor" class="tela oculto">
-      <div class="dashboard">
-        <header class="cabecalho-dashboard">
-          <div><h1>Área do Professor</h1><p>Olá, Renato. Gerencie e atribua avaliações.</p></div>
-          <button class="sair" type="button">Sair</button>
+    <!-- Dashboard LMS do professor -->
+    <section id="telaProfessor" class="tela tela-lms oculto">
+      <aside class="lms-sidebar">
+        <div class="lms-marca">
+          <img src="assets/ACESSIBILIDADE.avif" alt="" />
+          <div><strong>PAI</strong><span>Ambiente do Professor</span></div>
+        </div>
+        <nav class="lms-menu" aria-label="Menu do professor">
+          <button class="ativo" type="button" data-aba="dashboard-professor">Dashboard</button>
+          <button type="button" data-aba="lista">Gerenciar Provas</button>
+          <button type="button" data-aba="correcao">Corrigir e Avaliar</button>
+          <button type="button" data-aba="tarefas-professor">Tarefas de Casa</button>
+          <button type="button" data-aba="alunos">Gerenciar Alunos</button>
+        </nav>
+        <button class="sair" type="button">Sair</button>
+      </aside>
+      <div class="lms-area">
+        <header class="lms-topbar">
+          <div><h1>Área do Professor</h1><p>Olá, Renato. Gerencie sua comunidade acadêmica.</p></div>
         </header>
-        <div class="layout-dashboard">
-          <nav class="menu" aria-label="Menu do professor">
-            <button type="button" data-aba="lista">Provas Cadastradas</button>
-            <button type="button" data-aba="cadastrar-aluno">Cadastrar Aluno</button>
-            <button type="button" data-aba="cadastro">Cadastrar Nova Prova</button>
-            <button type="button" data-aba="alunos">Gerenciar Alunos</button>
-          </nav>
-          <main class="conteudo">
-            <section id="abaLista" class="card"><h2>Provas Cadastradas</h2><div id="tabelaProvas"></div></section>
-            <section id="abaCadastrarAluno" class="card oculto">
+        <main class="lms-conteudo">
+          <section id="abaDashboardProfessor" class="lms-painel">
+            <div class="lms-cabecalho-secao"><div><h2>Visão geral</h2><p>Acompanhe provas, alunos e atividades.</p></div></div>
+            <div class="lms-grid-metricas">
+              <article class="lms-metrica"><span>Alunos cadastrados</span><strong id="metricaAlunos">0</strong></article>
+              <article class="lms-metrica"><span>Provas atribuídas</span><strong id="metricaProvas">0</strong></article>
+              <article class="lms-metrica"><span>Aguardando correção</span><strong id="metricaCorrecoes">0</strong></article>
+              <article class="lms-metrica"><span>Tarefas cadastradas</span><strong id="metricaTarefas">0</strong></article>
+            </div>
+          </section>
+          <section id="abaLista" class="lms-painel oculto">
+            <div class="lms-cabecalho-secao">
+              <div><h2>Gerenciar Provas</h2><p>Cadastre, atribua e consulte avaliações.</p></div>
+              <div class="lms-acoes">
+                <button type="button" data-aba="cadastrar-aluno">Cadastrar Aluno</button>
+                <button type="button" data-aba="cadastro">Nova Prova</button>
+              </div>
+            </div>
+            <div class="lms-card"><div id="tabelaProvas"></div></div>
+          </section>
+          <section id="abaCadastrarAluno" class="lms-card oculto">
               <h2>Cadastrar Aluno</h2>
               <form id="formCadastrarAlunoProfessor">
                 <label>Nome Completo <input id="nomeAlunoProfessor" type="text" autocomplete="name" required /></label>
@@ -519,13 +599,14 @@
                 <button type="submit">Salvar Aluno</button>
                 <p id="mensagemCadastrarAluno" class="mensagem-sucesso" role="status" aria-live="polite"></p>
               </form>
-            </section>
-            <section id="abaCadastro" class="card oculto">
+          </section>
+          <section id="abaCadastro" class="lms-card oculto">
               <h2>Cadastrar Nova Prova</h2>
-              <form id="formNovaProva">
+              <form id="formNovaProva" class="lms-form-grid">
                 <label>Anexe o arquivo Word da prova <input id="arquivoProva" type="file" accept=".docx,application/vnd.openxmlformats-officedocument.wordprocessingml.document" required /></label>
                 <label>Aluno alvo <select id="alunoAlvo" required></select></label>
-                <fieldset class="adaptacoes">
+                <label>Tempo Limite (minutos) <input id="tempoLimiteProva" type="number" min="1" max="600" value="60" required /></label>
+                <fieldset class="adaptacoes campo-largo">
                   <legend>Adaptações necessárias</legend>
                   <label><input id="chkFonteAmpliada" type="checkbox" name="adaptacao" value="Fonte Ampliada" /> Fonte Ampliada</label>
                   <label><input id="chkAltoContraste" type="checkbox" name="adaptacao" value="Alto Contraste" /> Alto Contraste</label>
@@ -537,24 +618,53 @@
                 <button type="submit">Salvar e Atribuir Prova</button>
                 <p id="mensagemCadastro" class="mensagem-sucesso" role="status" aria-live="polite"></p>
               </form>
-            </section>
-            <section id="abaAlunos" class="card oculto">
-              <h2>Gerenciar Alunos</h2>
+          </section>
+          <section id="abaCorrecao" class="lms-painel oculto">
+            <div class="lms-cabecalho-secao"><div><h2>Corrigir e Avaliar</h2><p>Atribua notas às provas finalizadas e tarefas.</p></div></div>
+            <div id="listaCorrecoes" class="lms-lista"></div>
+          </section>
+          <section id="abaTarefasProfessor" class="lms-painel oculto">
+            <div class="lms-cabecalho-secao"><div><h2>Tarefas de Casa</h2><p>Cadastre atividades extras para os alunos.</p></div></div>
+            <div class="lms-card">
+              <form id="formTarefa" class="lms-form-grid">
+                <label>Título <input id="tituloTarefa" type="text" required /></label>
+                <label>Aluno <select id="alunoTarefa" required></select></label>
+                <label class="campo-largo">Descrição <textarea id="descricaoTarefa" required></textarea></label>
+                <label>Prazo <input id="prazoTarefa" type="date" required /></label>
+                <div><button type="submit">Cadastrar Tarefa</button></div>
+              </form>
+            </div>
+            <div id="listaTarefasProfessor" class="lms-lista" style="margin-top: 1rem;"></div>
+          </section>
+          <section id="abaAlunos" class="lms-painel oculto">
+              <div class="lms-cabecalho-secao"><div><h2>Gerenciar Alunos</h2><p>Consulte ou remova contas cadastradas.</p></div><button type="button" data-aba="cadastrar-aluno">Cadastrar Aluno</button></div>
               <div id="listaAlunos" class="lista-alunos"></div>
-            </section>
-          </main>
-        </div>
+          </section>
+        </main>
       </div>
     </section>
 
-    <!-- Tela 4: dashboard do aluno -->
-    <section id="telaAluno" class="tela oculto">
-      <div class="dashboard">
-        <header class="cabecalho-dashboard">
-          <div><h1 id="tituloAluno">Olá!</h1><p>Estas são as provas atribuídas a você.</p></div>
-          <button class="sair" type="button">Sair</button>
-        </header>
-        <main class="card"><h2>Minhas Provas</h2><div id="provasAluno" class="lista-provas"></div></main>
+    <!-- Dashboard LMS do aluno -->
+    <section id="telaAluno" class="tela tela-lms oculto">
+      <aside class="lms-sidebar">
+        <div class="lms-marca">
+          <img src="assets/ACESSIBILIDADE.avif" alt="" />
+          <div><strong>PAI</strong><span>Ambiente do Aluno</span></div>
+        </div>
+        <nav class="lms-menu" aria-label="Menu do aluno">
+          <button class="ativo" type="button" data-aba-aluno="provas">Minhas Provas</button>
+          <button type="button" data-aba-aluno="tarefas">Minhas Tarefas</button>
+          <button type="button" data-aba-aluno="boletim">Boletim de Notas</button>
+        </nav>
+        <button class="sair" type="button">Sair</button>
+      </aside>
+      <div class="lms-area">
+        <header class="lms-topbar"><div><h1 id="tituloAluno">Olá!</h1><p>Acompanhe suas avaliações e tarefas.</p></div></header>
+        <main class="lms-conteudo">
+          <section id="abaProvasAluno" class="lms-painel"><div class="lms-cabecalho-secao"><div><h2>Minhas Provas</h2><p>Avaliações atribuídas pelo professor.</p></div></div><div id="provasAluno" class="lista-provas"></div></section>
+          <section id="abaTarefasAluno" class="lms-painel oculto"><div class="lms-cabecalho-secao"><div><h2>Minhas Tarefas</h2><p>Atividades extras e respectivos prazos.</p></div></div><div id="tarefasAluno" class="lms-lista"></div></section>
+          <section id="abaBoletimAluno" class="lms-painel oculto"><div class="lms-cabecalho-secao"><div><h2>Boletim de Notas</h2><p>Resultados publicados pelo professor.</p></div></div><div id="boletimAluno" class="lms-card"></div></section>
+        </main>
       </div>
     </section>
 
@@ -574,6 +684,7 @@
             </nav>
           </div>
           <div class="acoes-prova">
+            <div id="cronometroProva" class="cronometro-prova" role="timer" aria-live="polite">Tempo: --:--</div>
             <button id="retrocederQuestao" class="botao-neutro" type="button">← Retroceder</button>
             <button id="avancarQuestao" type="button">Avançar →</button>
             <button id="voltarProvas" class="botao-neutro" type="button">Voltar para Minhas Provas</button>
@@ -635,6 +746,7 @@
       const mockProfessores = [{ login: 'Renato', senha: '1234' }];
       const CHAVE_ALUNOS_STORAGE = 'pai_alunos';
       const CHAVE_PROVAS_STORAGE = 'pai_provas';
+      const CHAVE_TAREFAS_STORAGE = 'pai_tarefas';
 
       function carregarAlunosDoStorage() {
         try {
@@ -673,7 +785,6 @@
           return [];
         }
       }
-
       const mockProvas = carregarProvasDoStorage();
 
       function salvarProvasNoStorage() {
@@ -686,12 +797,35 @@
         }
       }
 
+      function carregarTarefasDoStorage() {
+        try {
+          const tarefasSalvas = JSON.parse(localStorage.getItem(CHAVE_TAREFAS_STORAGE) || '[]');
+          return Array.isArray(tarefasSalvas) ? tarefasSalvas : [];
+        } catch (erro) {
+          console.error('Não foi possível carregar as tarefas salvas.', erro);
+          return [];
+        }
+      }
+
+      const mockTarefas = carregarTarefasDoStorage();
+
+      function salvarTarefasNoStorage() {
+        try {
+          localStorage.setItem(CHAVE_TAREFAS_STORAGE, JSON.stringify(mockTarefas));
+          return true;
+        } catch (erro) {
+          console.error('Não foi possível salvar as tarefas.', erro);
+          return false;
+        }
+      }
+
       let alunoLogado = null;
       let provaAtual = null;
       let indiceQuestaoAtual = 0;
       let indiceAlunoParaExcluir = null;
       let temporizadorToast = null;
       let temporizadorAvancoAutomatico = null;
+      let temporizadorProva = null;
       const telas = document.querySelectorAll('.tela');
       const checkFonte = document.querySelector('#chkFonteAmpliada');
       const checkContraste = document.querySelector('#chkAltoContraste');
@@ -824,6 +958,58 @@
         aplicarAdaptacoesNaExecucao(lerAdaptacoesProvaAtual());
       }
 
+      function pararTemporizadorDaProva() {
+        clearInterval(temporizadorProva);
+        temporizadorProva = null;
+      }
+
+      function formatarTempoRestante(totalSegundos) {
+        const minutos = Math.floor(Math.max(0, totalSegundos) / 60);
+        const segundos = Math.max(0, totalSegundos) % 60;
+        return `${String(minutos).padStart(2, '0')}:${String(segundos).padStart(2, '0')}`;
+      }
+
+      function encerrarProvaPorTempo() {
+        if (!provaAtual || provaAtual.finalizada) return;
+        pararTemporizadorDaProva();
+        provaAtual.finalizada = true;
+        provaAtual.finalizadaPorTempo = true;
+        provaAtual.finalizadaEm = Date.now();
+        salvarProvasNoStorage();
+        limparAdaptacoesDaExecucao();
+        mostrarAbaAluno('provas');
+        mostrarTela('#telaAluno');
+        exibirToast('O tempo terminou. A prova foi finalizada automaticamente.');
+      }
+
+      function iniciarTemporizadorDaProva(prova) {
+        pararTemporizadorDaProva();
+        const cronometro = document.querySelector('#cronometroProva');
+        cronometro.classList.remove('alerta');
+        if (prova.finalizada) {
+          cronometro.textContent = 'Prova finalizada';
+          return;
+        }
+        const minutosLimite = Number(prova.tempoLimite || 0);
+        if (tempoLivreAtivo || minutosLimite <= 0) {
+          cronometro.textContent = 'Tempo livre';
+          return;
+        }
+        if (!prova.inicioExecucao) {
+          prova.inicioExecucao = Date.now();
+          salvarProvasNoStorage();
+        }
+        const atualizar = () => {
+          const fim = Number(prova.inicioExecucao) + minutosLimite * 60 * 1000;
+          const segundosRestantes = Math.max(0, Math.ceil((fim - Date.now()) / 1000));
+          cronometro.textContent = `Tempo: ${formatarTempoRestante(segundosRestantes)}`;
+          cronometro.classList.toggle('alerta', segundosRestantes <= 300);
+          if (segundosRestantes <= 0) encerrarProvaPorTempo();
+        };
+        atualizar();
+        if (!prova.finalizada) temporizadorProva = setInterval(atualizar, 1000);
+      }
+
       function mostrarTela(idTela) {
         telas.forEach((tela) => tela.classList.add('oculto'));
         const telaAtiva = document.querySelector(idTela);
@@ -944,14 +1130,32 @@
       }
 
       function preencherSelectAlunos() {
-        const select = document.querySelector('#alunoAlvo');
+        const selects = [document.querySelector('#alunoAlvo'), document.querySelector('#alunoTarefa')].filter(Boolean);
         if (!mockAlunos.length) {
-          select.innerHTML = '<option value="">Cadastre um aluno antes de atribuir provas</option>';
-          select.disabled = true;
+          selects.forEach((select) => {
+            select.innerHTML = '<option value="">Cadastre um aluno primeiro</option>';
+            select.disabled = true;
+          });
           return;
         }
-        select.disabled = false;
-        select.innerHTML = mockAlunos.map((aluno) => `<option value="${escaparHtml(aluno.login)}">${escaparHtml(aluno.nome)}</option>`).join('');
+        const opcoes = mockAlunos.map((aluno) => `<option value="${escaparHtml(aluno.login)}">${escaparHtml(aluno.nome)}</option>`).join('');
+        selects.forEach((select) => {
+          select.disabled = false;
+          select.innerHTML = opcoes;
+        });
+      }
+
+      function formatarData(data) {
+        if (!data) return 'Sem prazo';
+        const [ano, mes, dia] = String(data).split('-');
+        return ano && mes && dia ? `${dia}/${mes}/${ano}` : String(data);
+      }
+
+      function renderizarDashboardProfessor() {
+        document.querySelector('#metricaAlunos').textContent = mockAlunos.length;
+        document.querySelector('#metricaProvas').textContent = mockProvas.length;
+        document.querySelector('#metricaCorrecoes').textContent = mockProvas.filter((prova) => prova.finalizada && (prova.nota === null || prova.nota === undefined)).length;
+        document.querySelector('#metricaTarefas').textContent = mockTarefas.length;
       }
 
       function renderizarTabelaProvas() {
@@ -960,10 +1164,33 @@
           destino.innerHTML = '<p class="vazio">Nenhuma prova cadastrada.</p>';
           return;
         }
-        destino.innerHTML = `<table class="tabela"><thead><tr><th>Prova</th><th>Aluno</th><th>Adaptações</th></tr></thead><tbody>${mockProvas.map((prova) => {
+        destino.innerHTML = `<table class="tabela"><thead><tr><th>Prova</th><th>Aluno</th><th>Tempo</th><th>Status</th><th>Nota</th></tr></thead><tbody>${mockProvas.map((prova) => {
           const aluno = obterAluno(prova.alunoLogin);
-          return `<tr><td>${escaparHtml(prova.titulo)}</td><td>${escaparHtml(aluno ? aluno.nome : 'Aluno removido')}</td><td>${escaparHtml(prova.adaptacoes.length ? prova.adaptacoes.join(', ') : 'Nenhuma')}</td></tr>`;
+          const status = prova.finalizada ? 'Finalizada' : 'Pendente';
+          return `<tr><td>${escaparHtml(prova.titulo)}</td><td>${escaparHtml(aluno ? aluno.nome : 'Aluno removido')}</td><td>${prova.tempoLimite ? `${Number(prova.tempoLimite)} min` : 'Livre'}</td><td>${status}</td><td>${prova.nota ?? '—'}</td></tr>`;
         }).join('')}</tbody></table>`;
+      }
+
+      function renderizarCorrecoes() {
+        const destino = document.querySelector('#listaCorrecoes');
+        const provasFinalizadas = mockProvas.filter((prova) => prova.finalizada);
+        const itensProvas = provasFinalizadas.map((prova) => {
+          const aluno = obterAluno(prova.alunoLogin);
+          return `<article class="lms-item"><div><h3>${escaparHtml(prova.titulo)}</h3><p>Aluno: ${escaparHtml(aluno?.nome || prova.alunoLogin)}</p><span class="lms-status concluida">Prova finalizada</span></div><div class="campo-nota"><label>Nota <input type="number" min="0" max="10" step="0.1" value="${prova.nota ?? ''}" data-nota-prova="${prova.id}" /></label><button type="button" data-salvar-nota-prova="${prova.id}">Salvar</button></div></article>`;
+        });
+        const itensTarefas = mockTarefas.map((tarefa) => {
+          const aluno = obterAluno(tarefa.alunoLogin);
+          return `<article class="lms-item"><div><h3>Tarefa: ${escaparHtml(tarefa.titulo)}</h3><p>Aluno: ${escaparHtml(aluno?.nome || tarefa.alunoLogin)} · Prazo: ${formatarData(tarefa.prazo)}</p><span class="lms-status">Aguardando nota</span></div><div class="campo-nota"><label>Nota <input type="number" min="0" max="10" step="0.1" value="${tarefa.nota ?? ''}" data-nota-tarefa="${tarefa.id}" /></label><button type="button" data-salvar-nota-tarefa="${tarefa.id}">Salvar</button></div></article>`;
+        });
+        destino.innerHTML = [...itensProvas, ...itensTarefas].join('') || '<p class="vazio">Nenhuma prova finalizada ou tarefa cadastrada.</p>';
+      }
+
+      function renderizarTarefasProfessor() {
+        const destino = document.querySelector('#listaTarefasProfessor');
+        destino.innerHTML = mockTarefas.map((tarefa) => {
+          const aluno = obterAluno(tarefa.alunoLogin);
+          return `<article class="lms-item"><div><h3>${escaparHtml(tarefa.titulo)}</h3><p>${escaparHtml(tarefa.descricao)}</p><p>Aluno: ${escaparHtml(aluno?.nome || tarefa.alunoLogin)} · Prazo: ${formatarData(tarefa.prazo)}</p></div><span class="lms-status${tarefa.nota !== null && tarefa.nota !== undefined ? ' concluida' : ''}">${tarefa.nota !== null && tarefa.nota !== undefined ? `Nota ${tarefa.nota}` : 'Aguardando nota'}</span></article>`;
+        }).join('') || '<p class="vazio">Nenhuma tarefa cadastrada.</p>';
       }
 
       function exibirToast(mensagem) {
@@ -1013,22 +1240,53 @@
           destino.innerHTML = '<p class="vazio">Você não possui provas atribuídas no momento.</p>';
           return;
         }
-        destino.innerHTML = provasDoAluno.map((prova) => `<article class="item-prova"><div><h3>${escaparHtml(prova.titulo)}</h3><p>Adaptações: ${escaparHtml(prova.adaptacoes.length ? prova.adaptacoes.join(', ') : 'Nenhuma')}</p></div><button type="button" data-iniciar="${prova.id}">Iniciar Prova</button></article>`).join('');
+        destino.innerHTML = provasDoAluno.map((prova) => `<article class="item-prova"><div><h3>${escaparHtml(prova.titulo)}</h3><p>Tempo limite: ${prova.tempoLimite ? `${Number(prova.tempoLimite)} minutos` : 'Livre'}</p><p>Status: ${prova.finalizada ? 'Finalizada' : 'Disponível'}</p></div><button type="button" data-iniciar="${prova.id}">${prova.finalizada ? 'Revisar Prova' : 'Iniciar Prova'}</button></article>`).join('');
         destino.querySelectorAll('[data-iniciar]').forEach((botao) => botao.addEventListener('click', () => alert('Prova iniciada! Este é um protótipo de navegação.')));
       }
 
+      function renderizarTarefasDoAluno() {
+        const destino = document.querySelector('#tarefasAluno');
+        const tarefas = mockTarefas.filter((tarefa) => tarefa.alunoLogin === alunoLogado.login);
+        destino.innerHTML = tarefas.map((tarefa) => `<article class="lms-item"><div><h3>${escaparHtml(tarefa.titulo)}</h3><p>${escaparHtml(tarefa.descricao)}</p><p>Prazo: ${formatarData(tarefa.prazo)}</p></div><span class="lms-status${tarefa.nota !== null && tarefa.nota !== undefined ? ' concluida' : ''}">${tarefa.nota !== null && tarefa.nota !== undefined ? `Nota ${tarefa.nota}` : 'Aguardando nota'}</span></article>`).join('') || '<p class="vazio">Você não possui tarefas no momento.</p>';
+      }
+
+      function renderizarBoletimDoAluno() {
+        const provas = mockProvas.filter((prova) => prova.alunoLogin === alunoLogado.login && prova.nota !== null && prova.nota !== undefined);
+        const tarefas = mockTarefas.filter((tarefa) => tarefa.alunoLogin === alunoLogado.login && tarefa.nota !== null && tarefa.nota !== undefined);
+        const linhas = [
+          ...provas.map((prova) => `<tr><td>Prova</td><td>${escaparHtml(prova.titulo)}</td><td>${prova.nota}</td></tr>`),
+          ...tarefas.map((tarefa) => `<tr><td>Tarefa</td><td>${escaparHtml(tarefa.titulo)}</td><td>${tarefa.nota}</td></tr>`)
+        ];
+        document.querySelector('#boletimAluno').innerHTML = linhas.length ? `<table class="tabela"><thead><tr><th>Tipo</th><th>Atividade</th><th>Nota</th></tr></thead><tbody>${linhas.join('')}</tbody></table>` : '<p class="vazio">Nenhuma nota publicada.</p>';
+      }
+
       function mostrarAbaProfessor(aba) {
-        document.querySelector('#abaLista').classList.toggle('oculto', aba !== 'lista');
-        document.querySelector('#abaCadastrarAluno').classList.toggle('oculto', aba !== 'cadastrar-aluno');
-        document.querySelector('#abaCadastro').classList.toggle('oculto', aba !== 'cadastro');
-        document.querySelector('#abaAlunos').classList.toggle('oculto', aba !== 'alunos');
+        const secoes = {
+          'dashboard-professor': '#abaDashboardProfessor', lista: '#abaLista', 'cadastrar-aluno': '#abaCadastrarAluno', cadastro: '#abaCadastro', correcao: '#abaCorrecao', 'tarefas-professor': '#abaTarefasProfessor', alunos: '#abaAlunos'
+        };
+        Object.values(secoes).forEach((seletor) => document.querySelector(seletor).classList.add('oculto'));
+        document.querySelector(secoes[aba] || secoes['dashboard-professor']).classList.remove('oculto');
+        document.querySelectorAll('#telaProfessor [data-aba]').forEach((botao) => botao.classList.toggle('ativo', botao.dataset.aba === aba));
         preencherSelectAlunos();
+        if (aba === 'dashboard-professor') renderizarDashboardProfessor();
         if (aba === 'lista') renderizarTabelaProvas();
+        if (aba === 'correcao') renderizarCorrecoes();
+        if (aba === 'tarefas-professor') renderizarTarefasProfessor();
         if (aba === 'alunos') renderizarListaAlunos();
         if (aba === 'cadastrar-aluno') {
           document.querySelector('#mensagemCadastrarAluno').textContent = '';
           document.querySelector('#nomeAlunoProfessor').focus();
         }
+      }
+
+      function mostrarAbaAluno(aba) {
+        document.querySelector('#abaProvasAluno').classList.toggle('oculto', aba !== 'provas');
+        document.querySelector('#abaTarefasAluno').classList.toggle('oculto', aba !== 'tarefas');
+        document.querySelector('#abaBoletimAluno').classList.toggle('oculto', aba !== 'boletim');
+        document.querySelectorAll('[data-aba-aluno]').forEach((botao) => botao.classList.toggle('ativo', botao.dataset.abaAluno === aba));
+        if (aba === 'provas') renderizarProvasDoAluno();
+        if (aba === 'tarefas') renderizarTarefasDoAluno();
+        if (aba === 'boletim') renderizarBoletimDoAluno();
       }
 
       // Cadastro e login: o tipo de usuário é identificado pelas credenciais informadas.
@@ -1070,8 +1328,7 @@
         const professor = mockProfessores.find((item) => item.login === login && item.senha === senha);
         if (professor) {
           evento.currentTarget.reset();
-          renderizarTabelaProvas();
-          mostrarAbaProfessor('lista');
+          mostrarAbaProfessor('dashboard-professor');
           mostrarTela('#telaProfessor');
           return;
         }
@@ -1085,12 +1342,65 @@
         evento.currentTarget.reset();
         document.querySelector('#tituloAluno').textContent = `Olá, ${alunoLogado.nome}!`;
         aplicarAdaptacoes(alunoLogado);
-        renderizarProvasDoAluno();
+        mostrarAbaAluno('provas');
         mostrarTela('#telaAluno');
       });
 
       // Cadastro de provas pelo professor.
       document.querySelectorAll('[data-aba]').forEach((botao) => botao.addEventListener('click', () => mostrarAbaProfessor(botao.dataset.aba)));
+      document.querySelectorAll('[data-aba-aluno]').forEach((botao) => botao.addEventListener('click', () => mostrarAbaAluno(botao.dataset.abaAluno)));
+
+      document.querySelector('#formTarefa').addEventListener('submit', (evento) => {
+        evento.preventDefault();
+        const tarefa = {
+          id: Date.now(),
+          titulo: document.querySelector('#tituloTarefa').value.trim(),
+          descricao: document.querySelector('#descricaoTarefa').value.trim(),
+          prazo: document.querySelector('#prazoTarefa').value,
+          alunoLogin: document.querySelector('#alunoTarefa').value,
+          nota: null
+        };
+        if (!tarefa.titulo || !tarefa.descricao || !tarefa.prazo || !tarefa.alunoLogin) {
+          alert('Preencha todos os dados da tarefa.');
+          return;
+        }
+        mockTarefas.push(tarefa);
+        if (!salvarTarefasNoStorage()) {
+          mockTarefas.pop();
+          alert('Não foi possível salvar a tarefa.');
+          return;
+        }
+        evento.currentTarget.reset();
+        preencherSelectAlunos();
+        renderizarTarefasProfessor();
+        exibirToast('Tarefa cadastrada com sucesso.');
+      });
+
+      document.querySelector('#listaCorrecoes').addEventListener('click', (evento) => {
+        const botaoProva = evento.target.closest('[data-salvar-nota-prova]');
+        const botaoTarefa = evento.target.closest('[data-salvar-nota-tarefa]');
+        if (botaoProva) {
+          const prova = mockProvas.find((item) => String(item.id) === botaoProva.dataset.salvarNotaProva);
+          const campo = document.querySelector(`[data-nota-prova="${botaoProva.dataset.salvarNotaProva}"]`);
+          const nota = Number(campo.value);
+          if (!prova || campo.value === '' || nota < 0 || nota > 10) return alert('Informe uma nota entre 0 e 10.');
+          prova.nota = nota;
+          salvarProvasNoStorage();
+          exibirToast('Nota da prova salva.');
+          renderizarCorrecoes();
+        }
+        if (botaoTarefa) {
+          const tarefa = mockTarefas.find((item) => String(item.id) === botaoTarefa.dataset.salvarNotaTarefa);
+          const campo = document.querySelector(`[data-nota-tarefa="${botaoTarefa.dataset.salvarNotaTarefa}"]`);
+          const nota = Number(campo.value);
+          if (!tarefa || campo.value === '' || nota < 0 || nota > 10) return alert('Informe uma nota entre 0 e 10.');
+          tarefa.nota = nota;
+          salvarTarefasNoStorage();
+          exibirToast('Nota da tarefa salva.');
+          renderizarCorrecoes();
+        }
+      });
+
       document.querySelector('#formCadastrarAlunoProfessor').addEventListener('submit', (evento) => {
         evento.preventDefault();
         const nome = document.querySelector('#nomeAlunoProfessor').value.trim();
@@ -1144,11 +1454,12 @@
         const formularioProva = evento.currentTarget;
         const arquivo = document.querySelector('#arquivoProva').files[0];
         const alunoLogin = document.querySelector('#alunoAlvo').value;
+        const tempoLimite = Number(document.querySelector('#tempoLimiteProva').value);
         const adaptacoes = [...document.querySelectorAll('input[name="adaptacao"]:checked')].map((input) => input.value);
         const adaptacoesAcessibilidade = capturarAdaptacoesDoFormulario();
         const botaoEnviar = formularioProva.querySelector('button[type="submit"]');
-        if (!arquivo || !alunoLogin) {
-          alert('Selecione uma prova e um aluno alvo.');
+        if (!arquivo || !alunoLogin || !Number.isFinite(tempoLimite) || tempoLimite < 1) {
+          alert('Selecione a prova, o aluno e informe um tempo limite válido.');
           return;
         }
         if (!arquivoDocxValido(arquivo)) {
@@ -1171,6 +1482,7 @@
             id: Date.now(),
             titulo: arquivo.name.replace(/\.docx$/i, ''),
             alunoLogin,
+            tempoLimite,
             adaptacoes,
             adaptacoesAcessibilidade,
             instrucoes: null,
@@ -1298,11 +1610,13 @@
           return;
         }
         provaAtual.finalizada = true;
+        provaAtual.finalizadaEm = Date.now();
+        pararTemporizadorDaProva();
         salvarProvasNoStorage();
         fecharModalFinalizacao();
         document.querySelector('#painelRevisaoProva').classList.add('oculto');
         limparAdaptacoesDaExecucao();
-        renderizarProvasDoAluno();
+        mostrarAbaAluno('provas');
         mostrarTela('#telaAluno');
         exibirToast('Prova finalizada com sucesso.');
       }
@@ -1335,6 +1649,8 @@
         document.querySelector('#tituloProva').textContent = prova.titulo;
         renderizarQuestaoAtual();
         mostrarTela('#telaProva');
+        iniciarTemporizadorDaProva(provaAtual);
+        if (provaAtual.finalizada) mostrarRevisaoDaProva();
       }
 
       function renderizarQuestaoAtual() {
@@ -1488,15 +1804,17 @@
       document.querySelector('#voltarProvas').addEventListener('click', () => {
         clearTimeout(temporizadorAvancoAutomatico);
         temporizadorAvancoAutomatico = null;
+        pararTemporizadorDaProva();
         fecharModalFinalizacao();
         document.querySelector('#painelRevisaoProva').classList.add('oculto');
         limparAdaptacoesDaExecucao();
         if ('speechSynthesis' in window) window.speechSynthesis.cancel();
-        renderizarProvasDoAluno();
+        mostrarAbaAluno('provas');
         mostrarTela('#telaAluno');
       });
 
       document.querySelectorAll('.sair').forEach((botao) => botao.addEventListener('click', () => {
+        pararTemporizadorDaProva();
         alunoLogado = null;
         aplicarAdaptacoes(null);
         mostrarTela('#telaLogin');
