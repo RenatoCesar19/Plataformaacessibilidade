@@ -18,6 +18,11 @@
         --font-family: Arial, Helvetica, sans-serif;
         --sombra: 0 10px 30px rgba(0, 0, 0, 0.08);
         --sombra-botao: 0 8px 18px rgba(8, 127, 140, 0.22);
+        --login-marinho: #0b1f33;
+        --login-azul: #173f67;
+        --login-azul-claro: #2f6ea6;
+        --login-fundo: #eef3f7;
+        --login-borda: #d8e2eb;
       }
 
       * { box-sizing: border-box; }
@@ -65,7 +70,7 @@
       .botao-grande { min-height: 64px; font-size: 1.2rem; }
       form { display: grid; gap: 1rem; }
       label { display: grid; gap: 0.45rem; font-weight: 700; }
-      input[type="text"], input[type="password"], input[type="file"], select {
+      input[type="text"], input[type="email"], input[type="password"], input[type="file"], select {
         width: 100%;
         min-height: 46px;
         border: 1px solid #e5e7eb;
@@ -75,7 +80,7 @@
         color: var(--texto);
         transition: border-color 0.3s ease, box-shadow 0.3s ease, background-color 0.3s ease;
       }
-      input[type="text"]:focus, input[type="password"]:focus, input[type="file"]:focus, select:focus { border-color: #3b82f6; background: #ffffff; }
+      input[type="text"]:focus, input[type="email"]:focus, input[type="password"]:focus, input[type="file"]:focus, select:focus { border-color: #3b82f6; background: #ffffff; }
       .link-botao { min-height: auto; padding: 0; border: 0; background: transparent; color: var(--azul-escuro); text-decoration: underline; }
       .link-botao:hover { background: transparent; color: #032f42; }
 
@@ -111,30 +116,50 @@
       .link-login { align-self: center; min-height: auto; margin-top: 1.1rem; padding: 0; background: transparent; box-shadow: none; color: #ffffff; font-size: 0.92rem; font-weight: 400; text-decoration: none; }
       .link-login:hover { background: transparent; box-shadow: none; color: #ffffff; text-decoration: underline; transform: none; }
       .mensagem-login { min-height: 1.25rem; margin: 1rem 0 0; color: #ffffff; font-weight: 700; }
-      /* Releitura do login no estilo do layout de referência. */
-      .tela-login { padding: 0; background: #087fce; }
-      .login-painel { display: grid; grid-template-columns: minmax(0, 1.18fr) minmax(320px, 0.82fr); width: 100%; min-height: 100vh; overflow: hidden; border-radius: 0; background: #087fce; box-shadow: none; }
-      .login-apresentacao { position: relative; display: flex; flex-direction: column; justify-content: center; padding: clamp(2rem, 6vw, 5.2rem); overflow: hidden; background: linear-gradient(135deg, #0b8de6 0%, #0769bb 100%); color: #ffffff; }
+      /* Autenticação pública em padrão SaaS corporativo. */
+      .tela-login { padding: 0; background: var(--login-fundo); }
+      .login-painel { display: grid; grid-template-columns: minmax(0, 1.08fr) minmax(390px, 0.92fr); width: 100%; min-height: 100vh; overflow: hidden; background: var(--login-fundo); }
+      .login-apresentacao { position: relative; display: flex; flex-direction: column; justify-content: center; padding: clamp(2.5rem, 7vw, 7rem); overflow: hidden; background: linear-gradient(145deg, var(--login-marinho) 0%, var(--login-azul) 68%, #1e527e 100%); color: #ffffff; }
       .login-apresentacao::before, .login-apresentacao::after { position: absolute; border-radius: 50%; content: ''; pointer-events: none; }
-      .login-apresentacao::before { width: 470px; height: 470px; right: -255px; top: -175px; border: 70px solid rgba(255, 255, 255, 0.06); }
-      .login-apresentacao::after { width: 320px; height: 320px; left: -165px; bottom: -180px; background: rgba(66, 181, 255, 0.36); }
+      .login-apresentacao::before { width: 500px; height: 500px; right: -280px; top: -220px; border: 72px solid rgba(255, 255, 255, 0.045); }
+      .login-apresentacao::after { width: 330px; height: 330px; left: -190px; bottom: -210px; background: rgba(85, 155, 214, 0.18); }
       .login-apresentacao > * { position: relative; z-index: 1; }
-      .login-subtitulo { margin: 0 0 0.9rem; font-size: clamp(1rem, 2vw, 1.25rem); font-weight: 800; letter-spacing: 0.08em; }
-      .login-titulo { max-width: 540px; margin: 0; color: #ffffff; font-size: clamp(1.85rem, 4vw, 3.35rem); line-height: 1.08; }
-      .login-descricao { max-width: 540px; margin: 1.4rem 0 0; color: rgba(255, 255, 255, 0.96); font-size: clamp(0.98rem, 1.6vw, 1.1rem); line-height: 1.6; }
-      .form-login-direto { align-self: center; width: min(100%, 395px); margin: 2rem; padding: clamp(1.75rem, 4vw, 2.5rem); border-radius: 16px; background: #ffffff; box-shadow: 0 14px 28px rgba(0, 45, 84, 0.2); }
-      .logo-acessibilidade { width: 72px; height: 72px; margin: 0 auto 0.8rem; padding: 5px; border: 3px solid #d8effa; box-shadow: 0 6px 16px rgba(0, 57, 82, 0.12); }
-      .form-login-direto h2 { margin: 0 0 0.35rem; color: #12343b; font-size: clamp(1.5rem, 3vw, 2rem); }
-      .form-login-direto > p:not(.mensagem-login) { margin: 0 0 1.5rem; color: #5c6b73; font-size: 0.92rem; }
-      .campo-login svg { fill: #087fce; }
-      .form-login-direto input { border-color: #d9e1e7; background: #f9fafb; color: #12343b; }
-      .form-login-direto input::placeholder { color: #687782; opacity: 1; }
-      .form-login-direto input:focus { border-color: #087fce; background: #ffffff; box-shadow: 0 0 0 3px rgba(8, 127, 206, 0.2); }
-      .botao-login { background: #087fce; box-shadow: 0 8px 16px rgba(8, 127, 206, 0.25); color: #ffffff; }
-      .botao-login:hover { background: #075fa8; box-shadow: 0 10px 22px rgba(7, 95, 168, 0.26); color: #ffffff; }
-      .link-login { color: #075fa8; font-weight: 600; }
-      .link-login:hover { color: #043f70; }
+      .login-subtitulo { margin: 0 0 1rem; color: #b9d7ee; font-size: clamp(0.86rem, 1.4vw, 1rem); font-weight: 800; letter-spacing: 0.18em; }
+      .login-titulo { max-width: 620px; margin: 0; color: #ffffff; font-size: clamp(2rem, 4.2vw, 3.75rem); line-height: 1.04; letter-spacing: -0.025em; }
+      .login-descricao { max-width: 650px; margin: 1.75rem 0 0; color: #e5eef5; font-size: clamp(1rem, 1.45vw, 1.12rem); line-height: 1.72; }
+      .form-login-direto { align-self: center; width: min(calc(100% - 3rem), 430px); margin: 1.5rem; padding: clamp(1.75rem, 3.5vw, 2.6rem); border: 1px solid rgba(216, 226, 235, 0.9); border-radius: 18px; background: #ffffff; box-shadow: 0 24px 60px rgba(11, 31, 51, 0.13); }
+      .form-login-direto.troca-formulario { animation: troca-formulario 0.38s ease-out both; }
+      .form-cadastro-publico { width: min(calc(100% - 3rem), 500px); max-height: calc(100vh - 3rem); overflow-y: auto; scrollbar-width: thin; }
+      .logo-acessibilidade { width: 70px; height: 70px; margin: 0 auto 0.9rem; padding: 5px; border: 3px solid #dce9f3; box-shadow: 0 7px 18px rgba(11, 31, 51, 0.12); }
+      .form-login-direto h2 { margin: 0 0 0.4rem; color: var(--login-marinho); font-size: clamp(1.6rem, 3vw, 2.05rem); letter-spacing: -0.02em; }
+      .form-login-direto > p:not(.mensagem-login):not(.perfil-fixo) { margin: 0 0 1.5rem; color: #5e6f7f; font-size: 0.94rem; }
+      .campo-login svg { fill: var(--login-azul-claro); }
+      .form-login-direto input { border-color: var(--login-borda); background: #f7f9fb; color: var(--login-marinho); }
+      .form-login-direto input::placeholder { color: #6d7d8c; opacity: 1; }
+      .form-login-direto input:focus { border-color: var(--login-azul-claro); background: #ffffff; box-shadow: 0 0 0 3px rgba(47, 110, 166, 0.18); }
+      .botao-login { background: var(--login-azul); box-shadow: 0 9px 20px rgba(23, 63, 103, 0.22); color: #ffffff; }
+      .botao-login:hover { background: var(--login-marinho); box-shadow: 0 12px 25px rgba(11, 31, 51, 0.25); color: #ffffff; }
+      .link-login { color: var(--login-azul); font-weight: 650; }
+      .link-login:hover { color: var(--login-marinho); }
       .mensagem-login { color: #b42318; }
+      .mensagem-login.sucesso { color: #137a44; }
+      .form-cadastro-publico label:not(.avatar-preview) { color: #283b4d; font-size: 0.9rem; text-align: left; }
+      .form-cadastro-publico label:not(.avatar-preview) input { min-height: 48px; padding: 0.75rem 0.9rem; }
+      .perfil-fixo { display: flex; align-items: center; justify-content: center; gap: 0.5rem; margin: 0; padding: 0.65rem 0.85rem; border: 1px solid #d7e5f0; border-radius: 10px; background: #f0f6fa; color: var(--login-azul); font-size: 0.88rem; font-weight: 750; }
+      .perfil-fixo::before { content: '\2713'; display: grid; width: 1.35rem; height: 1.35rem; place-items: center; border-radius: 50%; background: var(--login-azul); color: #ffffff; font-size: 0.78rem; }
+      .avatar-upload { display: grid; justify-items: center; gap: 0.55rem; margin: 0.2rem 0 0.35rem; }
+      .input-avatar { position: absolute !important; width: 1px !important; height: 1px !important; margin: -1px !important; padding: 0 !important; overflow: hidden; clip: rect(0, 0, 0, 0); white-space: nowrap; border: 0 !important; }
+      .avatar-preview { position: relative; display: grid; width: 104px; height: 104px; place-items: center; border: 3px solid #ffffff; border-radius: 50%; background: #e7eef4; box-shadow: 0 0 0 2px #c9d9e6, 0 10px 22px rgba(11, 31, 51, 0.13); cursor: pointer; }
+      .avatar-preview:hover { box-shadow: 0 0 0 3px var(--login-azul-claro), 0 12px 24px rgba(11, 31, 51, 0.16); }
+      .avatar-preview:focus-within { outline: 4px solid #0056b3; outline-offset: 3px; }
+      .avatar-preview img { width: 100%; height: 100%; border-radius: 50%; object-fit: cover; }
+      .avatar-placeholder { display: grid; width: 100%; height: 100%; place-items: center; border-radius: 50%; color: #718293; }
+      .avatar-placeholder svg { width: 48px; height: 48px; fill: currentColor; }
+      .avatar-camera { position: absolute; right: -2px; bottom: 2px; display: grid; width: 34px; height: 34px; place-items: center; border: 3px solid #ffffff; border-radius: 50%; background: var(--login-azul); color: #ffffff; }
+      .avatar-camera svg { width: 17px; height: 17px; fill: currentColor; }
+      .avatar-instrucao { color: #5e6f7f; font-size: 0.82rem; }
+      .mensagem-cadastro { min-height: 1.1rem; margin: 0; color: #b42318; font-size: 0.86rem; font-weight: 700; }
+      @keyframes troca-formulario { from { opacity: 0; transform: translateY(16px); } to { opacity: 1; transform: translateY(0); } }
       .sr-only { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0, 0, 0, 0); white-space: nowrap; border: 0; }
       .dashboard { width: min(1200px, 100%); margin: 0 auto; }
       .cabecalho-dashboard { display: flex; align-items: center; justify-content: space-between; gap: 1rem; margin-bottom: 1.5rem; }
@@ -476,9 +501,10 @@
       .alto-contraste .login-titulo, .alto-contraste .login-subtitulo, .alto-contraste .login-descricao, .alto-contraste .form-login-direto h2, .alto-contraste .form-login-direto > p:not(.mensagem-login) { color: #ffffff; }
 
       @media (max-width: 760px) {
-        .login-painel { grid-template-columns: 1fr; min-height: 0; }
+        .tela-login { display: block; overflow: auto; }
+        .login-painel { grid-template-columns: 1fr; min-height: 0; overflow: visible; }
         .login-apresentacao { min-height: 330px; padding: 2.5rem 2rem; }
-        .form-login-direto { width: auto; margin: 0; border-radius: 0; box-shadow: none; }
+        .form-login-direto, .form-cadastro-publico { width: 100%; max-height: none; margin: 0; border-radius: 0; box-shadow: none; }
       }
       @media (max-width: 980px) {
         .lms-sidebar { position: relative; width: 100%; min-height: auto; }
@@ -503,41 +529,54 @@
         <aside class="login-apresentacao" aria-labelledby="tituloApresentacaoLogin">
           <p class="login-subtitulo">BEM-VINDO À</p>
           <h1 id="tituloApresentacaoLogin" class="login-titulo">PLATAFORMA DE ACESSIBILIDADE INTEGRADA</h1>
-          <p class="login-descricao">Um ambiente digital desenvolvido para garantir que todos os alunos realizem avaliações acadêmicas de forma adaptada. A PAI elimina barreiras tecnológicas aplicando recursos de acessibilidade cognitiva, visual e motora em tempo real.</p>
+          <p class="login-descricao">Um ambiente digital desenvolvido para garantir que todos os alunos realizem avaliações acadêmicas de forma adaptada. A PAI elimina barreiras físicas de forma tecnológica aplicando recursos de acessibilidade cognitiva, visual e motora em tempo real.</p>
         </aside>
-      <form id="formLogin" class="form-login-direto">
-        <img class="logo-acessibilidade" src="assets/ACESSIBILIDADE.avif" alt="Logotipo de acessibilidade da Plataforma de Acessibilidade Integrada" />
-        <h2>Entrar</h2>
-        <p>Use seus dados de acesso para continuar.</p>
-        <label class="campo-login">
-          <span class="sr-only">Usuário</span>
-          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 12a5 5 0 1 0 0-10 5 5 0 0 0 0 10Zm0 2c-4.42 0-8 2.24-8 5v3h16v-3c0-2.76-3.58-5-8-5Z" /></svg>
-          <input id="usuarioLogin" type="text" autocomplete="username" placeholder="Usuário" required />
-        </label>
-        <label class="campo-login">
-          <span class="sr-only">Senha</span>
-          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M17 9h-1V7a4 4 0 0 0-8 0v2H7a3 3 0 0 0-3 3v7a3 3 0 0 0 3 3h10a3 3 0 0 0 3-3v-7a3 3 0 0 0-3-3Zm-7-2a2 2 0 1 1 4 0v2h-4V7Zm3 9.73V19h-2v-2.27A2 2 0 1 1 13 16.73Z" /></svg>
-          <input id="senhaLogin" type="password" autocomplete="current-password" placeholder="Senha" required />
-        </label>
-        <button class="botao-login" type="submit">LOGIN</button>
-        <button id="cadastroAluno" class="link-login" type="button">Primeiro acesso? Cadastre-se aqui</button>
-        <a class="link-login" href="#recuperar-senha">Esqueceu a senha?</a>
-        <p id="mensagemLogin" class="mensagem-login" role="status" aria-live="polite"></p>
-      </form>
-      </div>
-    </section>
+        <form id="formLogin" class="form-login-direto troca-formulario">
+          <img class="logo-acessibilidade" src="assets/ACESSIBILIDADE.avif" alt="Logotipo de acessibilidade da Plataforma de Acessibilidade Integrada" />
+          <h2>Entrar</h2>
+          <p>Use seus dados de acesso para continuar.</p>
+          <label class="campo-login">
+            <span class="sr-only">Usuário ou e-mail</span>
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 12a5 5 0 1 0 0-10 5 5 0 0 0 0 10Zm0 2c-4.42 0-8 2.24-8 5v3h16v-3c0-2.76-3.58-5-8-5Z" /></svg>
+            <input id="usuarioLogin" type="text" autocomplete="username" placeholder="Usuário ou e-mail" required />
+          </label>
+          <label class="campo-login">
+            <span class="sr-only">Senha</span>
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M17 9h-1V7a4 4 0 0 0-8 0v2H7a3 3 0 0 0-3 3v7a3 3 0 0 0 3 3h10a3 3 0 0 0 3-3v-7a3 3 0 0 0-3-3Zm-7-2a2 2 0 1 1 4 0v2h-4V7Zm3 9.73V19h-2v-2.27A2 2 0 1 1 13 16.73Z" /></svg>
+            <input id="senhaLogin" type="password" autocomplete="current-password" placeholder="Senha" required />
+          </label>
+          <button class="botao-login" type="submit">ENTRAR</button>
+          <button id="cadastroAluno" class="link-login" type="button">Primeiro acesso? Cadastre-se aqui</button>
+          <a class="link-login" href="#recuperar-senha">Esqueceu a senha?</a>
+          <p id="mensagemLogin" class="mensagem-login" role="status" aria-live="polite"></p>
+        </form>
 
-    <!-- Tela de cadastro do aluno -->
-    <section id="telaCadastro" class="tela centralizada oculto">
-      <div class="card">
-        <h1>Cadastro de Aluno</h1>
-        <form id="formCadastro">
+        <form id="formCadastro" class="form-login-direto form-cadastro-publico oculto">
+          <h2>Crie sua conta</h2>
+          <p>Cadastre-se para acessar o ambiente exclusivo do aluno.</p>
+
+          <div class="avatar-upload">
+            <label class="avatar-preview" for="fotoCadastro" aria-label="Selecionar foto de perfil">
+              <img id="previewFotoCadastro" class="oculto" src="" alt="Prévia da foto de perfil selecionada" />
+              <span id="avatarPlaceholder" class="avatar-placeholder" aria-hidden="true">
+                <svg viewBox="0 0 24 24"><path d="M12 12a5 5 0 1 0 0-10 5 5 0 0 0 0 10Zm0 2c-4.42 0-8 2.24-8 5v3h16v-3c0-2.76-3.58-5-8-5Z" /></svg>
+              </span>
+              <span class="avatar-camera" aria-hidden="true">
+                <svg viewBox="0 0 24 24"><path d="M9 3 7.17 5H4a3 3 0 0 0-3 3v10a3 3 0 0 0 3 3h16a3 3 0 0 0 3-3V8a3 3 0 0 0-3-3h-3.17L15 3H9Zm3 15a5 5 0 1 1 0-10 5 5 0 0 1 0 10Zm0-2.2A2.8 2.8 0 1 0 12 10a2.8 2.8 0 0 0 0 5.6Z" /></svg>
+              </span>
+            </label>
+            <input id="fotoCadastro" class="input-avatar" type="file" accept="image/png,image/jpeg" />
+            <span class="avatar-instrucao">Foto de perfil (PNG ou JPEG, até 1 MB)</span>
+          </div>
+
+          <p class="perfil-fixo">Conta criada como Aluno</p>
           <label>Nome Completo <input id="nomeCadastro" type="text" autocomplete="name" required /></label>
-          <label>Nome de Usuário <input id="loginCadastro" type="text" autocomplete="username" required /></label>
-          <label>Senha <input id="senhaCadastro" type="password" autocomplete="new-password" required /></label>
-          <label>Confirmação de Senha <input id="confirmacaoCadastro" type="password" autocomplete="new-password" required /></label>
-          <button type="submit">Criar Conta</button>
-          <button id="voltarLogin" type="button">Voltar para o Login</button>
+          <label>E-mail <input id="emailCadastro" type="email" autocomplete="email" required /></label>
+          <label>Senha <input id="senhaCadastro" type="password" autocomplete="new-password" minlength="4" required /></label>
+          <label>Confirmação de Senha <input id="confirmacaoCadastro" type="password" autocomplete="new-password" minlength="4" required /></label>
+          <button class="botao-login" type="submit">CRIAR CONTA</button>
+          <button id="voltarLogin" class="link-login" type="button">Já possui uma conta? Voltar para o login</button>
+          <p id="mensagemCadastroPublico" class="mensagem-cadastro" role="status" aria-live="polite"></p>
         </form>
       </div>
     </section>
@@ -840,6 +879,7 @@
       let tempoLivreAtivo = false;
       let leituraEmAndamento = false;
       let textoAtualParaLeitura = '';
+      let fotoCadastroAtual = '';
 
       // TELA DO PROFESSOR: somente captura e salva a configuração. Não aplica
       // nenhuma classe visual no body enquanto o professor marca as opções.
@@ -1289,43 +1329,123 @@
         if (aba === 'boletim') renderizarBoletimDoAluno();
       }
 
-      // Cadastro e login: o tipo de usuário é identificado pelas credenciais informadas.
-      document.querySelector('#cadastroAluno').addEventListener('click', () => mostrarTela('#telaCadastro'));
-      document.querySelector('#voltarLogin').addEventListener('click', () => mostrarTela('#telaLogin'));
+      // Autenticação pública: o cadastro cria exclusivamente contas de aluno.
+      function alternarFormularioPublico(modo) {
+        const exibirCadastro = modo === 'cadastro';
+        const formLogin = document.querySelector('#formLogin');
+        const formCadastro = document.querySelector('#formCadastro');
+        const formularioAtivo = exibirCadastro ? formCadastro : formLogin;
+
+        formLogin.classList.toggle('oculto', exibirCadastro);
+        formCadastro.classList.toggle('oculto', !exibirCadastro);
+        const mensagemLogin = document.querySelector('#mensagemLogin');
+        mensagemLogin.textContent = '';
+        mensagemLogin.classList.remove('sucesso');
+        document.querySelector('#mensagemCadastroPublico').textContent = '';
+        formularioAtivo.classList.remove('troca-formulario');
+        void formularioAtivo.offsetWidth;
+        formularioAtivo.classList.add('troca-formulario');
+        setTimeout(() => document.querySelector(exibirCadastro ? '#nomeCadastro' : '#usuarioLogin').focus(), 50);
+      }
+
+      function redefinirPreviewDaFoto() {
+        fotoCadastroAtual = '';
+        const preview = document.querySelector('#previewFotoCadastro');
+        preview.src = '';
+        preview.classList.add('oculto');
+        document.querySelector('#avatarPlaceholder').classList.remove('oculto');
+      }
+
+      document.querySelector('#cadastroAluno').addEventListener('click', () => alternarFormularioPublico('cadastro'));
+      document.querySelector('#voltarLogin').addEventListener('click', () => alternarFormularioPublico('login'));
+
+      document.querySelector('#fotoCadastro').addEventListener('change', (evento) => {
+        const arquivo = evento.currentTarget.files?.[0];
+        const mensagem = document.querySelector('#mensagemCadastroPublico');
+        mensagem.textContent = '';
+        if (!arquivo) {
+          redefinirPreviewDaFoto();
+          return;
+        }
+        if (!['image/png', 'image/jpeg'].includes(arquivo.type)) {
+          mensagem.textContent = 'Selecione uma imagem no formato PNG ou JPEG.';
+          evento.currentTarget.value = '';
+          redefinirPreviewDaFoto();
+          return;
+        }
+        if (arquivo.size > 1024 * 1024) {
+          mensagem.textContent = 'A foto deve ter no máximo 1 MB.';
+          evento.currentTarget.value = '';
+          redefinirPreviewDaFoto();
+          return;
+        }
+
+        const leitor = new FileReader();
+        leitor.addEventListener('load', () => {
+          fotoCadastroAtual = String(leitor.result || '');
+          const preview = document.querySelector('#previewFotoCadastro');
+          preview.src = fotoCadastroAtual;
+          preview.classList.remove('oculto');
+          document.querySelector('#avatarPlaceholder').classList.add('oculto');
+        });
+        leitor.addEventListener('error', () => {
+          mensagem.textContent = 'Não foi possível carregar a foto. Tente novamente.';
+          evento.currentTarget.value = '';
+          redefinirPreviewDaFoto();
+        });
+        leitor.readAsDataURL(arquivo);
+      });
 
       document.querySelector('#formCadastro').addEventListener('submit', (evento) => {
         evento.preventDefault();
         const nome = document.querySelector('#nomeCadastro').value.trim();
-        const login = document.querySelector('#loginCadastro').value.trim();
+        const email = document.querySelector('#emailCadastro').value.trim().toLowerCase();
         const senha = document.querySelector('#senhaCadastro').value;
         const confirmacao = document.querySelector('#confirmacaoCadastro').value;
+        const mensagem = document.querySelector('#mensagemCadastroPublico');
+        mensagem.textContent = '';
 
-        if (!nome || !login || !senha || !confirmacao) {
-          alert('Preencha todos os campos do cadastro.');
+        if (!nome || !email || !senha || !confirmacao) {
+          mensagem.textContent = 'Preencha todos os campos obrigatórios.';
           return;
         }
         if (senha !== confirmacao) {
-          alert('Senha e confirmação de senha devem ser iguais.');
+          mensagem.textContent = 'Senha e confirmação de senha devem ser iguais.';
           return;
         }
-        if (mockAlunos.some((aluno) => aluno.login.toLowerCase() === login.toLowerCase())) {
-          alert('Este nome de usuário já está cadastrado.');
+        mockAlunos = carregarAlunosDoStorage();
+        if (mockAlunos.some((aluno) => String(aluno.email || aluno.login || '').toLowerCase() === email)) {
+          mensagem.textContent = 'Este e-mail já está cadastrado.';
           return;
         }
 
-        mockAlunos.push({ nome, login, senha, adaptacoes: { dislexia: false, tdah: false, motora: false, visual: false } });
+        mockAlunos.push({
+          nome,
+          email,
+          login: email,
+          senha,
+          foto: fotoCadastroAtual,
+          perfil: 'aluno',
+          adaptacoes: { dislexia: false, tdah: false, motora: false, visual: false }
+        });
         salvarAlunosNoStorage();
         evento.currentTarget.reset();
-        alert('Conta criada com sucesso!');
-        mostrarTela('#telaLogin');
+        redefinirPreviewDaFoto();
+        alternarFormularioPublico('login');
+        document.querySelector('#usuarioLogin').value = email;
+        const mensagemLogin = document.querySelector('#mensagemLogin');
+        mensagemLogin.textContent = 'Conta de aluno criada com sucesso. Informe sua senha para entrar.';
+        mensagemLogin.classList.add('sucesso');
       });
 
       document.querySelector('#formLogin').addEventListener('submit', (evento) => {
         evento.preventDefault();
         const login = document.querySelector('#usuarioLogin').value.trim();
         const senha = document.querySelector('#senhaLogin').value;
+        document.querySelector('#mensagemLogin').classList.remove('sucesso');
 
-        const professor = mockProfessores.find((item) => item.login === login && item.senha === senha);
+        const loginNormalizado = login.toLowerCase();
+        const professor = mockProfessores.find((item) => item.login.toLowerCase() === loginNormalizado && item.senha === senha);
         if (professor) {
           evento.currentTarget.reset();
           mostrarAbaProfessor('dashboard-professor');
@@ -1334,7 +1454,10 @@
         }
 
         mockAlunos = carregarAlunosDoStorage();
-        alunoLogado = mockAlunos.find((aluno) => aluno.login === login && aluno.senha === senha);
+        alunoLogado = mockAlunos.find((aluno) => {
+          const credencial = String(aluno.email || aluno.login || '').toLowerCase();
+          return credencial === loginNormalizado && aluno.senha === senha && (!aluno.perfil || aluno.perfil === 'aluno');
+        });
         if (!alunoLogado) {
           document.querySelector('#mensagemLogin').textContent = 'Usuário ou senha incorretos. Cadastre-se caso seja seu primeiro acesso.';
           return;
@@ -1817,6 +1940,7 @@
         pararTemporizadorDaProva();
         alunoLogado = null;
         aplicarAdaptacoes(null);
+        alternarFormularioPublico('login');
         mostrarTela('#telaLogin');
       }));
 
