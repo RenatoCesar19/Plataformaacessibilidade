@@ -859,6 +859,7 @@
       }
 
       let alunoLogado = null;
+      let perfilLogado = null;
       let provaAtual = null;
       let indiceQuestaoAtual = 0;
       let indiceAlunoParaExcluir = null;
@@ -1018,7 +1019,7 @@
         salvarProvasNoStorage();
         limparAdaptacoesDaExecucao();
         mostrarAbaAluno('provas');
-        mostrarTela('#telaAluno');
+        mostrarTela('#telaAluno', { substituirHistorico: true });
         exibirToast('O tempo terminou. A prova foi finalizada automaticamente.');
       }
 
@@ -1050,12 +1051,54 @@
         if (!prova.finalizada) temporizadorProva = setInterval(atualizar, 1000);
       }
 
-      function mostrarTela(idTela) {
+      const rotasDaPlataforma = {
+        '#telaLogin': '#login',
+        '#telaProfessor': '#professor',
+        '#telaAluno': '#aluno',
+        '#telaProva': '#prova'
+      };
+
+      function obterTelaAtiva() {
+        const telaAtiva = Array.from(telas).find((tela) => !tela.classList.contains('oculto'));
+        return telaAtiva ? `#${telaAtiva.id}` : '#telaLogin';
+      }
+
+      function criarEstadoDeNavegacao(idTela, dadosExtras = {}) {
+        return {
+          pai: true,
+          tela: idTela,
+          formulario: idTela === '#telaLogin' ? (dadosExtras.formulario || 'login') : null,
+          provaId: idTela === '#telaProva' ? (dadosExtras.provaId || provaAtual?.id || null) : null
+        };
+      }
+
+      function registrarEstadoDeNavegacao(idTela, opcoes = {}) {
+        if (opcoes.registrarHistorico === false) return;
+        const estado = criarEstadoDeNavegacao(idTela, opcoes);
+        const url = idTela === '#telaLogin' && estado.formulario === 'cadastro'
+          ? '#cadastro'
+          : (rotasDaPlataforma[idTela] || '#login');
+        const estadoAtual = history.state;
+        const estadoDuplicado = estadoAtual?.pai &&
+          estadoAtual.tela === estado.tela &&
+          estadoAtual.formulario === estado.formulario &&
+          String(estadoAtual.provaId || '') === String(estado.provaId || '');
+
+        if (opcoes.substituirHistorico || !estadoAtual?.pai) {
+          history.replaceState(estado, '', url);
+        } else if (!estadoDuplicado) {
+          history.pushState(estado, '', url);
+        }
+      }
+
+      function mostrarTela(idTela, opcoes = {}) {
         telas.forEach((tela) => tela.classList.add('oculto'));
         const telaAtiva = document.querySelector(idTela);
+        if (!telaAtiva) return;
         telaAtiva.classList.remove('oculto', 'animar-entrada');
         void telaAtiva.offsetWidth;
         telaAtiva.classList.add('animar-entrada');
+        registrarEstadoDeNavegacao(idTela, opcoes);
       }
 
       function escaparHtml(valor) {
@@ -1330,7 +1373,7 @@
       }
 
       // Autenticação pública: o cadastro cria exclusivamente contas de aluno.
-      function alternarFormularioPublico(modo) {
+      function alternarFormularioPublico(modo, opcoes = {}) {
         const exibirCadastro = modo === 'cadastro';
         const formLogin = document.querySelector('#formLogin');
         const formCadastro = document.querySelector('#formCadastro');
@@ -1345,6 +1388,10 @@
         formularioAtivo.classList.remove('troca-formulario');
         void formularioAtivo.offsetWidth;
         formularioAtivo.classList.add('troca-formulario');
+        registrarEstadoDeNavegacao('#telaLogin', {
+          ...opcoes,
+          formulario: exibirCadastro ? 'cadastro' : 'login'
+        });
         setTimeout(() => document.querySelector(exibirCadastro ? '#nomeCadastro' : '#usuarioLogin').focus(), 50);
       }
 
@@ -1357,7 +1404,13 @@
       }
 
       document.querySelector('#cadastroAluno').addEventListener('click', () => alternarFormularioPublico('cadastro'));
-      document.querySelector('#voltarLogin').addEventListener('click', () => alternarFormularioPublico('login'));
+      document.querySelector('#voltarLogin').addEventListener('click', () => {
+        if (history.state?.pai && history.state.formulario === 'cadastro' && history.length > 1) {
+          history.back();
+        } else {
+          alternarFormularioPublico('login', { substituirHistorico: true });
+        }
+      });
 
       document.querySelector('#fotoCadastro').addEventListener('change', (evento) => {
         const arquivo = evento.currentTarget.files?.[0];
@@ -1431,7 +1484,7 @@
         salvarAlunosNoStorage();
         evento.currentTarget.reset();
         redefinirPreviewDaFoto();
-        alternarFormularioPublico('login');
+        alternarFormularioPublico('login', { substituirHistorico: true });
         document.querySelector('#usuarioLogin').value = email;
         const mensagemLogin = document.querySelector('#mensagemLogin');
         mensagemLogin.textContent = 'Conta de aluno criada com sucesso. Informe sua senha para entrar.';
@@ -1447,6 +1500,7 @@
         const loginNormalizado = login.toLowerCase();
         const professor = mockProfessores.find((item) => item.login.toLowerCase() === loginNormalizado && item.senha === senha);
         if (professor) {
+          perfilLogado = 'professor';
           evento.currentTarget.reset();
           mostrarAbaProfessor('dashboard-professor');
           mostrarTela('#telaProfessor');
@@ -1493,6 +1547,7 @@
           alert('Não foi possível salvar a tarefa.');
           return;
         }
+        perfilLogado = 'aluno';
         evento.currentTarget.reset();
         preencherSelectAlunos();
         renderizarTarefasProfessor();
@@ -1740,7 +1795,7 @@
         document.querySelector('#painelRevisaoProva').classList.add('oculto');
         limparAdaptacoesDaExecucao();
         mostrarAbaAluno('provas');
-        mostrarTela('#telaAluno');
+        mostrarTela('#telaAluno', { substituirHistorico: true });
         exibirToast('Prova finalizada com sucesso.');
       }
 
@@ -1758,7 +1813,7 @@
         document.querySelector('#enunciadoProva').focus();
       }
 
-      function abrirProva(idProva) {
+      function abrirProva(idProva, opcoesNavegacao = {}) {
         const prova = mockProvas.find((item) => String(item.id) === String(idProva));
         if (!prova) return;
         clearTimeout(temporizadorAvancoAutomatico);
@@ -1771,7 +1826,7 @@
         fecharModalFinalizacao();
         document.querySelector('#tituloProva').textContent = prova.titulo;
         renderizarQuestaoAtual();
-        mostrarTela('#telaProva');
+        mostrarTela('#telaProva', { ...opcoesNavegacao, provaId: provaAtual.id });
         iniciarTemporizadorDaProva(provaAtual);
         if (provaAtual.finalizada) mostrarRevisaoDaProva();
       }
@@ -1924,7 +1979,7 @@
       document.querySelector('#voltarQuestoesRevisao').addEventListener('click', voltarDaRevisaoParaQuestoes);
       document.querySelector('#confirmarFinalizacaoProva').addEventListener('click', finalizarProvaDoAluno);
 
-      document.querySelector('#voltarProvas').addEventListener('click', () => {
+      function prepararSaidaDaTelaDeProva() {
         clearTimeout(temporizadorAvancoAutomatico);
         temporizadorAvancoAutomatico = null;
         pararTemporizadorDaProva();
@@ -1932,17 +1987,66 @@
         document.querySelector('#painelRevisaoProva').classList.add('oculto');
         limparAdaptacoesDaExecucao();
         if ('speechSynthesis' in window) window.speechSynthesis.cancel();
-        mostrarAbaAluno('provas');
-        mostrarTela('#telaAluno');
+      }
+
+      function mostrarLoginPeloHistorico(formulario = 'login') {
+        if (obterTelaAtiva() === '#telaProva') prepararSaidaDaTelaDeProva();
+        alternarFormularioPublico(formulario === 'cadastro' ? 'cadastro' : 'login', { registrarHistorico: false });
+        mostrarTela('#telaLogin', { registrarHistorico: false });
+      }
+
+      function substituirRotaAtualPeloLogin() {
+        mostrarLoginPeloHistorico('login');
+        history.replaceState(criarEstadoDeNavegacao('#telaLogin', { formulario: 'login' }), '', '#login');
+      }
+
+      function restaurarEstadoDoHistorico(estado) {
+        const destino = estado?.pai ? estado.tela : '#telaLogin';
+        const telaAnterior = obterTelaAtiva();
+        if (telaAnterior === '#telaProva' && destino !== '#telaProva') prepararSaidaDaTelaDeProva();
+
+        if (destino === '#telaLogin') {
+          mostrarLoginPeloHistorico(estado?.formulario || 'login');
+        } else if (destino === '#telaProfessor' && perfilLogado === 'professor') {
+          mostrarAbaProfessor('dashboard-professor');
+          mostrarTela('#telaProfessor', { registrarHistorico: false });
+        } else if (destino === '#telaAluno' && perfilLogado === 'aluno' && alunoLogado) {
+          mostrarAbaAluno('provas');
+          mostrarTela('#telaAluno', { registrarHistorico: false });
+        } else if (destino === '#telaProva' && perfilLogado === 'aluno' && alunoLogado) {
+          const provaId = estado.provaId || provaAtual?.id;
+          if (provaId && mockProvas.some((prova) => String(prova.id) === String(provaId))) {
+            abrirProva(provaId, { registrarHistorico: false });
+          } else {
+            mostrarAbaAluno('provas');
+            mostrarTela('#telaAluno', { registrarHistorico: false });
+          }
+        } else {
+          substituirRotaAtualPeloLogin();
+        }
+        window.scrollTo({ top: 0, behavior: 'auto' });
+      }
+
+      document.querySelector('#voltarProvas').addEventListener('click', () => {
+        prepararSaidaDaTelaDeProva();
+        if (history.state?.pai && history.state.tela === '#telaProva' && history.length > 1) {
+          history.back();
+        } else {
+          mostrarAbaAluno('provas');
+          mostrarTela('#telaAluno', { substituirHistorico: true });
+        }
       });
 
       document.querySelectorAll('.sair').forEach((botao) => botao.addEventListener('click', () => {
-        pararTemporizadorDaProva();
+        prepararSaidaDaTelaDeProva();
         alunoLogado = null;
+        perfilLogado = null;
         aplicarAdaptacoes(null);
-        alternarFormularioPublico('login');
-        mostrarTela('#telaLogin');
+        alternarFormularioPublico('login', { registrarHistorico: false });
+        mostrarTela('#telaLogin', { substituirHistorico: true });
       }));
+
+      window.addEventListener('popstate', (evento) => restaurarEstadoDoHistorico(evento.state));
 
       document.addEventListener('DOMContentLoaded', () => {
         if (document.body.dataset.execucaoProva === 'true') {
@@ -1950,7 +2054,9 @@
         }
       });
       preencherSelectAlunos();
-      mostrarTela('#telaLogin');
+      if ('scrollRestoration' in history) history.scrollRestoration = 'manual';
+      alternarFormularioPublico('login', { registrarHistorico: false });
+      mostrarTela('#telaLogin', { substituirHistorico: true });
     </script>
   </body>
 </html>
